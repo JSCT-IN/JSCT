@@ -62,7 +62,7 @@ export default function CreateAppealPage() {
         ? `पुत्री वैवाहिक संबल: सुपुत्री ${beneficiaryName} के शुभ विवाह हेतु सहयोग`
         : `Daughter Marriage Assistance: Blessing Grant for ${beneficiaryName}`;
 
-    const newAppeal = DPSWTStore.createAppeal({
+    const appealPayload = {
       code: code,
       member_id: currentUser.id,
       member_name: beneficiaryName,
@@ -70,7 +70,7 @@ export default function CreateAppealPage() {
       title: title,
       description: description,
       target_amount: targetAmount,
-      status: 'ACTIVE',
+      status: 'ACTIVE' as const,
       inspector_name: inspectorName,
       inspector_phone: inspectorPhone,
       inspector_notes: lang === 'hi' 
@@ -85,7 +85,22 @@ export default function CreateAppealPage() {
         ifsc_code: ifscCode.toUpperCase(),
         upi_id: upiId.toLowerCase(),
       },
-    });
+    };
+
+    const newAppeal = DPSWTStore.createAppeal(appealPayload);
+
+    // Also persist to Supabase
+    (async () => {
+      try {
+        const { supabase } = await import('@/lib/supabase/client');
+        await supabase.from('appeals').insert({
+          ...appealPayload,
+          collected_amount: 0,
+        });
+      } catch (err) {
+        console.warn('Supabase sync notice:', err);
+      }
+    })();
 
     triggerCelebrationConfetti();
     router.push(`/appeals/${newAppeal.id}`);

@@ -27,6 +27,8 @@ interface AppealDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
+import { supabase } from '@/lib/supabase/client';
+
 export default function AppealDetailPage({ params }: AppealDetailPageProps) {
   const resolvedParams = use(params);
   const appealId = resolvedParams.id;
@@ -39,22 +41,52 @@ export default function AppealDetailPage({ params }: AppealDetailPageProps) {
   const [isSlipModalOpen, setIsSlipModalOpen] = useState(false);
 
   useEffect(() => {
-    const loadData = () => {
-      const foundAppeal = DPSWTStore.getAppealById(appealId);
-      if (foundAppeal) {
-        setAppeal(foundAppeal);
-        const relatedDonations = DPSWTStore.getDonationsByAppeal(foundAppeal.id);
-        setDonations(relatedDonations);
+    async function loadData() {
+      try {
+        // Query from Supabase
+        const { data: dbAppeal } = await supabase
+          .from('appeals')
+          .select('*')
+          .or(`id.eq.${appealId},code.ilike.${appealId}`)
+          .single();
 
-        const upiLink = generateUpiLink({
-          upiId: foundAppeal.nominee_snapshot.upi_id,
-          nomineeName: foundAppeal.nominee_snapshot.full_name,
-          amount: 50,
-          note: `DPSWT ${foundAppeal.code}`,
-        });
-        generateUpiQrCode(upiLink).then((url) => setQrCodeUrl(url));
+        let currentAppeal = dbAppeal as Appeal | null;
+        if (!currentAppeal) {
+          currentAppeal = DPSWTStore.getAppealById(appealId) || null;
+        }
+
+        if (currentAppeal) {
+          setAppeal(currentAppeal);
+
+          // Load donations for this appeal
+          const { data: dbDonations } = await supabase
+            .from('donation_records')
+            .select('*')
+            .eq('appeal_id', currentAppeal.id)
+            .order('created_at', { ascending: false });
+
+          if (dbDonations && dbDonations.length > 0) {
+            setDonations(dbDonations as DonationRecord[]);
+          } else {
+            setDonations(DPSWTStore.getDonationsByAppeal(currentAppeal.id));
+          }
+
+          const upiLink = generateUpiLink({
+            upiId: currentAppeal.nominee_snapshot.upi_id,
+            nomineeName: currentAppeal.nominee_snapshot.full_name,
+            amount: 50,
+            note: `DPSWT ${currentAppeal.code}`,
+          });
+          generateUpiQrCode(upiLink).then((url) => setQrCodeUrl(url));
+        }
+      } catch {
+        const foundAppeal = DPSWTStore.getAppealById(appealId);
+        if (foundAppeal) {
+          setAppeal(foundAppeal);
+          setDonations(DPSWTStore.getDonationsByAppeal(foundAppeal.id));
+        }
       }
-    };
+    }
 
     loadData();
     window.addEventListener('dpswt_state_change', loadData);
