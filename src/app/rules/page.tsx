@@ -117,18 +117,33 @@ export default function RulesPage() {
           </p>
         </div>
 
-        {/* Rule 4 */}
+        {/* Rule 4: Registration & Annual Renewal */}
         <div className="p-6 rounded-3xl bg-white border border-stone-border shadow-warm space-y-3">
           <div className="w-10 h-10 rounded-xl bg-canvas-inset border border-stone-border flex items-center justify-center text-terracotta">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <h3 className="font-editorial text-xl font-bold text-charcoal">
-            {lang === 'hi' ? '4. वार्षिक ₹50 नवीनीकरण चक्र' : '4. Annual ₹50 Membership Renewal'}
+            {lang === 'hi' ? '4. जुड़ने व नवीनीकरण फीस: ₹50 मात्र' : '4. Joining & Annual Renewal Fee: ₹50'}
           </h3>
           <p className="text-xs text-driftwood leading-relaxed">
             {lang === 'hi'
-              ? 'प्रत्येक सदस्य का सदस्यता शुल्क प्रति वर्ष ₹50 है, जिसकी वैधता 365 दिन होती है। समय पर नवीनीकरण न कराने पर सदस्यता स्वतः निष्क्रिय हो जाती है और 75% पात्रता लाभ अस्थायी रूप से स्थगित हो जाता है।'
-              : 'Every membership carries a 365-day validity cycle requiring a ₹50 annual subscription renewal to maintain active platform standing and compliance coverage.'}
+              ? 'जन सेवा चैरिटेबल ट्रस्ट (JSCT) में नए सदस्य जुड़ने की फीस मात्र ₹50 है, तथा हर साल नवीनीकरण (Renewal) फीस भी ₹50 है। 365 दिन की सदस्यता पूर्ण होने पर समय पर नवीनीकरण कराना अनिवार्य है।'
+              : 'The initial joining registration fee for Jan Sewa Charitable Trust is ₹50, and the annual renewal fee is ₹50 per year.'}
+          </p>
+        </div>
+
+        {/* Rule 5: Age Limit 18-60 Years */}
+        <div className="p-6 rounded-3xl bg-white border border-stone-border shadow-warm space-y-3 md:col-span-2">
+          <div className="w-10 h-10 rounded-xl bg-canvas-inset border border-stone-border flex items-center justify-center text-sage">
+            <Coins className="w-5 h-5" />
+          </div>
+          <h3 className="font-editorial text-xl font-bold text-charcoal">
+            {lang === 'hi' ? '5. सदस्यता हेतु आयु सीमा: 18 से 60 वर्ष' : '5. Membership Age Limit: 18 to 60 Years'}
+          </h3>
+          <p className="text-xs text-driftwood leading-relaxed">
+            {lang === 'hi'
+              ? 'JSCT न्यास की सदस्यता ग्रहण करने हेतु आवेदक की न्यूनतम आयु 18 वर्ष तथा अधिकतम आयु 60 वर्ष होना अनिवार्य है। आधार कार्ड अथवा जन्म प्रमाण पत्र के माध्यम से आयु का सत्यापन किया जाता है।'
+              : 'To be eligible for JSCT mutual welfare membership, the applicant must be between 18 and 60 years of age.'}
           </p>
         </div>
 
