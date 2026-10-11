@@ -25,7 +25,7 @@ export interface AuthResult {
 export async function loginAction(
   identifier: string,
   password: string,
-  activeModule: 'MEMBER' | 'INSPECTOR' | 'ADMIN'
+  activeModule?: 'MEMBER' | 'INSPECTOR' | 'ADMIN' | 'AUTO'
 ): Promise<AuthResult> {
   try {
     const cleanId = identifier.trim();
@@ -81,19 +81,21 @@ export async function loginAction(
       };
     }
 
-    // 2. Validate Module Role Permissions
-    if (activeModule === 'ADMIN' && member.role !== 'ADMIN') {
-      return {
-        success: false,
-        message: 'इस खाते के पास व्यवस्थापक (ADMIN) अधिकार नहीं हैं। कृपया सदस्य पोर्टल चुनें।',
-      };
-    }
+    // 2. Validate Module Role Permissions (if explicitly specified)
+    if (activeModule && activeModule !== 'AUTO') {
+      if (activeModule === 'ADMIN' && member.role !== 'ADMIN') {
+        return {
+          success: false,
+          message: 'इस खाते के पास व्यवस्थापक (ADMIN) अधिकार नहीं हैं। कृपया सदस्य पोर्टल चुनें।',
+        };
+      }
 
-    if (activeModule === 'INSPECTOR' && member.role === 'MEMBER') {
-      return {
-        success: false,
-        message: 'इस खाते के पास जिला सत्यापन (INSPECTOR) अधिकार नहीं हैं। कृपया सदस्य पोर्टल चुनें।',
-      };
+      if (activeModule === 'INSPECTOR' && member.role === 'MEMBER') {
+        return {
+          success: false,
+          message: 'इस खाते के पास जिला सत्यापन (INSPECTOR) अधिकार नहीं हैं। कृपया सदस्य पोर्टल चुनें।',
+        };
+      }
     }
 
     // 3. Authenticate with Supabase Auth or Trust Master Credentials
@@ -157,7 +159,11 @@ export async function loginAction(
     });
 
     // 5. Determine Target Route
-    const redirectTo = (activeModule === 'INSPECTOR' || (activeModule === 'ADMIN' && member.role === 'ADMIN'))
+    const redirectTo = (
+      activeModule === 'INSPECTOR' ||
+      (activeModule === 'ADMIN' && member.role === 'ADMIN') ||
+      (!activeModule || activeModule === 'AUTO') && (member.role === 'ADMIN' || member.role === 'INSPECTOR')
+    )
       ? '/admin/inspector'
       : '/dashboard';
 
