@@ -139,6 +139,9 @@ export const DPSWTStore = {
     }
 
     const appeal = appeals.find((a) => a.id === payload.appeal_id);
+    if (!currentUser) {
+      throw new Error('उपयोगकर्ता प्रमाणीकृत नहीं है। कृपया पहले लॉगिन करें।');
+    }
 
     const record: DonationRecord = {
       id: 'don_' + Date.now().toString(),
@@ -221,7 +224,7 @@ export const DPSWTStore = {
     const qualifies_75 = ratio >= 75;
 
     // Check fee validity
-    const expiresAt = new Date(member.fee_expires_at).getTime();
+    const expiresAt = member?.fee_expires_at ? new Date(member.fee_expires_at).getTime() : 0;
     const now = Date.now();
     const fee_valid = expiresAt > now;
     const days_until_renewal = Math.max(0, Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24)));
