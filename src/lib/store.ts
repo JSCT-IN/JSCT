@@ -37,14 +37,34 @@ export const DPSWTStore = {
     return getStorageItem<Member[]>(STORAGE_KEYS.MEMBERS, INITIAL_MEMBERS);
   },
 
-  getCurrentUser(): Member {
+  getCurrentUser(): Member | null {
+    if (typeof window === 'undefined') return INITIAL_MEMBERS[0];
+    const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
+    if (currentId === '__LOGGED_OUT__') {
+      return null;
+    }
     const members = this.getMembers();
-    const currentId = getStorageItem<string>(
-      STORAGE_KEYS.CURRENT_USER_ID,
-      INITIAL_MEMBERS[0].id
-    );
+    if (!currentId) {
+      return INITIAL_MEMBERS[0];
+    }
     const found = members.find((m) => m.id === currentId);
-    return found || members[0] || INITIAL_MEMBERS[0];
+    return found || null;
+  },
+
+  isLoggedIn(): boolean {
+    if (typeof window === 'undefined') return false;
+    const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
+    return currentId !== '__LOGGED_OUT__' && !!currentId;
+  },
+
+  logout(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, '__LOGGED_OUT__');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('adminToken');
+      window.dispatchEvent(new Event('dpswt_state_change'));
+    }
   },
 
   setCurrentUser(userId: string): void {

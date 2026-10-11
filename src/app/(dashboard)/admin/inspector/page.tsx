@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { DPSWTStore } from '@/lib/store';
 import { DonationRecord, Appeal, Member } from '@/types';
 import { formatDate, formatINR } from '@/lib/utils';
@@ -12,14 +13,21 @@ import {
   Search,
   ShieldCheck,
   Clock,
+  LogOut,
 } from 'lucide-react';
 
 import { supabase } from '@/lib/supabase/client';
 import { updateDonationStatusAction } from '@/actions/donation-actions';
 
 export default function InspectorAuditPage() {
+  const router = useRouter();
   const { lang, t } = useTranslation();
   const [currentUser, setCurrentUser] = useState<Member | null>(null);
+
+  const handleLogout = () => {
+    DPSWTStore.logout();
+    router.push('/login');
+  };
   const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [appeals, setAppeals] = useState<Appeal[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -156,15 +164,27 @@ export default function InspectorAuditPage() {
           </p>
         </div>
 
-        {/* Inspector Chip */}
-        <div className="p-3 rounded-2xl bg-white border border-stone-border shadow-warm flex items-center gap-3 text-xs">
-          <div className="w-8 h-8 rounded-xl bg-sage-light text-sage flex items-center justify-center font-bold">
-            <ShieldCheck className="w-5 h-5" />
+        {/* Inspector Chip & Logout Button */}
+        <div className="flex items-center gap-2">
+          <div className="p-3 rounded-2xl bg-white border border-stone-border shadow-warm flex items-center gap-3 text-xs">
+            <div className="w-8 h-8 rounded-xl bg-sage-light text-sage flex items-center justify-center font-bold">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="font-semibold text-charcoal">{currentUser?.full_name}</div>
+              <div className="text-[11px] text-driftwood font-mono">{currentUser?.membership_id} ({currentUser?.role})</div>
+            </div>
           </div>
-          <div>
-            <div className="font-semibold text-charcoal">{currentUser?.full_name}</div>
-            <div className="text-[11px] text-driftwood font-mono">{currentUser?.membership_id} ({currentUser?.role})</div>
-          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="px-3.5 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-colors"
+            title="लॉगआउट करें (Log Out)"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>{lang === 'hi' ? 'लॉगआउट' : 'Log Out'}</span>
+          </button>
         </div>
       </div>
 

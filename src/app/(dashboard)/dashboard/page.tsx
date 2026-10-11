@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { DPSWTStore } from '@/lib/store';
 import { Member, Appeal, DonationRecord, ComplianceData } from '@/types';
 import { formatINR, formatDate } from '@/lib/utils';
@@ -20,11 +21,13 @@ import {
   HeartHandshake,
   ArrowRight,
   Eye,
+  LogOut,
 } from 'lucide-react';
 
 import { supabase } from '@/lib/supabase/client';
 
 export default function MemberDashboardPage() {
+  const router = useRouter();
   const { lang, t } = useTranslation();
   const [currentUser, setCurrentUser] = useState<Member | null>(null);
   const [compliance, setCompliance] = useState<ComplianceData | null>(null);
@@ -36,9 +39,18 @@ export default function MemberDashboardPage() {
   const [selectedAppealForSlip, setSelectedAppealForSlip] = useState<Appeal | null>(null);
   const [viewingSlipUrl, setViewingSlipUrl] = useState<string | null>(null);
 
+  const handleLogout = () => {
+    DPSWTStore.logout();
+    router.push('/login');
+  };
+
   useEffect(() => {
     async function syncData() {
       const localUser = DPSWTStore.getCurrentUser();
+      if (!localUser) {
+        router.push('/login');
+        return;
+      }
       
       try {
         // Fetch member profile from Supabase
@@ -173,6 +185,16 @@ export default function MemberDashboardPage() {
             <ShieldCheck className="w-4 h-4" />
             <span>{compliance.is_eligible ? t.eligibleBadge : t.criticalBadge}</span>
           </span>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all flex items-center gap-1.5 shadow-xs"
+            title="लॉगआउट करें (Log Out)"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>{lang === 'hi' ? 'लॉगआउट' : 'Log Out'}</span>
+          </button>
         </div>
       </div>
 

@@ -64,7 +64,7 @@ export default function CreateAppealPage() {
 
     const appealPayload = {
       code: code,
-      member_id: currentUser.id,
+      member_id: currentUser ? currentUser.id : '11111111-1111-1111-1111-111111111111',
       member_name: beneficiaryName,
       type: type,
       title: title,
