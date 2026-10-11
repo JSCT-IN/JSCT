@@ -87,70 +87,106 @@ export default function Navbar() {
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-19">
+        <div className="flex items-center justify-between h-20 gap-4">
           
-          {/* Logo & Brand Identity */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-terracotta to-terracotta-hover flex items-center justify-center text-white shadow-warm group-hover:shadow-warm-md transition-all">
+          {/* Logo & Brand Identity (JSCT - Jan Sewa Charitable Trust) */}
+          <Link href="/" className="flex items-center gap-3 shrink-0 group">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-terracotta via-terracotta to-terracotta-hover flex items-center justify-center text-white shadow-warm group-hover:shadow-warm-md transition-all">
               <HeartHandshake className="w-6 h-6 stroke-[2.2]" />
             </div>
-            <div>
+            <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="font-editorial text-2xl font-bold tracking-tight text-charcoal leading-none">
-                  DPSWT
+                <span className="font-editorial text-2xl font-black tracking-tight text-charcoal leading-none">
+                  JSCT
                 </span>
-                <span className="text-[10px] px-1.5 py-0.5 bg-canvas-inset border border-stone-border text-terracotta rounded font-semibold tracking-wider">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 bg-terracotta/10 text-terracotta border border-terracotta/20 rounded-md tracking-wider">
                   {lang === 'hi' ? 'उत्तर प्रदेश' : 'UP'}
                 </span>
               </div>
-              <p className="text-[11px] text-driftwood font-medium tracking-tight mt-0.5 hidden xs:block">
-                Direct People Support Welfare Team
+              <p className="text-[11px] text-driftwood font-medium tracking-tight mt-0.5 whitespace-nowrap">
+                Jan Sewa Charitable Trust
               </p>
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 ${
-                    isActive
-                      ? 'text-charcoal bg-canvas-inset border border-stone-border/80 shadow-xs'
-                      : 'text-driftwood hover:text-charcoal hover:bg-canvas-inset/60'
-                  }`}
-                >
-                  <span>{link.label}</span>
-                  {link.badge && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-terracotta animate-pulse" />
-                  )}
-                </Link>
-              );
-            })}
-
-            {/* Register Link (dpswt.com style) */}
+          {/* Desktop Navigation Links - Clean, evenly spaced and vertically centered */}
+          <nav className="hidden xl:flex items-center gap-1.5 2xl:gap-2">
             <Link
-              href="/register"
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-150 flex items-center gap-1.5 ${
-                pathname === '/register'
-                  ? 'text-terracotta bg-terracotta/10 border border-terracotta/30 shadow-xs'
-                  : 'text-terracotta hover:bg-terracotta/5'
+              href="/"
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                pathname === '/'
+                  ? 'text-terracotta bg-terracotta/10 font-bold'
+                  : 'text-charcoal-muted hover:text-charcoal hover:bg-canvas-inset'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-terracotta" />
+              {t.home}
+            </Link>
+
+            <Link
+              href="/member"
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                pathname === '/member'
+                  ? 'text-terracotta bg-terracotta/10 font-bold'
+                  : 'text-charcoal-muted hover:text-charcoal hover:bg-canvas-inset'
+              }`}
+            >
+              {lang === 'hi' ? 'सदस्य सूची' : 'Member List'}
+            </Link>
+
+            <Link
+              href="/appeals"
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                pathname === '/appeals'
+                  ? 'text-terracotta bg-terracotta/10 font-bold'
+                  : 'text-charcoal-muted hover:text-charcoal hover:bg-canvas-inset'
+              }`}
+            >
+              <span>{t.appeals}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-terracotta animate-pulse" />
+            </Link>
+
+            <Link
+              href="/rules"
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                pathname === '/rules'
+                  ? 'text-terracotta bg-terracotta/10 font-bold'
+                  : 'text-charcoal-muted hover:text-charcoal hover:bg-canvas-inset'
+              }`}
+            >
+              {t.rules}
+            </Link>
+
+            <Link
+              href="/contact"
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                pathname === '/contact'
+                  ? 'text-terracotta bg-terracotta/10 font-bold'
+                  : 'text-charcoal-muted hover:text-charcoal hover:bg-canvas-inset'
+              }`}
+            >
+              {t.directory}
+            </Link>
+
+            {/* Register CTA Button in Nav */}
+            <Link
+              href="/register"
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                pathname === '/register'
+                  ? 'text-white bg-terracotta shadow-xs'
+                  : 'text-terracotta bg-terracotta/10 hover:bg-terracotta hover:text-white'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
               <span>{lang === 'hi' ? 'नया पंजीकरण' : 'Register Now'}</span>
             </Link>
 
             {/* Dashboard Link */}
             <Link
               href="/dashboard"
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 ${
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname.startsWith('/dashboard') && !pathname.includes('admin')
-                  ? 'text-charcoal bg-canvas-inset border border-stone-border/80 shadow-xs'
-                  : 'text-driftwood hover:text-charcoal hover:bg-canvas-inset/60'
+                  ? 'text-charcoal bg-canvas-inset font-bold shadow-xs'
+                  : 'text-charcoal-muted hover:text-charcoal hover:bg-canvas-inset'
               }`}
             >
               <User className="w-3.5 h-3.5 text-terracotta" />
@@ -160,10 +196,10 @@ export default function Navbar() {
             {/* Inspector/Admin Audit Link */}
             <Link
               href="/admin/inspector"
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 ${
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname.includes('/admin/inspector')
                   ? 'text-sage font-bold bg-sage-light border border-sage/20 shadow-xs'
-                  : 'text-driftwood hover:text-charcoal hover:bg-canvas-inset/60'
+                  : 'text-charcoal-muted hover:text-charcoal hover:bg-canvas-inset'
               }`}
             >
               <SearchCheck className="w-3.5 h-3.5 text-sage" />
@@ -172,13 +208,13 @@ export default function Navbar() {
           </nav>
 
           {/* Right Action Cluster: Language Switcher, Contribute CTA, Role Switcher */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             
             {/* 1-Click Language Switcher (हिन्दी | English) */}
             <button
               type="button"
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-border bg-canvas-inset/60 hover:bg-canvas-inset text-charcoal text-xs font-bold transition-all shadow-xs touch-target"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-border bg-canvas-inset/60 hover:bg-canvas-inset text-charcoal text-xs font-bold transition-all shadow-xs touch-target"
               title="भाषा बदलें / Switch Language"
             >
               <Languages className="w-4 h-4 text-terracotta" />
@@ -188,19 +224,19 @@ export default function Navbar() {
             {/* Quick Contribute CTA Button */}
             <Link
               href="/appeals"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white shadow-warm transition-all transform active:scale-[0.98] touch-target"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white shadow-warm hover:shadow-warm-md transition-all transform active:scale-[0.98] touch-target"
             >
               <span>{t.contribute50}</span>
               <Sparkles className="w-3.5 h-3.5 text-white/90" />
             </Link>
 
-            {/* Role / Switcher Dropdown */}
+            {/* Role / User Profile Dropdown */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
                 className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-stone-border bg-white hover:bg-canvas-inset text-left transition-all touch-target shadow-xs"
-                title="डेमो प्रोफाइल बदलें (Switch Demo Role)"
+                title="प्रोफाइल व रोल बदलें (User Profile)"
               >
                 <div
                   className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs text-white ${
@@ -213,11 +249,11 @@ export default function Navbar() {
                 >
                   {currentUser?.role === 'ADMIN' ? 'AD' : currentUser?.role === 'INSPECTOR' ? 'IN' : 'ME'}
                 </div>
-                <div className="hidden sm:block">
-                  <div className="text-xs font-bold text-charcoal leading-tight truncate max-w-[110px]">
+                <div className="hidden md:block">
+                  <div className="text-xs font-bold text-charcoal leading-tight truncate max-w-[100px]">
                     {currentUser?.full_name.split(' ')[0]}
                   </div>
-                  <div className="text-[10px] text-driftwood font-mono">
+                  <div className="text-[10px] text-driftwood font-mono leading-none mt-0.5">
                     {currentUser?.role}
                   </div>
                 </div>

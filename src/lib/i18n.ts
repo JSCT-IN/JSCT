@@ -9,8 +9,8 @@ const LANGUAGE_KEY = 'dpswt_language';
 export const translations = {
   hi: {
     // Brand & Top banner
-    appName: 'DPSWT',
-    taglineFull: 'Direct People Support Welfare Team (उत्तर प्रदेश)',
+    appName: 'JSCT',
+    taglineFull: 'Jan Sewa Charitable Trust (जन सेवा चैरिटेबल ट्रस्ट)',
     stateBadge: 'उत्तर प्रदेश',
     zeroCustody: 'Zero-Custody P2P',
     zeroCustodySub: '100% प्रत्यक्ष बैंक अंतरण • नो वॉलेट • नो बिचौलिया',
@@ -257,8 +257,8 @@ export const translations = {
 
   en: {
     // Brand & Top banner
-    appName: 'DPSWT',
-    taglineFull: 'Direct People Support Welfare Team (Uttar Pradesh)',
+    appName: 'JSCT',
+    taglineFull: 'Jan Sewa Charitable Trust (जन सेवा चैरिटेबल ट्रस्ट)',
     stateBadge: 'Uttar Pradesh',
     zeroCustody: 'Zero-Custody P2P',
     zeroCustodySub: '100% Direct Bank Transfer • No Escrow Wallet • No Intermediary',

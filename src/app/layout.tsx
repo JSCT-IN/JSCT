@@ -5,12 +5,14 @@ import Footer from '@/components/Footer';
 import BottomNav from '@/components/BottomNav';
 
 export const metadata: Metadata = {
-  title: 'DPSWT - Direct People Support Welfare Team | P2P Welfare Aid Platform',
+  title: 'JSCT - Jan Sewa Charitable Trust | P2P Mutual Welfare Aid Platform',
   description:
-    'DPSWT (Direct People Support Welfare Team) - जन से जन तक, सहयोग हर जरूरतमंद तक। Zero-custody peer-to-peer welfare solidarity platform for government and public sector families in Uttar Pradesh.',
+    'JSCT (Jan Sewa Charitable Trust / जन सेवा चैरिटेबल ट्रस्ट) - जन से जन तक, सहयोग हर जरूरतमंद तक। Zero-custody peer-to-peer welfare solidarity platform for government and public sector families in Uttar Pradesh.',
   keywords: [
+    'JSCT',
+    'Jan Sewa Charitable Trust',
+    'जन सेवा चैरिटेबल ट्रस्ट',
     'DPSWT',
-    'Direct People Support Welfare Team',
     'P2P Welfare Aid',
     'UP Employees Welfare',
     '75% Compliance Engine',
