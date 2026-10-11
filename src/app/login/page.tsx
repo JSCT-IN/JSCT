@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { DPSWTStore } from '@/lib/store';
-import { INITIAL_MEMBERS } from '@/lib/mockData';
-import { Member } from '@/types';
 import { useTranslation } from '@/lib/i18n';
 import { loginAction } from '@/actions/auth-actions';
 import { 
@@ -16,10 +14,7 @@ import {
   ArrowLeft,
   AlertCircle,
   CheckCircle2,
-  Lock,
-  Sparkles,
-  ChevronDown,
-  ChevronUp
+  Lock
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -34,10 +29,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [showQuickAccess, setShowQuickAccess] = useState(false);
-
-  // Real JSCT Members list for 1-click testing
-  const allMembers: Member[] = INITIAL_MEMBERS;
 
   // Handle Login Submission via Server Action
   const handleLogin = async (e: React.FormEvent) => {
@@ -96,42 +87,6 @@ export default function LoginPage() {
 
     } catch (err: any) {
       setErrorMessage(err.message || 'लॉगिन प्रक्रिया में त्रुटि हुई।');
-      setIsLoading(false);
-    }
-  };
-
-  // 1-Click Fast Persona Login
-  const handleQuickPersonaLogin = async (member: Member) => {
-    setIdentifier(member.membership_id);
-    setPassword('••••••••');
-    setErrorMessage(null);
-    setIsLoading(true);
-    setSuccessMessage(
-      lang === 'hi' 
-        ? `${member.full_name} (${member.role}) के रूप में प्रवेश हो रहा है...` 
-        : `Logging in as ${member.full_name}...`
-    );
-
-    try {
-      const result = await loginAction(member.membership_id, 'Password@123', 'AUTO');
-
-      if (!result.success || !result.user) {
-        setErrorMessage(result.message || 'प्रमाणीकरण विफल।');
-        setIsLoading(false);
-        return;
-      }
-
-      DPSWTStore.setCurrentUser(result.user.id);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('token', result.user.token || 'jsct_token_' + result.user.id);
-        localStorage.setItem('user', JSON.stringify(result.user));
-      }
-
-      setTimeout(() => {
-        router.push(result.redirectTo || '/dashboard');
-      }, 500);
-    } catch (err: any) {
-      setErrorMessage(err.message || 'त्रुटि हुई।');
       setIsLoading(false);
     }
   };
@@ -281,44 +236,6 @@ export default function LoginPage() {
               {lang === 'hi' ? 'नया पंजीकरण करें (₹50) →' : 'Register Here (₹50) →'}
             </Link>
           </p>
-        </div>
-
-        {/* Collapsed Fast 1-Click Persona Access (Unobtrusive) */}
-        <div className="mt-3 text-center">
-          <button
-            type="button"
-            onClick={() => setShowQuickAccess(!showQuickAccess)}
-            className="text-[11px] text-driftwood hover:text-charcoal inline-flex items-center gap-1 font-medium transition-colors"
-          >
-            <Sparkles className="w-3 h-3 text-amber-600" />
-            <span>{lang === 'hi' ? 'त्वरित 1-क्लिक टेस्ट' : 'Quick 1-Click Access'}</span>
-            {showQuickAccess ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-          </button>
-
-          {showQuickAccess && (
-            <div className="mt-2.5 p-2 rounded-lg bg-stone-50 border border-stone-200/80 text-left space-y-1.5 animate-in fade-in duration-150">
-              <div className="text-[10px] font-semibold text-driftwood uppercase tracking-wider px-1">
-                Official Office Bearers:
-              </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                {allMembers.slice(0, 4).map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => handleQuickPersonaLogin(m)}
-                    className="p-1.5 rounded-md bg-white hover:bg-stone-100 border border-stone-200 text-[10px] flex items-center justify-between transition-colors text-left"
-                  >
-                    <span className="font-semibold text-charcoal truncate">
-                      {m.full_name.split(' ')[0]}
-                    </span>
-                    <span className="text-[8px] px-1 py-0.5 rounded font-mono font-bold bg-stone-100 text-stone-600">
-                      {m.role}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
       </div>
