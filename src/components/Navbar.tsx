@@ -47,6 +47,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: t.home },
+    { href: '/member', label: lang === 'hi' ? 'सदस्य सूची' : 'Member List' },
     { href: '/appeals', label: t.appeals, badge: t.live },
     { href: '/rules', label: t.rules },
     { href: '/contact', label: t.directory },
