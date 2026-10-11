@@ -49,66 +49,73 @@ export default function HomePage() {
   return (
     <div className="space-y-16 sm:space-y-24">
       {/* ------------------------------------------------------------------ */}
-      {/* HERO SECTION: Editorial Mission & Value Proposition               */}
+      {/* HERO SECTION: High-Fidelity Modern Visuals & Mobile-First Layout    */}
       {/* ------------------------------------------------------------------ */}
-      <section className="relative pt-8 sm:pt-14 pb-12 overflow-hidden border-b border-stone-border/70">
-        {/* Subtle background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-terracotta/5 to-transparent pointer-events-none -z-10" />
+      <section className="relative pt-6 sm:pt-14 pb-12 sm:pb-16 overflow-hidden border-b border-stone-border/70">
+        {/* Modern ambient multi-color backdrop gradient */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[480px] bg-gradient-to-b from-terracotta/8 via-sage/5 to-transparent pointer-events-none -z-10 blur-2xl" />
+        <div className="absolute -top-24 left-1/4 w-72 h-72 bg-terracotta/10 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute -top-20 right-1/4 w-72 h-72 bg-sage/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto space-y-6">
+          <div className="text-center max-w-4xl mx-auto space-y-5 sm:space-y-6">
             
-            {/* Pill: Trust Model */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-stone-border shadow-warm text-xs text-charcoal font-medium">
-              <span className="w-2 h-2 rounded-full bg-sage animate-ping" />
-              <span className="font-mono text-terracotta font-semibold">Zero-Custody P2P Model</span>
-              <span className="text-driftwood">•</span>
-              <span>{t.heroPill}</span>
+            {/* Pill: Trust Model with live status dot */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-stone-border shadow-xs text-xs text-charcoal font-medium">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sage opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-sage"></span>
+              </span>
+              <span className="font-mono text-terracotta font-semibold">Zero-Custody P2P</span>
+              <span className="text-driftwood/60">•</span>
+              <span className="text-charcoal-muted line-clamp-1">{t.heroPill}</span>
             </div>
 
-            {/* Editorial Primary Heading */}
-            <h1 className="font-editorial text-3xl sm:text-5xl lg:text-6xl font-bold text-charcoal tracking-tight leading-[1.15]">
-              {t.heroTagline}
+            {/* Editorial Primary Heading with subtle gradient accent */}
+            <h1 className="font-editorial text-3xl sm:text-5xl lg:text-6xl font-extrabold text-charcoal tracking-tight leading-[1.12]">
+              <span className="bg-gradient-to-r from-charcoal via-charcoal to-terracotta bg-clip-text text-transparent">
+                {t.heroTagline}
+              </span>
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-base sm:text-xl text-driftwood leading-relaxed max-w-2xl mx-auto font-light">
+            {/* Subtitle - responsive typography */}
+            <p className="text-sm sm:text-lg text-driftwood leading-relaxed max-w-2xl mx-auto font-normal px-2">
               {t.heroSubtitle}
             </p>
 
-            {/* Hero CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
+            {/* Hero Action CTAs - Full-width stacked on mobile, row on tablet/desktop */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-2 px-2 sm:px-0">
               <Link
                 href="/appeals"
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-sm shadow-warm hover:shadow-warm-md transition-all flex items-center justify-center gap-2 touch-target"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-sm shadow-warm-md hover:shadow-warm-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 touch-target"
               >
-                <HeartHandshake className="w-4 h-4" />
+                <HeartHandshake className="w-4 h-4 stroke-[2.2]" />
                 <span>{t.heroCtaAppeals}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
               <Link
                 href="/rules"
-                className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-canvas-inset border border-stone-border text-charcoal font-semibold text-sm shadow-warm transition-all flex items-center justify-center gap-2 touch-target"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-white hover:bg-canvas-inset active:scale-[0.98] border border-stone-border text-charcoal font-semibold text-sm shadow-warm transition-all flex items-center justify-center gap-2 touch-target"
               >
                 <span>{t.heroCtaRules}</span>
                 <ChevronRight className="w-4 h-4 text-driftwood" />
               </Link>
             </div>
 
-            {/* Fast Stats Badges */}
-            <div className="pt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs text-driftwood">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-sage" />
-                <span>{t.heroBadge1}</span>
+            {/* Fast Trust Proof Badges - Clean responsive flex wrap */}
+            <div className="pt-4 sm:pt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-driftwood">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-canvas-inset/80 border border-stone-border/60">
+                <CheckCircle2 className="w-3.5 h-3.5 text-sage flex-shrink-0" />
+                <span className="font-medium text-charcoal">{t.heroBadge1}</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-sage" />
-                <span>{t.heroBadge2}</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-canvas-inset/80 border border-stone-border/60">
+                <ShieldCheck className="w-3.5 h-3.5 text-sage flex-shrink-0" />
+                <span className="font-medium text-charcoal">{t.heroBadge2}</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Coins className="w-4 h-4 text-terracotta" />
-                <span>{t.heroBadge3}</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-canvas-inset/80 border border-stone-border/60">
+                <Coins className="w-3.5 h-3.5 text-terracotta flex-shrink-0" />
+                <span className="font-medium text-charcoal">{t.heroBadge3}</span>
               </div>
             </div>
           </div>
@@ -116,30 +123,32 @@ export default function HomePage() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* LIVE AUDIT COUNTER METRICS                                         */}
+      {/* LIVE AUDIT COUNTER METRICS (Enhanced Modern Cards)                 */}
       {/* ------------------------------------------------------------------ */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           
-          <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-border shadow-warm">
-            <div className="flex items-center justify-between text-driftwood text-xs mb-2">
-              <span>{t.statMembers}</span>
+          <div className="p-4 sm:p-6 rounded-2xl bg-white border border-stone-border shadow-warm hover:shadow-warm-md transition-shadow relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-terracotta/5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+            <div className="flex items-center justify-between text-driftwood text-xs mb-1.5 sm:mb-2">
+              <span className="font-medium">{t.statMembers}</span>
               <Users className="w-4 h-4 text-terracotta" />
             </div>
-            <div className="font-editorial text-2xl sm:text-4xl font-bold text-charcoal">
+            <div className="font-editorial text-2xl sm:text-4xl font-bold text-charcoal tracking-tight">
               1,28,450+
             </div>
-            <div className="text-[11px] text-sage font-medium mt-1 flex items-center gap-1">
+            <div className="text-[11px] text-sage font-semibold mt-1 flex items-center gap-1">
               <span>{t.statMembersSub}</span>
             </div>
           </div>
 
-          <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-border shadow-warm">
-            <div className="flex items-center justify-between text-driftwood text-xs mb-2">
-              <span>{t.statDisbursed}</span>
+          <div className="p-4 sm:p-6 rounded-2xl bg-white border border-stone-border shadow-warm hover:shadow-warm-md transition-shadow relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-sage/5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+            <div className="flex items-center justify-between text-driftwood text-xs mb-1.5 sm:mb-2">
+              <span className="font-medium">{t.statDisbursed}</span>
               <Coins className="w-4 h-4 text-sage" />
             </div>
-            <div className="font-editorial text-2xl sm:text-4xl font-bold text-charcoal">
+            <div className="font-editorial text-2xl sm:text-4xl font-bold text-charcoal tracking-tight">
               ₹34.80 Cr+
             </div>
             <div className="text-[11px] text-driftwood mt-1">
@@ -147,12 +156,13 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-border shadow-warm">
-            <div className="flex items-center justify-between text-driftwood text-xs mb-2">
-              <span>{t.statAppeals}</span>
+          <div className="p-4 sm:p-6 rounded-2xl bg-white border border-stone-border shadow-warm hover:shadow-warm-md transition-shadow relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-terracotta/5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+            <div className="flex items-center justify-between text-driftwood text-xs mb-1.5 sm:mb-2">
+              <span className="font-medium">{t.statAppeals}</span>
               <Award className="w-4 h-4 text-terracotta" />
             </div>
-            <div className="font-editorial text-2xl sm:text-4xl font-bold text-charcoal">
+            <div className="font-editorial text-2xl sm:text-4xl font-bold text-charcoal tracking-tight">
               182 {lang === 'hi' ? 'परिवार' : 'Families'}
             </div>
             <div className="text-[11px] text-driftwood mt-1">
@@ -160,12 +170,13 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-border shadow-warm">
-            <div className="flex items-center justify-between text-driftwood text-xs mb-2">
-              <span>{t.statCompliance}</span>
+          <div className="p-4 sm:p-6 rounded-2xl bg-white border border-stone-border shadow-warm hover:shadow-warm-md transition-shadow relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-sage/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+            <div className="flex items-center justify-between text-driftwood text-xs mb-1.5 sm:mb-2">
+              <span className="font-medium">{t.statCompliance}</span>
               <Scale className="w-4 h-4 text-sage" />
             </div>
-            <div className="font-editorial text-2xl sm:text-4xl font-bold text-sage">
+            <div className="font-editorial text-2xl sm:text-4xl font-bold text-sage tracking-tight">
               94.6%
             </div>
             <div className="text-[11px] text-driftwood mt-1">
