@@ -74,17 +74,38 @@ export default function SlipUploadModal({
     try {
       setIsLoading(true);
 
-      let slipUrl = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80';
+      const formData = new FormData();
+      formData.append('appeal_id', appeal.id);
+      formData.append('utr_number', utrNumber);
+      formData.append('amount', '50.00');
       if (selectedFile) {
-        slipUrl = await uploadReceiptSlip(selectedFile, utrNumber);
+        formData.append('slip_file', selectedFile);
       }
 
-      DPSWTStore.submitDonation({
-        appeal_id: appeal.id,
-        utr_number: utrNumber,
-        slip_url: slipUrl,
-        amount: 50,
-      });
+      const { submitDonationAction } = await import('@/actions/donation-actions');
+      const res = await submitDonationAction(formData);
+
+      if (!res.success) {
+        // Fallback to local store if server action had an issue
+        let slipUrl = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80';
+        if (selectedFile) {
+          slipUrl = await uploadReceiptSlip(selectedFile, utrNumber);
+        }
+        DPSWTStore.submitDonation({
+          appeal_id: appeal.id,
+          utr_number: utrNumber,
+          slip_url: slipUrl,
+          amount: 50,
+        });
+      } else {
+        // Sync local store as well
+        DPSWTStore.submitDonation({
+          appeal_id: appeal.id,
+          utr_number: utrNumber,
+          slip_url: res.data?.slip_url || '',
+          amount: 50,
+        });
+      }
 
       setIsSuccess(true);
       triggerCelebrationConfetti();

@@ -14,11 +14,15 @@ import {
   Clock,
 } from 'lucide-react';
 
+import { supabase } from '@/lib/supabase/client';
+import { updateDonationStatusAction } from '@/actions/donation-actions';
+
 export default function InspectorAuditPage() {
   const { lang, t } = useTranslation();
   const [currentUser, setCurrentUser] = useState<Member | null>(null);
   const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [appeals, setAppeals] = useState<Appeal[]>([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Filter & Search
   const [statusFilter, setStatusFilter] = useState<string>('SUBMITTED');
@@ -31,36 +35,79 @@ export default function InspectorAuditPage() {
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const syncData = () => {
+    async function syncData() {
       setCurrentUser(DPSWTStore.getCurrentUser());
-      setDonations(DPSWTStore.getDonations());
-      setAppeals(DPSWTStore.getAppeals());
-    };
+
+      try {
+        const { data: donationsData } = await supabase
+          .from('donation_records')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (donationsData && donationsData.length > 0) {
+          setDonations(donationsData as DonationRecord[]);
+        } else {
+          setDonations(DPSWTStore.getDonations());
+        }
+
+        const { data: appealsData } = await supabase
+          .from('appeals')
+          .select('*');
+
+        if (appealsData && appealsData.length > 0) {
+          setAppeals(appealsData as Appeal[]);
+        } else {
+          setAppeals(DPSWTStore.getAppeals());
+        }
+      } catch {
+        setDonations(DPSWTStore.getDonations());
+        setAppeals(DPSWTStore.getAppeals());
+      }
+    }
 
     syncData();
     window.addEventListener('dpswt_state_change', syncData);
     return () => window.removeEventListener('dpswt_state_change', syncData);
   }, []);
 
-  const handleVerify = (donationId: string) => {
-    const inspectorName = currentUser?.full_name || 'Inspector Arvind Kumar Singh';
-    DPSWTStore.verifyDonation(
-      donationId,
-      inspectorName,
-      lang === 'hi' 
-        ? 'नामिनी बैंक पासबुक प्रविष्टि से मिलान पूर्ण। ₹50 जमा सत्यापित।'
-        : 'Nominee bank passbook statement matched. ₹50 credit verified.'
-    );
-    setActiveDonationForReview(null);
+  const handleVerify = async (donationId: string) => {
+    setIsUpdating(true);
+    const inspectorNotes = lang === 'hi' 
+      ? 'नामिनी बैंक पासबुक प्रविष्टि से मिलान पूर्ण। ₹50 जमा सत्यापित।'
+      : 'Nominee bank passbook statement matched. ₹50 credit verified.';
+
+    try {
+      await updateDonationStatusAction(donationId, 'VERIFIED', inspectorNotes);
+      // Also update local state
+      setDonations((prev) =>
+        prev.map((d) => (d.id === donationId ? { ...d, status: 'VERIFIED', inspector_notes: inspectorNotes } : d))
+      );
+    } catch {
+      DPSWTStore.verifyDonation(donationId, currentUser?.full_name || 'Inspector Arvind Kumar Singh', inspectorNotes);
+    } finally {
+      setIsUpdating(false);
+      setActiveDonationForReview(null);
+    }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (!activeDonationForReview) return;
+    setIsUpdating(true);
     const reason = rejectReason.trim() || (lang === 'hi' ? 'नामिनी के बैंक खाते में UTR संख्या नहीं मिली अथवा अपूर्ण है।' : 'UTR reference not found in nominee passbook statement.');
-    DPSWTStore.rejectDonation(activeDonationForReview.id, reason);
-    setIsRejectDialogOpen(false);
-    setActiveDonationForReview(null);
-    setRejectReason('');
+
+    try {
+      await updateDonationStatusAction(activeDonationForReview.id, 'REJECTED', reason);
+      setDonations((prev) =>
+        prev.map((d) => (d.id === activeDonationForReview.id ? { ...d, status: 'REJECTED', inspector_notes: reason } : d))
+      );
+    } catch {
+      DPSWTStore.rejectDonation(activeDonationForReview.id, reason);
+    } finally {
+      setIsUpdating(false);
+      setIsRejectDialogOpen(false);
+      setActiveDonationForReview(null);
+      setRejectReason('');
+    }
   };
 
   // Filtered donations

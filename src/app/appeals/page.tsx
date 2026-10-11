@@ -17,25 +17,45 @@ import {
   PlusCircle,
 } from 'lucide-react';
 
+import { supabase } from '@/lib/supabase/client';
+
 export default function AppealsPage() {
   const { lang, t } = useTranslation();
   const [appeals, setAppeals] = useState<Appeal[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ACTIVE');
+  const [isLoading, setIsLoading] = useState(true);
 
   // Modals state
   const [selectedAppealForUpi, setSelectedAppealForUpi] = useState<Appeal | null>(null);
   const [selectedAppealForSlip, setSelectedAppealForSlip] = useState<Appeal | null>(null);
 
   useEffect(() => {
-    const load = () => {
-      setAppeals(DPSWTStore.getAppeals());
-    };
-    load();
+    async function loadAppeals() {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('appeals')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-    window.addEventListener('dpswt_state_change', load);
-    return () => window.removeEventListener('dpswt_state_change', load);
+        if (!error && data && data.length > 0) {
+          setAppeals(data as Appeal[]);
+        } else {
+          setAppeals(DPSWTStore.getAppeals());
+        }
+      } catch {
+        setAppeals(DPSWTStore.getAppeals());
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadAppeals();
+
+    window.addEventListener('dpswt_state_change', loadAppeals);
+    return () => window.removeEventListener('dpswt_state_change', loadAppeals);
   }, []);
 
   // Filter appeals based on user controls

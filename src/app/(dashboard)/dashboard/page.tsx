@@ -22,6 +22,8 @@ import {
   Eye,
 } from 'lucide-react';
 
+import { supabase } from '@/lib/supabase/client';
+
 export default function MemberDashboardPage() {
   const { lang, t } = useTranslation();
   const [currentUser, setCurrentUser] = useState<Member | null>(null);
@@ -35,15 +37,83 @@ export default function MemberDashboardPage() {
   const [viewingSlipUrl, setViewingSlipUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const syncData = () => {
-      const user = DPSWTStore.getCurrentUser();
-      setCurrentUser(user);
-      if (user) {
-        setCompliance(DPSWTStore.calculateCompliance(user.id));
-        setUserDonations(DPSWTStore.getDonationsByDonor(user.id));
+    async function syncData() {
+      const localUser = DPSWTStore.getCurrentUser();
+      
+      try {
+        // Fetch member profile from Supabase
+        const { data: memberData } = await supabase
+          .from('members')
+          .select('*, nominees(*)')
+          .eq('id', localUser.id)
+          .single();
+
+        const userObj: Member = memberData ? {
+          ...memberData,
+          nominee: memberData.nominees?.[0] || localUser.nominee,
+        } : localUser;
+
+        setCurrentUser(userObj);
+
+        // Fetch all appeals
+        const { data: appealsData } = await supabase
+          .from('appeals')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        const appealsList: Appeal[] = (appealsData && appealsData.length > 0)
+          ? (appealsData as Appeal[])
+          : DPSWTStore.getAppeals();
+
+        setAllAppeals(appealsList);
+
+        // Fetch donations made by this user
+        const { data: donationsData } = await supabase
+          .from('donation_records')
+          .select('*')
+          .eq('donor_id', userObj.id)
+          .order('created_at', { ascending: false });
+
+        const donationsList: DonationRecord[] = (donationsData && donationsData.length > 0)
+          ? (donationsData as DonationRecord[])
+          : DPSWTStore.getDonationsByDonor(userObj.id);
+
+        setUserDonations(donationsList);
+
+        // Calculate dynamic 75% compliance against total appeals
+        const totalHistorical = Math.max(1, appealsList.length);
+        const contributedAppealsCount = new Set(
+          donationsList
+            .filter((d) => d.status === 'VERIFIED' || d.status === 'SUBMITTED')
+            .map((d) => d.appeal_id)
+        ).size;
+
+        const ratio = Math.round((contributedAppealsCount / totalHistorical) * 100);
+        const feeExpires = userObj.fee_expires_at ? new Date(userObj.fee_expires_at) : new Date(Date.now() + 86400000 * 180);
+        const feeValid = feeExpires > new Date();
+        const daysUntilRenewal = Math.max(0, Math.ceil((feeExpires.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+        const qualifies75 = ratio >= 75;
+
+        setCompliance({
+          total_appeals: totalHistorical,
+          contributed_appeals: contributedAppealsCount,
+          ratio: ratio,
+          is_eligible: qualifies75 && feeValid,
+          fee_valid: feeValid,
+          days_until_renewal: daysUntilRenewal,
+          qualifies_75: qualifies75,
+        });
+      } catch {
+        // Fallback to local store
+        const user = DPSWTStore.getCurrentUser();
+        setCurrentUser(user);
+        if (user) {
+          setCompliance(DPSWTStore.calculateCompliance(user.id));
+          setUserDonations(DPSWTStore.getDonationsByDonor(user.id));
+        }
+        setAllAppeals(DPSWTStore.getAppeals());
       }
-      setAllAppeals(DPSWTStore.getAppeals());
-    };
+    }
 
     syncData();
     window.addEventListener('dpswt_state_change', syncData);
