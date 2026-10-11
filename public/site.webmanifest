@@ -1,0 +1,14 @@
+{
+  "name": "DPSWT Welfare Platform",
+  "short_name": "DPSWT",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#C85A32",
+  "background_color": "#FAF8F5",
+  "display": "standalone"
+}
