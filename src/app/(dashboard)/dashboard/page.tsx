@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 
 import { supabase } from '@/lib/supabase/client';
+import { logoutAction } from '@/actions/auth-actions';
 
 export default function MemberDashboardPage() {
   const router = useRouter();
@@ -39,7 +40,12 @@ export default function MemberDashboardPage() {
   const [selectedAppealForSlip, setSelectedAppealForSlip] = useState<Appeal | null>(null);
   const [viewingSlipUrl, setViewingSlipUrl] = useState<string | null>(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutAction();
+    } catch (e) {
+      console.warn('Logout action error:', e);
+    }
     DPSWTStore.logout();
     router.push('/login');
   };

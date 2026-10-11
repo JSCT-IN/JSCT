@@ -8,6 +8,7 @@ import { INITIAL_MEMBERS } from '@/lib/mockData';
 import { Member } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { useTranslation } from '@/lib/i18n';
+import { loginAction } from '@/actions/auth-actions';
 import { 
   HeartHandshake, 
   ArrowRight, 
@@ -56,7 +57,7 @@ export default function LoginPage() {
   // Real JSCT Members list for instant verification
   const allMembers: Member[] = INITIAL_MEMBERS;
 
-  // Handle Real Login Submission
+  // Handle Real Login Submission via Server Action
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -82,101 +83,32 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // 1. Try real Supabase database query
-      let matchedMember: Member | null = null;
+      const result = await loginAction(cleanId, cleanPass, activeModule);
 
-      try {
-        const { data: dbMembers, error } = await supabase
-          .from('members')
-          .select('*, nominees(*)')
-          .or(`membership_id.ilike.%${cleanId}%,phone.ilike.%${cleanId}%,aadhaar_last4.eq.${cleanId.slice(-4)}`);
-
-        if (!error && dbMembers && dbMembers.length > 0) {
-          // If role specific, filter by role
-          if (activeModule === 'ADMIN') {
-            matchedMember = dbMembers.find((m: Member) => m.role === 'ADMIN') || dbMembers[0];
-          } else if (activeModule === 'INSPECTOR') {
-            matchedMember = dbMembers.find((m: Member) => m.role === 'INSPECTOR' || m.role === 'ADMIN') || dbMembers[0];
-          } else {
-            matchedMember = dbMembers[0];
-          }
-        }
-      } catch (err) {
-        console.warn('Supabase query fallback to local store:', err);
-      }
-
-      // 2. Fallback to verified local trust members if not found or offline
-      if (!matchedMember) {
-        const localList = DPSWTStore.getMembers();
-        const found = localList.find((m) => {
-          const matchId = m.membership_id.toLowerCase().includes(cleanId.toLowerCase());
-          const matchPhone = m.phone.replace(/\D/g, '').includes(cleanId.replace(/\D/g, ''));
-          const matchAadhaar = m.aadhaar_last4 && cleanId.includes(m.aadhaar_last4);
-          const matchName = m.full_name.toLowerCase().includes(cleanId.toLowerCase());
-          return matchId || matchPhone || matchAadhaar || matchName;
-        });
-
-        if (found) {
-          matchedMember = found;
-        } else if (activeModule === 'ADMIN' && (cleanId.toLowerCase() === 'admin' || cleanId.toLowerCase() === 'saleha')) {
-          matchedMember = localList.find(m => m.role === 'ADMIN') || localList[0];
-        } else if (activeModule === 'INSPECTOR' && (cleanId.toLowerCase() === 'inspector' || cleanId.toLowerCase() === 'zabihun')) {
-          matchedMember = localList.find(m => m.role === 'INSPECTOR') || localList[2];
-        }
-      }
-
-      if (matchedMember) {
-        // Enforce role permission matching
-        if (activeModule === 'ADMIN' && matchedMember.role !== 'ADMIN') {
-          setErrorMessage(
-            lang === 'hi' 
-              ? 'इस खाते के पास व्यवस्थापक (ADMIN) अधिकार नहीं हैं। कृपया सदस्य पोर्टल चुनें।' 
-              : 'This account does not have Administrator permissions. Please use Member Portal.'
-          );
-          setIsLoading(false);
-          return;
-        }
-
-        if (activeModule === 'INSPECTOR' && matchedMember.role === 'MEMBER') {
-          setErrorMessage(
-            lang === 'hi' 
-              ? 'इस खाते के पास जिला सत्यापन (INSPECTOR) अधिकार नहीं हैं। कृपया सदस्य पोर्टल चुनें।' 
-              : 'This account does not have Inspector permissions. Please use Member Portal.'
-          );
-          setIsLoading(false);
-          return;
-        }
-
-        // Successfully authenticated!
-        DPSWTStore.setCurrentUser(matchedMember.id);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('token', 'jsct_token_' + matchedMember.id);
-          localStorage.setItem('user', JSON.stringify(matchedMember));
-        }
-
-        setSuccessMessage(
-          lang === 'hi'
-            ? `सफलतापूर्वक लॉगिन संपन्न! स्वागत है ${matchedMember.full_name}`
-            : `Login successful! Welcome ${matchedMember.full_name}`
-        );
-
-        // Redirect based on selected module & role
-        setTimeout(() => {
-          if (activeModule === 'INSPECTOR' || (activeModule === 'ADMIN' && matchedMember?.role === 'ADMIN')) {
-            router.push('/admin/inspector');
-          } else {
-            router.push('/dashboard');
-          }
-        }, 700);
-
-      } else {
-        setErrorMessage(
-          lang === 'hi'
-            ? 'प्रविष्ट विवरण किसी पंजीकृत सदस्य से मेल नहीं खाता। कृपया आधार संख्या या सदस्यता क्रमांक जांचें।'
-            : 'No registered member found matching the provided details. Please check your ID.'
-        );
+      if (!result.success || !result.user) {
+        setErrorMessage(result.message || (lang === 'hi' ? 'लॉगिन असफल रहा।' : 'Login failed.'));
         setIsLoading(false);
+        return;
       }
+
+      // Successfully authenticated via Server Action with secure HTTP-only cookies!
+      DPSWTStore.setCurrentUser(result.user.id);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', result.user.token || 'jsct_token_' + result.user.id);
+        localStorage.setItem('user', JSON.stringify(result.user));
+      }
+
+      setSuccessMessage(
+        lang === 'hi'
+          ? `सफलतापूर्वक लॉगिन संपन्न! स्वागत है ${result.user.full_name}`
+          : `Login successful! Welcome ${result.user.full_name}`
+      );
+
+      // Redirect based on server action target route
+      setTimeout(() => {
+        router.push(result.redirectTo || '/dashboard');
+      }, 600);
+
     } catch (err: any) {
       setErrorMessage(err.message || 'लॉगिन प्रक्रिया में त्रुटि हुई।');
       setIsLoading(false);
@@ -184,29 +116,45 @@ export default function LoginPage() {
   };
 
   // 1-Click Persona Login for fast testing & official bearers
-  const handleQuickPersonaLogin = (member: Member) => {
+  const handleQuickPersonaLogin = async (member: Member) => {
     setIdentifier(member.membership_id);
     setPassword('••••••••');
     setErrorMessage(null);
+    setIsLoading(true);
     setSuccessMessage(
       lang === 'hi' 
-        ? `${member.full_name} (${member.role}) के रूप में प्रवेश हो रहा है...` 
-        : `Authenticating as ${member.full_name}...`
+        ? `${member.full_name} (${member.role}) के रूप में सुरक्षित प्रवेश हो रहा है...` 
+        : `Authenticating securely as ${member.full_name}...`
     );
 
-    DPSWTStore.setCurrentUser(member.id);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('token', 'jsct_token_' + member.id);
-      localStorage.setItem('user', JSON.stringify(member));
-    }
+    try {
+      const targetModule = (member.role === 'ADMIN' && activeModule === 'ADMIN')
+        ? 'ADMIN'
+        : (member.role === 'INSPECTOR' || member.role === 'ADMIN') && activeModule === 'INSPECTOR'
+        ? 'INSPECTOR'
+        : 'MEMBER';
 
-    setTimeout(() => {
-      if (member.role === 'ADMIN' || member.role === 'INSPECTOR') {
-        router.push(activeModule === 'MEMBER' ? '/dashboard' : '/admin/inspector');
-      } else {
-        router.push('/dashboard');
+      const result = await loginAction(member.membership_id, 'Password@123', targetModule);
+
+      if (!result.success || !result.user) {
+        setErrorMessage(result.message || 'प्रमाणीकरण विफल।');
+        setIsLoading(false);
+        return;
       }
-    }, 600);
+
+      DPSWTStore.setCurrentUser(result.user.id);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', result.user.token || 'jsct_token_' + result.user.id);
+        localStorage.setItem('user', JSON.stringify(result.user));
+      }
+
+      setTimeout(() => {
+        router.push(result.redirectTo || '/dashboard');
+      }, 600);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'त्रुटि हुई।');
+      setIsLoading(false);
+    }
   };
 
   // Core Platform Modules Description (shown clearly on page as requested)

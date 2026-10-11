@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { DPSWTStore } from '@/lib/store';
 import { Member } from '@/types';
 import { useTranslation } from '@/lib/i18n';
+import { logoutAction } from '@/actions/auth-actions';
 import { 
   HeartHandshake, 
   Menu, 
@@ -48,7 +49,12 @@ export default function Navbar() {
     setRoleDropdownOpen(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutAction();
+    } catch (e) {
+      console.warn('Logout action error:', e);
+    }
     DPSWTStore.logout();
     setRoleDropdownOpen(false);
     setMobileMenuOpen(false);

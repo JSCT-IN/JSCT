@@ -18,13 +18,19 @@ import {
 
 import { supabase } from '@/lib/supabase/client';
 import { updateDonationStatusAction } from '@/actions/donation-actions';
+import { logoutAction } from '@/actions/auth-actions';
 
 export default function InspectorAuditPage() {
   const router = useRouter();
   const { lang, t } = useTranslation();
   const [currentUser, setCurrentUser] = useState<Member | null>(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutAction();
+    } catch (e) {
+      console.warn('Logout action error:', e);
+    }
     DPSWTStore.logout();
     router.push('/login');
   };
