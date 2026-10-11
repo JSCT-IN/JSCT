@@ -122,38 +122,118 @@ export default function HomePage() {
   const simRatio = Math.round((simContributed / simTotalAppeals) * 100);
   const simIsEligible = simRatio >= 75;
 
+  const announcements = [
+    {
+      id: 1,
+      badge: lang === 'hi' ? '75% नियम' : '75% Rule',
+      text: lang === 'hi'
+        ? 'संस्था की सभी सहयोग अपीलों में न्यूनतम 75% सहयोग पूर्ण होना अनिवार्य है।'
+        : 'Minimum 75% contribution compliance is mandatory for all appeals.',
+      highlight: true
+    },
+    {
+      id: 2,
+      badge: lang === 'hi' ? 'सदस्यता शुल्क' : 'Fee Notice',
+      text: lang === 'hi'
+        ? 'सदस्यता शुल्क मात्र ₹50 एवं वार्षिक नवीनीकरण ₹50 है। कोई अप्रत्यक्ष या छुपा हुआ शुल्क नहीं।'
+        : 'Joining fee is only ₹50 and annual renewal ₹50. No hidden commissions.',
+      highlight: false
+    },
+    {
+      id: 3,
+      badge: lang === 'hi' ? 'शून्य-कस्टडी' : 'Zero-Custody',
+      text: lang === 'hi'
+        ? 'कोई मध्यस्थ या वॉलेट नहीं — सहायता राशि सीधे पीड़ित परिवार के अधिकृत नामिनी के बैंक खाते / UPI में जमा होती है।'
+        : 'Direct P2P aid straight into verified nominee bank accounts & UPI.',
+      highlight: true
+    },
+    {
+      id: 4,
+      badge: lang === 'hi' ? 'संबल गारंटी' : 'Relief Aid',
+      text: lang === 'hi'
+        ? '90-दिन सक्रियता अवधि पूर्ण होने पर असामयिक निधन पर ₹20 लाख तक का सामाजिक सुरक्षा संबल।'
+        : 'Up to ₹20 Lakhs mutual bereavement solidarity upon 90-day active compliance.',
+      highlight: false
+    },
+    {
+      id: 5,
+      badge: lang === 'hi' ? 'हेल्पलाइन' : '24x7 Help',
+      text: lang === 'hi'
+        ? 'आपातकालीन सहायता केंद्र: +91 9264945875 • +91 9936639215 (समस्त 75 जनपदों में कार्यकारिणी दल सक्रिय)'
+        : 'Helpline: +91 9264945875 • +91 9936639215 (Active across all 75 districts)',
+      highlight: false
+    }
+  ];
+
   return (
     <div className="space-y-12 sm:space-y-20 pb-16">
       
       {/* ------------------------------------------------------------------ */}
-      {/* TOP ANNOUNCEMENT TICKER / MARQUEE BAR (matches dpswt.com pE)      */}
+      {/* TOP ANNOUNCEMENT INFINITE MARQUEE TICKER (Smooth, Hover-Pause)     */}
       {/* ------------------------------------------------------------------ */}
-      <div className="bg-gradient-to-r from-terracotta via-amber-600 to-terracotta text-white py-2.5 px-4 shadow-sm">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs sm:text-sm">
-          <div className="flex items-center gap-2 overflow-hidden w-full sm:w-auto">
-            <span className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-white font-bold text-[11px] uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-amber-200 animate-pulse" />
-              {lang === 'hi' ? 'महत्वपूर्ण घोषणा' : 'Announcement'}
+      <div className="relative bg-gradient-to-r from-terracotta via-amber-600 to-terracotta text-white py-2 px-3 sm:px-4 shadow-sm overflow-hidden select-none border-b border-amber-700/30">
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
+          
+          {/* Pinned Left Badge: Always visible anchor */}
+          <div className="shrink-0 flex items-center gap-1.5 z-20">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider border border-white/25 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-amber-200 animate-ping" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-300 -ml-3.5" />
+              <span>{lang === 'hi' ? 'ताज़ा घोषणा' : 'LIVE ALERT'}</span>
             </span>
-            <p className="font-medium truncate">
-              {lang === 'hi'
-                ? 'संस्था की सभी सहयोग अपीलों में न्यूनतम 75% सहयोग पूर्ण होना अनिवार्य है। सदस्यता शुल्क केवल ₹50 एवं वार्षिक नवीनीकरण ₹50 है।'
-                : 'Minimum 75% contribution compliance is mandatory for all appeals. Joining fee ₹50 & annual renewal ₹50.'}
-            </p>
           </div>
-          <div className="shrink-0 flex items-center gap-4 text-xs font-semibold text-white/90">
-            <span className="hidden md:inline-flex items-center gap-1">
-              <Phone className="w-3.5 h-3.5" />
-              <span>हेल्पलाइन: +91 9264945875</span>
-            </span>
+
+          {/* Scrolling Channel with smooth gradient fade masks */}
+          <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]">
+            <div className="animate-marquee flex items-center gap-8 py-0.5 whitespace-nowrap text-xs sm:text-sm font-medium">
+              
+              {/* First Track */}
+              {announcements.map((item) => (
+                <div key={`track1-${item.id}`} className="inline-flex items-center gap-2">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/25 font-bold uppercase font-mono tracking-tight text-amber-200">
+                    {item.badge}
+                  </span>
+                  <span className={item.highlight ? 'font-bold text-white' : 'text-amber-50'}>
+                    {item.text}
+                  </span>
+                  <span className="text-white/40 text-xs px-2">•</span>
+                </div>
+              ))}
+
+              {/* Duplicate Track (for seamless infinite continuous loop) */}
+              {announcements.map((item) => (
+                <div key={`track2-${item.id}`} className="inline-flex items-center gap-2">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/25 font-bold uppercase font-mono tracking-tight text-amber-200">
+                    {item.badge}
+                  </span>
+                  <span className={item.highlight ? 'font-bold text-white' : 'text-amber-50'}>
+                    {item.text}
+                  </span>
+                  <span className="text-white/40 text-xs px-2">•</span>
+                </div>
+              ))}
+
+            </div>
+          </div>
+
+          {/* Pinned Right Quick Actions */}
+          <div className="shrink-0 hidden md:flex items-center gap-3 z-20 text-xs font-semibold pl-2">
+            <a
+              href="tel:9264945875"
+              className="inline-flex items-center gap-1 text-white/90 hover:text-white transition-colors"
+            >
+              <Phone className="w-3.5 h-3.5 text-amber-200" />
+              <span className="font-mono text-[11px]">+91 9264945875</span>
+            </a>
             <Link
               href="/rules"
-              className="underline hover:text-amber-100 flex items-center gap-0.5"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white transition-all text-[11px] font-bold border border-white/20 shadow-xs"
             >
-              <span>{lang === 'hi' ? 'नियमावली पढ़ें' : 'View Rules'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              <span>{lang === 'hi' ? 'नियमावली' : 'Rules'}</span>
+              <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
+
         </div>
       </div>
 
