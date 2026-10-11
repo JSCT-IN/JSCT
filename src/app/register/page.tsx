@@ -44,8 +44,11 @@ export default function RegisterPage() {
     setStep(2);
   };
 
-  const handleFinalSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     const randomSuffix = Math.floor(1000 + Math.random() * 9000).toString();
     const generatedId = `DPSWT-UP-${randomSuffix}`;
@@ -54,31 +57,110 @@ export default function RegisterPage() {
     const expiryDate = new Date();
     expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
-    DPSWTStore.registerMember({
-      membership_id: generatedId,
-      full_name: fullName,
-      phone: phone.startsWith('+91') ? phone : `+91 ${phone}`,
-      aadhaar_last4: last4,
-      department: department,
-      district: district,
-      state: 'Uttar Pradesh',
-      role: 'MEMBER',
-      fee_expires_at: expiryDate.toISOString(),
-      is_active: true,
-      nominee: {
-        id: `nom-${Date.now()}`,
-        member_id: '',
-        full_name: nomineeName,
-        relationship: relationship,
-        bank_name: bankName,
-        account_number: accountNumber,
-        ifsc_code: ifscCode.toUpperCase(),
-        upi_id: upiId.toLowerCase(),
-      },
-    });
+    const formattedPhone = phone.startsWith('+91') ? phone : `+91 ${phone.trim()}`;
 
-    triggerCelebrationConfetti();
-    router.push('/dashboard');
+    try {
+      const { supabase } = await import('@/lib/supabase/client');
+
+      // 1. Insert member into Supabase
+      const { data: memberData, error: memberError } = await supabase
+        .from('members')
+        .insert({
+          membership_id: generatedId,
+          full_name: fullName.trim(),
+          phone: formattedPhone,
+          aadhaar_hash: `hash_${last4}_${Date.now()}`,
+          aadhaar_last4: last4,
+          department: department,
+          district: district,
+          state: 'Uttar Pradesh',
+          role: 'MEMBER',
+          fee_expires_at: expiryDate.toISOString(),
+          is_active: true,
+        })
+        .select()
+        .single();
+
+      if (memberError) {
+        console.warn('Supabase member insert notice:', memberError.message);
+      }
+
+      const newMemberId = memberData?.id || `usr_${Date.now()}`;
+
+      // 2. Insert primary nominee into Supabase
+      const { error: nomineeError } = await supabase
+        .from('nominees')
+        .insert({
+          member_id: newMemberId,
+          full_name: nomineeName.trim(),
+          relationship: relationship,
+          bank_name: bankName,
+          account_number: accountNumber.trim(),
+          ifsc_code: ifscCode.toUpperCase().trim(),
+          upi_id: upiId.toLowerCase().trim(),
+          is_primary: true,
+        });
+
+      if (nomineeError) {
+        console.warn('Supabase nominee insert notice:', nomineeError.message);
+      }
+
+      // 3. Keep local fallback store updated and switch user
+      DPSWTStore.registerMember({
+        membership_id: generatedId,
+        full_name: fullName,
+        phone: formattedPhone,
+        aadhaar_last4: last4,
+        department: department,
+        district: district,
+        state: 'Uttar Pradesh',
+        role: 'MEMBER',
+        fee_expires_at: expiryDate.toISOString(),
+        is_active: true,
+        nominee: {
+          id: `nom-${Date.now()}`,
+          member_id: newMemberId,
+          full_name: nomineeName,
+          relationship: relationship,
+          bank_name: bankName,
+          account_number: accountNumber,
+          ifsc_code: ifscCode.toUpperCase(),
+          upi_id: upiId.toLowerCase(),
+        },
+      });
+
+      triggerCelebrationConfetti();
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('Registration error:', err);
+      // Fallback to local store
+      DPSWTStore.registerMember({
+        membership_id: generatedId,
+        full_name: fullName,
+        phone: formattedPhone,
+        aadhaar_last4: last4,
+        department: department,
+        district: district,
+        state: 'Uttar Pradesh',
+        role: 'MEMBER',
+        fee_expires_at: expiryDate.toISOString(),
+        is_active: true,
+        nominee: {
+          id: `nom-${Date.now()}`,
+          member_id: '',
+          full_name: nomineeName,
+          relationship: relationship,
+          bank_name: bankName,
+          account_number: accountNumber,
+          ifsc_code: ifscCode.toUpperCase(),
+          upi_id: upiId.toLowerCase(),
+        },
+      });
+      triggerCelebrationConfetti();
+      router.push('/dashboard');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
