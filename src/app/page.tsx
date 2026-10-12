@@ -34,6 +34,11 @@ import {
   Info,
   Clock,
   UserCheck,
+  ZoomIn,
+  X,
+  Eye,
+  Gift,
+  ExternalLink,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -42,6 +47,11 @@ export default function HomePage() {
   const [selectedAppealForUpi, setSelectedAppealForUpi] = useState<Appeal | null>(null);
   const [selectedAppealForSlip, setSelectedAppealForSlip] = useState<Appeal | null>(null);
   const [showFullAbout, setShowFullAbout] = useState(false);
+
+  // Scheme Poster Lightbox State
+  const [isPosterLightboxOpen, setIsPosterLightboxOpen] = useState(false);
+  // Hero Right Column Tab: 'poster' (default matching dpswt.com) or 'summary'
+  const [heroRightTab, setHeroRightTab] = useState<'poster' | 'summary'>('poster');
 
   // Hero Slider State (matches dpswt.com lE component)
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -115,6 +125,19 @@ export default function HomePage() {
     }, 7000);
     return () => clearInterval(timer);
   }, [heroSlides.length]);
+
+  // Escape key handler for poster lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsPosterLightboxOpen(false);
+      }
+    };
+    if (isPosterLightboxOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPosterLightboxOpen]);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
@@ -355,74 +378,178 @@ export default function HomePage() {
 
             </div>
 
-            {/* Right Column: High-Impact Trust Card Showcase */}
+            {/* Right Column: Hero Visual Showcase (featuring official scheme poster like dpswt.com) */}
             <div className="lg:col-span-5">
-              <div className="relative mx-auto max-w-sm rounded-3xl bg-white p-6 border border-stone-border shadow-warm-lg space-y-5">
+              <div className="relative mx-auto max-w-md rounded-3xl bg-white p-4 sm:p-5 border border-stone-border shadow-warm-lg space-y-4">
                 
-                {/* Top Trust Header */}
-                <div className="flex items-center justify-between border-b border-stone-border/60 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-terracotta to-amber-600 flex items-center justify-center text-white font-editorial font-bold text-lg shadow-sm">
-                      JS
-                    </div>
-                    <div>
-                      <div className="font-bold text-sm text-charcoal leading-tight">
-                        जन सेवा चैरिटेबल ट्रस्ट
-                      </div>
-                      <div className="text-[11px] font-mono text-driftwood">
-                        JSCT • Gorakhpur (U.P.)
-                      </div>
-                    </div>
+                {/* View Switcher Tabs: Poster View vs Trust Summary */}
+                <div className="flex items-center justify-between border-b border-stone-border/70 pb-3">
+                  <div className="flex items-center gap-1.5 p-1 rounded-xl bg-canvas-inset border border-stone-border/60 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setHeroRightTab('poster')}
+                      className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
+                        heroRightTab === 'poster'
+                          ? 'bg-white text-terracotta shadow-xs border border-stone-border/60'
+                          : 'text-driftwood hover:text-charcoal'
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      <span>{lang === 'hi' ? 'योजना पोस्टर' : 'Scheme Poster'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHeroRightTab('summary')}
+                      className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
+                        heroRightTab === 'summary'
+                          ? 'bg-white text-charcoal shadow-xs border border-stone-border/60'
+                          : 'text-driftwood hover:text-charcoal'
+                      }`}
+                    >
+                      <Info className="w-3.5 h-3.5 text-sage" />
+                      <span>{lang === 'hi' ? 'ट्रस्ट विवरण' : 'Trust Summary'}</span>
+                    </button>
                   </div>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sage-light text-sage text-[10px] font-bold">
+
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sage-light text-sage text-[10px] font-bold">
                     <CheckCircle2 className="w-3 h-3" />
-                    सत्यापित
+                    100% सत्यापित
                   </span>
                 </div>
 
-                {/* Key Digital Verification Badge */}
-                <div className="rounded-2xl bg-canvas-inset p-4 border border-stone-border/80 space-y-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-driftwood">{lang === 'hi' ? 'सदस्यता शुल्क:' : 'Joining Fee:'}</span>
-                    <span className="font-mono font-bold text-charcoal">₹50 (One-time)</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-driftwood">{lang === 'hi' ? 'वार्षिक नवीनीकरण:' : 'Annual Renewal:'}</span>
-                    <span className="font-mono font-bold text-charcoal">₹50 / Year</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-driftwood">{lang === 'hi' ? 'पात्रता आयु सीमा:' : 'Age Eligibility:'}</span>
-                    <span className="font-mono font-bold text-sage">18 से 60 वर्ष</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-driftwood">{lang === 'hi' ? 'पारस्परिक संबल लक्ष्य:' : 'Mutual Aid Max:'}</span>
-                    <span className="font-mono font-bold text-terracotta">₹20,00,000 (₹20 Lakh)</span>
-                  </div>
-                </div>
+                {/* Tab 1: Official Scheme Poster Showcase (matches dpswt.com hero image) */}
+                {heroRightTab === 'poster' && (
+                  <div className="space-y-3">
+                    <div
+                      onClick={() => setIsPosterLightboxOpen(true)}
+                      className="group relative rounded-2xl overflow-hidden border-2 border-amber-300/80 shadow-warm cursor-pointer bg-stone-900 aspect-[4/5] sm:aspect-[3/4] flex items-center justify-center"
+                      title={lang === 'hi' ? 'बड़ा पोस्टर देखने के लिए क्लिक करें' : 'Click to enlarge poster'}
+                    >
+                      <img
+                        src="/images/ek-sadasyata-poster.jpg"
+                        alt="एक सदस्यता - तीन सहायता"
+                        className="w-full h-full object-contain animate-kenburns transition-transform duration-500 group-hover:scale-105"
+                      />
 
-                {/* Direct Nominee Transfer Slogan & QR */}
-                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/70 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-amber-300 flex items-center justify-center shrink-0 text-terracotta">
-                    <QrCode className="w-5 h-5" />
-                  </div>
-                  <div className="text-xs">
-                    <span className="font-bold text-charcoal block">
-                      {lang === 'hi' ? '100% प्रत्यक्ष UPI अंतरण' : '100% Direct UPI Transfer'}
-                    </span>
-                    <span className="text-[11px] text-driftwood">
-                      {lang === 'hi' ? 'सीधे पीड़ित नामिनी के खाते में ₹50 सहयोग' : 'Direct ₹50 aid straight into nominee account'}
-                    </span>
-                  </div>
-                </div>
+                      {/* Top floating pill */}
+                      <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none z-10">
+                        <span className="px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-amber-300 text-[10px] sm:text-xs font-bold border border-amber-400/40 shadow-xs flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          <span>एक सदस्यता — तीन सहायता</span>
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-terracotta/90 backdrop-blur-md text-white text-[10px] font-bold shadow-xs">
+                          ₹50/वर्ष
+                        </span>
+                      </div>
 
-                {/* Quick Action Link to Register */}
-                <Link
-                  href="/register"
-                  className="w-full py-3 rounded-xl bg-charcoal hover:bg-charcoal-deep text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2"
-                >
-                  <span>{lang === 'hi' ? 'ट्रस्ट सदस्यता प्रपत्र भरें' : 'Fill Registration Form'}</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </Link>
+                      {/* Hover Overlay with Zoom Button */}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4 z-20">
+                        <span className="px-4 py-2 rounded-xl bg-white/95 text-charcoal font-bold text-xs shadow-lg flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                          <ZoomIn className="w-4 h-4 text-terracotta" />
+                          <span>{lang === 'hi' ? 'पूरा पोस्टर ज़ूम करें' : 'Enlarge Full Poster'}</span>
+                        </span>
+                      </div>
+
+                      {/* Bottom Key Highlights Strip */}
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 pt-6 z-10 text-white">
+                        <div className="grid grid-cols-3 gap-1.5 text-center text-[10px] font-bold">
+                          <div className="p-1 rounded bg-white/10 backdrop-blur-xs">
+                            <span className="text-amber-300 block text-[9px]">01. दिवंगत</span>
+                            <span>₹10 Lakh</span>
+                          </div>
+                          <div className="p-1 rounded bg-white/10 backdrop-blur-xs">
+                            <span className="text-amber-300 block text-[9px]">02. शहनाई</span>
+                            <span>₹5 Lakh</span>
+                          </div>
+                          <div className="p-1 rounded bg-white/10 backdrop-blur-xs">
+                            <span className="text-amber-300 block text-[9px]">03. बधाई</span>
+                            <span>₹2 Lakh</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions under poster */}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setIsPosterLightboxOpen(true)}
+                        className="py-2.5 px-3 rounded-xl bg-canvas-inset hover:bg-stone-border/40 text-charcoal font-bold text-xs border border-stone-border transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <ZoomIn className="w-3.5 h-3.5 text-terracotta" />
+                        <span>{lang === 'hi' ? 'बड़ा देखें' : 'Zoom Poster'}</span>
+                      </button>
+
+                      <Link
+                        href="/register"
+                        className="py-2.5 px-3 rounded-xl bg-terracotta hover:bg-terracotta-hover text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-warm"
+                      >
+                        <UserCheck className="w-3.5 h-3.5" />
+                        <span>{lang === 'hi' ? 'सदस्य बनें (₹50)' : 'Join (₹50)'}</span>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab 2: Trust Card Summary */}
+                {heroRightTab === 'summary' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 border-b border-stone-border/60 pb-3">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-terracotta to-amber-600 flex items-center justify-center text-white font-editorial font-bold text-base shadow-sm">
+                        JS
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm text-charcoal leading-tight">
+                          जन सेवा चैरिटेबल ट्रस्ट
+                        </div>
+                        <div className="text-[11px] font-mono text-driftwood">
+                          JSCT • Gorakhpur (U.P.)
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-canvas-inset p-3.5 border border-stone-border/80 space-y-2.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-driftwood">{lang === 'hi' ? 'सदस्यता शुल्क:' : 'Joining Fee:'}</span>
+                        <span className="font-mono font-bold text-charcoal">₹50 (One-time)</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-driftwood">{lang === 'hi' ? 'वार्षिक नवीनीकरण:' : 'Annual Renewal:'}</span>
+                        <span className="font-mono font-bold text-charcoal">₹50 / Year</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-driftwood">{lang === 'hi' ? 'पात्रता आयु सीमा:' : 'Age Eligibility:'}</span>
+                        <span className="font-mono font-bold text-sage">18 से 60 वर्ष</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-driftwood">{lang === 'hi' ? 'पारस्परिक संबल लक्ष्य:' : 'Mutual Aid Max:'}</span>
+                        <span className="font-mono font-bold text-terracotta">₹20,00,000 (₹20 Lakh)</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/70 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-white border border-amber-300 flex items-center justify-center shrink-0 text-terracotta">
+                        <QrCode className="w-4 h-4" />
+                      </div>
+                      <div className="text-xs">
+                        <span className="font-bold text-charcoal block leading-tight">
+                          {lang === 'hi' ? '100% प्रत्यक्ष UPI अंतरण' : '100% Direct UPI Transfer'}
+                        </span>
+                        <span className="text-[11px] text-driftwood">
+                          {lang === 'hi' ? 'सीधे पीड़ित नामिनी के खाते में ₹50 सहयोग' : 'Direct ₹50 aid straight to nominee'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <Link
+                      href="/register"
+                      className="w-full py-3 rounded-xl bg-charcoal hover:bg-charcoal-deep text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2"
+                    >
+                      <span>{lang === 'hi' ? 'ट्रस्ट सदस्यता प्रपत्र भरें' : 'Fill Registration Form'}</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                )}
 
               </div>
             </div>
@@ -454,6 +581,262 @@ export default function HomePage() {
             <span>{lang === 'hi' ? '75% नियम विवरण' : 'Explore Rules & Terms'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* "एक सदस्यता - तीन सहायता" FLAGSHIP SCHEME SECTION                 */}
+      {/* (Featuring Official Scheme Poster & The 3 Pillar Schemes)          */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-orange-50/40 border border-amber-200/80 p-6 sm:p-10 lg:p-12 shadow-warm-lg overflow-hidden space-y-8 sm:space-y-10">
+          
+          {/* Subtle decorative glow */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-terracotta/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto space-y-3 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-terracotta-light text-terracotta font-mono text-xs font-bold uppercase tracking-wider shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>{lang === 'hi' ? 'विशेष जनकल्याण योजना • FLAGSHIP SOLIDARITY' : 'FLAGSHIP SOLIDARITY SCHEME'}</span>
+            </div>
+
+            <h2 className="font-editorial text-3xl sm:text-5xl font-extrabold text-charcoal tracking-tight">
+              {lang === 'hi' ? (
+                <>
+                  एक सदस्यता —{' '}
+                  <span className="bg-gradient-to-r from-terracotta via-amber-600 to-terracotta-dark bg-clip-text text-transparent">
+                    तीन सहायता
+                  </span>
+                </>
+              ) : (
+                'One Membership — Three Aims of Aid'
+              )}
+            </h2>
+
+            <p className="text-xs sm:text-base font-semibold text-charcoal-muted max-w-2xl mx-auto leading-relaxed">
+              {lang === 'hi'
+                ? 'एक सदस्यता = पारिवारिक सदस्यता (पति, पत्नी और दो अविवाहित बच्चे शामिल)'
+                : 'One Membership = Family Membership (Includes Husband, Wife & Two Unmarried Children)'}
+            </p>
+          </div>
+
+          {/* Core Grid: Left Poster Showcase + Right 3 Schemes */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            
+            {/* Left: Official Poster Showcase with Enlarge Lightbox */}
+            <div className="lg:col-span-5 flex flex-col items-center">
+              <div
+                onClick={() => setIsPosterLightboxOpen(true)}
+                className="group relative rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-amber-300 shadow-warm-lg cursor-pointer bg-stone-900 w-full max-w-md mx-auto transition-all duration-300 hover:shadow-2xl hover:border-amber-400"
+                title={lang === 'hi' ? 'बड़ा पोस्टर देखने के लिए क्लिक करें' : 'Click to enlarge poster'}
+              >
+                <img
+                  src="/images/ek-sadasyata-poster.jpg"
+                  alt="एक सदस्यता - तीन सहायता आधिकारिक पोस्टर"
+                  className="w-full h-auto object-cover sm:object-contain transition-transform duration-700 group-hover:scale-[1.03]"
+                />
+
+                {/* Corner Scheme Pill */}
+                <div className="absolute top-3 left-3 z-10">
+                  <span className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md text-amber-300 text-[11px] font-bold border border-amber-300/40 flex items-center gap-1.5 shadow-sm">
+                    <Sparkles className="w-3 h-3" />
+                    <span>{lang === 'hi' ? 'आधिकारिक योजना प्रपत्र' : 'Official Notice'}</span>
+                  </span>
+                </div>
+
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4 z-20">
+                  <span className="px-4 py-2.5 rounded-2xl bg-white/95 text-charcoal font-bold text-xs sm:text-sm shadow-xl flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <ZoomIn className="w-4 h-4 text-terracotta" />
+                    <span>{lang === 'hi' ? '🔍 पूरा पोस्टर बड़ा देखें' : 'Zoom Full Poster'}</span>
+                  </span>
+                </div>
+
+                {/* Bottom Slogan Ribbon */}
+                <div className="bg-stone-950 p-3 sm:p-3.5 text-center border-t border-stone-800">
+                  <p className="text-xs sm:text-sm font-bold text-amber-300 tracking-wide">
+                    जन से जन तक – सहयोग हर जरूरतमंद तक
+                  </p>
+                  <p className="text-[11px] text-stone-400 font-mono mt-0.5">
+                    वार्षिक सदस्यता: ₹50 • सहयोग राशि: ₹50
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Click-to-Enlarge Text Pill */}
+              <button
+                type="button"
+                onClick={() => setIsPosterLightboxOpen(true)}
+                className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-terracotta hover:text-terracotta-hover transition-colors"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>{lang === 'hi' ? 'पूरा पोस्टर हाई-रेजोल्यूशन में देखें' : 'View High-Res Poster'}</span>
+                <ChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Right: The 3 Detailed Scheme Pillars */}
+            <div className="lg:col-span-7 space-y-4 sm:space-y-5">
+              
+              {/* Scheme 01: Divyangat Sahyog */}
+              <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-rose-200/80 shadow-warm hover:border-rose-400 transition-all space-y-3 group">
+                <div className="flex items-start sm:items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 font-bold font-mono text-xs flex items-center justify-center shrink-0">
+                      01
+                    </span>
+                    <h3 className="font-editorial text-lg sm:text-xl font-bold text-charcoal group-hover:text-rose-700 transition-colors">
+                      {lang === 'hi' ? 'दिवंगत की स्थिति में सहयोग' : 'Bereavement Solidarity Support'}
+                    </h3>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold">
+                    {lang === 'hi' ? 'आकस्मिक संबल' : 'Bereavement Aid'}
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-rose-50/60 border border-rose-100 flex items-baseline gap-2">
+                  <span className="text-xs text-rose-800 font-semibold">{lang === 'hi' ? 'सहयोग लक्ष्य:' : 'Aid Goal:'}</span>
+                  <span className="font-editorial text-base sm:text-lg font-extrabold text-rose-700">
+                    ₹10,000 से लेकर अधिकतम ₹10,00,000 तक
+                  </span>
+                  <span className="text-[11px] text-rose-600 hidden sm:inline">(कराने का प्रयास)</span>
+                </div>
+
+                <p className="text-xs sm:text-sm text-driftwood leading-relaxed">
+                  {lang === 'hi'
+                    ? 'सदस्य के असामयिक निधन की दुखद स्थिति में पीड़ित परिवार के अधिकृत नामिनी के खाते में सभी सक्रिय सदस्यों द्वारा ₹50 का सीधा सहयोग प्रेषित किया जाता है।'
+                    : 'In the tragic event of member demise, all active members transfer ₹50 directly into the verified nominee bank account without intermediaries.'}
+                </p>
+
+                <div className="flex items-center gap-2 text-[11px] font-mono text-charcoal-muted pt-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                  <span>{lang === 'hi' ? 'पात्रता: 90 दिन लॉकिंग अवधि पूर्ण एवं 75% सहयोग अनुपालन अनिवार्य' : 'Eligibility: 90 days active & 75% compliance'}</span>
+                </div>
+              </div>
+
+              {/* Scheme 02: Beti Vivah Shehnai */}
+              <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-amber-200/80 shadow-warm hover:border-amber-400 transition-all space-y-3 group">
+                <div className="flex items-start sm:items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 font-bold font-mono text-xs flex items-center justify-center shrink-0">
+                      02
+                    </span>
+                    <h3 className="font-editorial text-lg sm:text-xl font-bold text-charcoal group-hover:text-amber-800 transition-colors">
+                      {lang === 'hi' ? 'बेटी विवाह शहनाई योजना' : 'Beti Vivah Shehnai Scheme'}
+                    </h3>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold">
+                    {lang === 'hi' ? 'कन्यादान उपहार' : 'Daughter Marriage'}
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-100 flex items-baseline gap-2">
+                  <span className="text-xs text-amber-900 font-semibold">{lang === 'hi' ? 'सहयोग लक्ष्य:' : 'Aid Goal:'}</span>
+                  <span className="font-editorial text-base sm:text-lg font-extrabold text-amber-800">
+                    ₹10,000 से लेकर अधिकतम ₹5,00,000 तक
+                  </span>
+                  <span className="text-[11px] text-amber-700 hidden sm:inline">(कराने का प्रयास)</span>
+                </div>
+
+                <p className="text-xs sm:text-sm text-driftwood leading-relaxed">
+                  {lang === 'hi'
+                    ? 'परिवार की जैविक सुपुत्री के शुभ विवाह के पावन अवसर पर कन्यादान स्वरूप समस्त ट्रस्ट परिवार द्वारा आर्थिक उपहार व मंगल सहयोग।'
+                    : 'Financial solidarity gift from the whole JSCT family for the auspicious wedding ceremony of biological daughter.'}
+                </p>
+
+                <div className="flex items-center gap-2 text-[11px] font-mono text-charcoal-muted pt-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>{lang === 'hi' ? 'पात्रता: पुत्री की आयु न्यूनतम 18 वर्ष पूर्ण; माता-पिता द्वारा सहमति से आवेदन' : 'Eligibility: Daughter age min 18; applied by parents'}</span>
+                </div>
+              </div>
+
+              {/* Scheme 03: Beta Vivah Badhai */}
+              <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-sky-200/80 shadow-warm hover:border-sky-400 transition-all space-y-3 group">
+                <div className="flex items-start sm:items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-sky-100 text-sky-800 font-bold font-mono text-xs flex items-center justify-center shrink-0">
+                      03
+                    </span>
+                    <h3 className="font-editorial text-lg sm:text-xl font-bold text-charcoal group-hover:text-sky-800 transition-colors">
+                      {lang === 'hi' ? 'बेटा विवाह बधाई योजना' : 'Beta Vivah Badhai Scheme'}
+                    </h3>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-sky-50 text-sky-800 border border-sky-200 text-[11px] font-bold">
+                    {lang === 'hi' ? 'मंगल बधाई' : 'Son Marriage'}
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-sky-50/60 border border-sky-100 flex items-baseline gap-2">
+                  <span className="text-xs text-sky-900 font-semibold">{lang === 'hi' ? 'सहयोग लक्ष्य:' : 'Aid Goal:'}</span>
+                  <span className="font-editorial text-base sm:text-lg font-extrabold text-sky-800">
+                    ₹10,000 से लेकर अधिकतम ₹2,00,000 तक
+                  </span>
+                  <span className="text-[11px] text-sky-700 hidden sm:inline">(कराने का प्रयास)</span>
+                </div>
+
+                <p className="text-xs sm:text-sm text-driftwood leading-relaxed">
+                  {lang === 'hi'
+                    ? 'परिवार के जैविक सुपुत्र के विवाह संस्कार के शुभ अवसर पर ट्रस्ट परिवार द्वारा बधाई स्वरूप सहयोग राशि प्रदान कराने का प्रयास।'
+                    : 'Congratulations mutual aid gift from the trust family on the auspicious wedding occasion of biological son.'}
+                </p>
+
+                <div className="flex items-center gap-2 text-[11px] font-mono text-charcoal-muted pt-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                  <span>{lang === 'hi' ? 'पात्रता: पुत्र की आयु न्यूनतम 21 वर्ष पूर्ण; अधिकतम दो पुत्रों हेतु मान्य' : 'Eligibility: Son age min 21; up to two sons'}</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* Bottom Banner: Slogan, Facts & Direct Registration CTA */}
+          <div className="rounded-2xl sm:rounded-3xl bg-charcoal text-white p-5 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 shadow-warm-md">
+            <div className="space-y-2 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-amber-300 text-xs font-bold font-mono">
+                <span>जन से जन तक – सहयोग हर जरूरतमंद तक</span>
+              </div>
+              <h3 className="font-editorial text-xl sm:text-2xl font-bold">
+                {lang === 'hi' ? 'एक पारिवारिक सदस्यता से पाएं तीनों योजनाओं का संबल' : 'One Family Membership Powers All 3 Schemes'}
+              </h3>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 text-xs text-stone-300 pt-1 font-medium">
+                <span className="inline-flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-amber-400" />
+                  <span>सदस्यता शुल्क: ₹50 / वर्ष</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-amber-400" />
+                  <span>सहयोग राशि: ₹50 प्रति माह / अपील</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-amber-400" />
+                  <span>100% प्रत्यक्ष बैंक अंतरण</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto shrink-0">
+              <Link
+                href="/register"
+                className="px-6 sm:px-8 py-3.5 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm transition-transform active:scale-95 text-center flex items-center justify-center gap-2"
+              >
+                <UserCheck className="w-4 h-4" />
+                <span>{lang === 'hi' ? 'सदस्यता के लिए यहाँ क्लिक करें (₹50)' : 'Register for Membership (₹50)'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setIsPosterLightboxOpen(true)}
+                className="px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 border border-white/20"
+              >
+                <ZoomIn className="w-4 h-4 text-amber-300" />
+                <span>{lang === 'hi' ? 'पोस्टर ज़ूम करें' : 'Zoom Poster'}</span>
+              </button>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -1349,6 +1732,80 @@ export default function HomePage() {
           onClose={() => setSelectedAppealForSlip(null)}
           onSuccess={() => setSelectedAppealForSlip(null)}
         />
+      )}
+
+      {/* ------------------------------------------------------------------ */}
+      {/* "एक सदस्यता - तीन सहायता" HIGH-RES POSTER LIGHTBOX MODAL          */}
+      {/* ------------------------------------------------------------------ */}
+      {isPosterLightboxOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+          onClick={() => setIsPosterLightboxOpen(false)}
+        >
+          <div
+            className="relative max-w-4xl w-full bg-stone-900 border border-stone-700/80 rounded-3xl shadow-2xl overflow-hidden my-auto animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Top Bar */}
+            <div className="flex items-center justify-between px-5 py-4 bg-stone-950/90 border-b border-stone-800 text-white">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="font-bold text-sm sm:text-base font-editorial">
+                  {lang === 'hi' ? 'एक सदस्यता — तीन सहायता (आधिकारिक प्रपत्र)' : 'One Membership — Three Schemes (Official Notice)'}
+                </span>
+                <span className="hidden sm:inline-block text-[11px] text-amber-300/80 font-mono bg-white/10 px-2 py-0.5 rounded-full">
+                  JSCT Gorakhpur
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPosterLightboxOpen(false)}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Poster High-Res Image Display */}
+            <div className="p-3 sm:p-6 flex items-center justify-center bg-stone-950/60 overflow-hidden">
+              <img
+                src="/images/ek-sadasyata-poster.jpg"
+                alt="एक सदस्यता - तीन सहायता आधिकारिक पोस्टर"
+                className="max-h-[72vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-stone-800"
+              />
+            </div>
+
+            {/* Modal Bottom Bar */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-4 bg-stone-950/95 border-t border-stone-800">
+              <div className="text-xs text-stone-300 text-center sm:text-left">
+                <span className="font-bold text-amber-300 block">जन से जन तक – सहयोग हर जरूरतमंद तक</span>
+                <span className="text-stone-400 text-[11px]">
+                  सदस्यता शुल्क: मात्र ₹50 प्रति वर्ष • सहयोग राशि: ₹50 प्रति माह / अपील
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                <Link
+                  href="/register"
+                  onClick={() => setIsPosterLightboxOpen(false)}
+                  className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-terracotta to-terracotta-hover text-white text-xs font-bold transition-all shadow-md text-center flex items-center justify-center gap-1.5"
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>{lang === 'hi' ? 'सदस्यता प्रपत्र भरें (₹50)' : 'Register Member (₹50)'}</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setIsPosterLightboxOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-medium transition-colors"
+                >
+                  {lang === 'hi' ? 'बंद करें' : 'Close'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
