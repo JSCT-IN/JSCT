@@ -16,20 +16,20 @@ export default function Footer() {
           {/* Brand & Mission Statement */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-terracotta flex items-center justify-center text-white shadow-warm">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-terracotta to-terracotta-hover flex items-center justify-center text-white shadow-warm shrink-0">
                 <HeartHandshake className="w-5 h-5" />
               </div>
               <div>
                 <span className="font-editorial text-2xl font-bold tracking-tight text-charcoal">
-                  DPSWT
+                  JSCT
                 </span>
                 <span className="block text-[11px] text-driftwood font-medium">
-                  {t.taglineFull}
+                  Jan Sewa Charitable Trust (जन सेवा चैरिटेबल ट्रस्ट)
                 </span>
               </div>
             </div>
 
-            <p className="font-editorial text-lg text-charcoal italic leading-relaxed">
+            <p className="font-editorial text-base sm:text-lg text-charcoal italic leading-relaxed">
               &ldquo;{t.heroTagline.replace(/“|”/g, '')}&rdquo;
             </p>
 
@@ -37,7 +37,7 @@ export default function Footer() {
               {t.footerMission}
             </p>
 
-            <div className="flex items-center gap-3 pt-1 text-xs">
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sage/10 text-sage font-medium">
                 <ShieldCheck className="w-4 h-4" />
                 <span>Zero-Custody P2P Model</span>
@@ -120,7 +120,7 @@ export default function Footer() {
               <div className="flex items-start gap-2">
                 <PhoneCall className="w-4 h-4 text-terracotta shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-semibold text-charcoal">+91 94150 00001 / +91 94501 23456</div>
+                  <div className="font-semibold text-charcoal font-mono">+91 9264945875 / +91 9936639215</div>
                   <div className="text-[11px]">{lang === 'hi' ? 'प्रातः 9:00 से सायं 7:00 बजे तक' : '9:00 AM to 7:00 PM IST'}</div>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export default function Footer() {
               <div className="flex items-start gap-2">
                 <Mail className="w-4 h-4 text-terracotta shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-semibold text-charcoal">support@dpswt.org</div>
+                  <div className="font-semibold text-charcoal font-mono">info@jsct.org.in</div>
                   <div className="text-[11px]">{lang === 'hi' ? 'तकनीकी व UTR समाधान हेतु' : 'Technical & UTR Resolution'}</div>
                 </div>
               </div>
@@ -137,8 +137,8 @@ export default function Footer() {
                 <MapPin className="w-4 h-4 text-terracotta shrink-0 mt-0.5" />
                 <div className="text-[11px]">
                   {lang === 'hi' 
-                    ? 'केंद्रीय समन्वय कार्यालय, सिविल लाइंस, लखनऊ / प्रयागराज, उत्तर प्रदेश' 
-                    : 'Central Coordination Cell, Civil Lines, Lucknow / Prayagraj, UP'}
+                    ? 'मुख्यालय: हरपुर पोस्ट लुहासी, जनपद गोरखपुर, उत्तर प्रदेश 273152' 
+                    : 'HQ: Harpur Post Luhasi, District Gorakhpur, UP 273152'}
                 </div>
               </div>
 

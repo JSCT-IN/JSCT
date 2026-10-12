@@ -295,7 +295,7 @@ export default function HomePage() {
                 {heroSlides[currentSlide].lines.map((line, idx) => (
                   <h1
                     key={idx}
-                    className={`font-editorial text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-none ${
+                    className={`font-editorial text-2xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight sm:leading-none break-words ${
                       line.highlight
                         ? 'bg-gradient-to-r from-terracotta via-amber-600 to-terracotta-dark bg-clip-text text-transparent'
                         : 'text-charcoal'
@@ -307,15 +307,15 @@ export default function HomePage() {
               </div>
 
               {/* Description */}
-              <p className="text-sm sm:text-base text-driftwood leading-relaxed max-w-xl font-normal">
+              <p className="text-xs sm:text-base text-driftwood leading-relaxed max-w-xl font-normal">
                 {heroSlides[currentSlide].description}
               </p>
 
-              {/* Call to Actions (matching dpswt button row) */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
+              {/* Call to Actions (matching dpswt button row, thumb-friendly on mobile) */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2">
                 <Link
                   href="/register"
-                  className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-sm shadow-warm-md hover:shadow-warm-lg active:scale-[0.98] transition-all flex items-center gap-2"
+                  className="w-full sm:w-auto px-6 sm:px-7 py-3.5 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm-md hover:shadow-warm-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
                   <UserCheck className="w-4 h-4 stroke-[2.5]" />
                   <span>{lang === 'hi' ? 'नया सदस्य पंजीकरण (₹50)' : 'REGISTER NOW (₹50)'}</span>
@@ -324,7 +324,7 @@ export default function HomePage() {
 
                 <Link
                   href="/appeals"
-                  className="px-6 py-3.5 rounded-2xl bg-white hover:bg-canvas-inset active:scale-[0.98] border border-stone-border text-charcoal font-semibold text-sm shadow-warm transition-all flex items-center gap-2"
+                  className="w-full sm:w-auto px-5 sm:px-6 py-3.5 rounded-2xl bg-white hover:bg-canvas-inset active:scale-[0.98] border border-stone-border text-charcoal font-semibold text-xs sm:text-sm shadow-warm transition-all flex items-center justify-center gap-2"
                 >
                   <HeartHandshake className="w-4 h-4 text-terracotta" />
                   <span>{lang === 'hi' ? 'सक्रिय सहयोग सूची' : 'CURRENT SAHYOG'}</span>
@@ -332,7 +332,7 @@ export default function HomePage() {
 
                 <Link
                   href="/member"
-                  className="px-5 py-3.5 rounded-2xl bg-canvas-inset hover:bg-stone-border/40 text-charcoal-muted hover:text-charcoal font-medium text-sm transition-all flex items-center gap-1.5"
+                  className="w-full sm:w-auto px-4 sm:px-5 py-3.5 rounded-2xl bg-canvas-inset hover:bg-stone-border/40 text-charcoal-muted hover:text-charcoal font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5"
                 >
                   <Users className="w-4 h-4 text-driftwood" />
                   <span>{lang === 'hi' ? 'सदस्य सूची' : 'MEMBERS'}</span>

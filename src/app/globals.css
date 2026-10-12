@@ -13,6 +13,12 @@
     --stone-border: #E7E2DA;
   }
 
+  html {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     background-color: #FAF8F5;
     color: #262421;
@@ -20,11 +26,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    min-width: 320px;
   }
 
   h1, h2, h3, .font-editorial {
     font-family: 'Martel', 'Noto Serif Devanagari', 'Georgia', serif;
     letter-spacing: -0.015em;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 }
 

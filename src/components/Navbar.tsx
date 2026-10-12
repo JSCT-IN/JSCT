@@ -103,23 +103,23 @@ export default function Navbar() {
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 gap-3">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-3">
           
           {/* Logo & Brand Identity (JSCT - Jan Sewa Charitable Trust) */}
-          <Link href="/" className="flex items-center gap-3 shrink-0 group">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-terracotta via-terracotta to-terracotta-hover flex items-center justify-center text-white shadow-warm group-hover:shadow-warm-md transition-all">
-              <HeartHandshake className="w-6 h-6 stroke-[2.2]" />
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0 group">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-terracotta via-terracotta to-terracotta-hover flex items-center justify-center text-white shadow-warm group-hover:shadow-warm-md transition-all shrink-0">
+              <HeartHandshake className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="font-editorial text-2xl font-black tracking-tight text-charcoal leading-none">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-editorial text-xl sm:text-2xl font-black tracking-tight text-charcoal leading-none">
                   JSCT
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 bg-terracotta/10 text-terracotta border border-terracotta/20 rounded-md tracking-wider">
+                <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 bg-terracotta/10 text-terracotta border border-terracotta/20 rounded-md tracking-wider">
                   {lang === 'hi' ? 'उत्तर प्रदेश' : 'UP'}
                 </span>
               </div>
-              <p className="text-[11px] text-driftwood font-medium tracking-tight mt-0.5 whitespace-nowrap">
+              <p className="text-[10px] sm:text-[11px] text-driftwood font-medium tracking-tight mt-0.5 whitespace-nowrap hidden min-[360px]:block">
                 Jan Sewa Charitable Trust
               </p>
             </div>
@@ -174,7 +174,7 @@ export default function Navbar() {
           </nav>
 
           {/* Right Action Cluster: Strict Uniform Height (h-9), Flawless Horizontal Alignment */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             
             {/* Register CTA Pill (Prominent, High-Priority, Never Wraps) */}
             <Link
@@ -193,10 +193,10 @@ export default function Navbar() {
             <button
               type="button"
               onClick={toggleLanguage}
-              className="inline-flex items-center justify-center gap-1.5 h-9 px-2.5 sm:px-3 rounded-xl border border-stone-border bg-canvas-inset/60 hover:bg-canvas-inset text-charcoal text-xs font-bold whitespace-nowrap transition-all shadow-xs shrink-0"
+              className="inline-flex items-center justify-center gap-1 sm:gap-1.5 h-9 px-2 sm:px-3 rounded-xl border border-stone-border bg-canvas-inset/60 hover:bg-canvas-inset text-charcoal text-xs font-bold whitespace-nowrap transition-all shadow-xs shrink-0"
               title="भाषा बदलें / Switch Language"
             >
-              <Languages className="w-4 h-4 text-terracotta" />
+              <Languages className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-terracotta" />
               <span>{lang === 'hi' ? 'EN' : 'हिन्दी'}</span>
             </button>
 
@@ -330,9 +330,9 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-1.5 h-9 px-3 sm:px-3.5 rounded-xl border border-stone-border bg-white hover:bg-canvas-inset text-charcoal text-xs font-bold whitespace-nowrap transition-all shadow-xs shrink-0"
+                className="inline-flex items-center justify-center gap-1 sm:gap-1.5 h-9 px-2.5 sm:px-3.5 rounded-xl border border-stone-border bg-white hover:bg-canvas-inset text-charcoal text-xs font-bold whitespace-nowrap transition-all shadow-xs shrink-0"
               >
-                <LogIn className="w-4 h-4 text-terracotta" />
+                <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-terracotta" />
                 <span>{lang === 'hi' ? 'लॉगिन' : 'Log In'}</span>
               </Link>
             )}

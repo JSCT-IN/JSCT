@@ -53,8 +53,8 @@ export default function RulesPage() {
         <div className="text-xs sm:text-sm text-driftwood leading-relaxed space-y-3 pt-2">
           <p>
             {lang === 'hi' 
-              ? 'डीपीएसडब्ल्यूटी (DPSWT) का मूल आधार है — सबका साथ, सबकी सुरक्षा। जब कोई सदस्य अन्य साथियों के संकट के समय में निरंतर खड़ा रहता है, केवल तभी संगठन उनके अपने परिवार के संकट के समय ₹20 लाख तक के सहयोग की गारंटी ले सकता है।'
-              : 'The founding principle of DPSWT is mutual collective solidarity. Only when a member consistently stands with brethren during their grief can the community guarantee up to ₹20 Lakhs in emergency bereavement support.'}
+              ? 'जन सेवा चैरिटेबल ट्रस्ट (JSCT) का मूल आधार है — सबका साथ, सबकी सुरक्षा। जब कोई सदस्य अन्य साथियों के संकट के समय में निरंतर खड़ा रहता है, केवल तभी संगठन उनके अपने परिवार के संकट के समय ₹20 लाख तक के सहयोग की गारंटी ले सकता है।'
+              : 'The founding principle of Jan Sewa Charitable Trust (JSCT) is mutual collective solidarity. Only when a member consistently stands with brethren during their grief can the community guarantee up to ₹20 Lakhs in emergency bereavement support.'}
           </p>
 
           <div className="p-4 rounded-2xl bg-canvas-inset border border-stone-border space-y-2 font-mono text-xs text-charcoal">

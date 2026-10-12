@@ -112,29 +112,29 @@ export default function AppealsPage() {
       </div>
 
       {/* Summary Metrics Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-2xl bg-white border border-stone-border shadow-xs">
-          <div className="text-[11px] text-driftwood font-medium">{t.activeOnly}</div>
-          <div className="font-editorial text-xl font-bold text-charcoal mt-0.5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+        <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-stone-border shadow-xs">
+          <div className="text-[10px] sm:text-[11px] text-driftwood font-medium">{t.activeOnly}</div>
+          <div className="font-editorial text-base sm:text-xl font-bold text-charcoal mt-0.5">
             {appeals.filter((a) => a.status === 'ACTIVE').length} {lang === 'hi' ? 'परिवार' : 'Cases'}
           </div>
         </div>
-        <div className="p-3.5 rounded-2xl bg-white border border-stone-border shadow-xs">
-          <div className="text-[11px] text-driftwood font-medium">{lang === 'hi' ? 'आवश्यक अंशदान' : 'Required Micro-Aid'}</div>
-          <div className="font-editorial text-xl font-bold text-terracotta mt-0.5">
-            {lang === 'hi' ? '₹50 प्रति सदस्य' : '₹50 per Member'}
+        <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-stone-border shadow-xs">
+          <div className="text-[10px] sm:text-[11px] text-driftwood font-medium">{lang === 'hi' ? 'आवश्यक अंशदान' : 'Required Micro-Aid'}</div>
+          <div className="font-editorial text-base sm:text-xl font-bold text-terracotta mt-0.5">
+            {lang === 'hi' ? '₹50 प्रति सदस्य' : '₹50 / Member'}
           </div>
         </div>
-        <div className="p-3.5 rounded-2xl bg-white border border-stone-border shadow-xs">
-          <div className="text-[11px] text-driftwood font-medium">{lang === 'hi' ? 'हस्तांतरण मॉडल' : 'Transfer Model'}</div>
-          <div className="font-editorial text-xl font-bold text-sage mt-0.5">
-            Zero-Custody P2P
+        <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-stone-border shadow-xs">
+          <div className="text-[10px] sm:text-[11px] text-driftwood font-medium">{lang === 'hi' ? 'हस्तांतरण मॉडल' : 'Transfer Model'}</div>
+          <div className="font-editorial text-base sm:text-xl font-bold text-sage mt-0.5">
+            Zero-Custody
           </div>
         </div>
-        <div className="p-3.5 rounded-2xl bg-white border border-stone-border shadow-xs">
-          <div className="text-[11px] text-driftwood font-medium">{lang === 'hi' ? 'पात्रता मानक' : 'Eligibility Threshold'}</div>
-          <div className="font-editorial text-xl font-bold text-charcoal mt-0.5">
-            ≥ 75% {lang === 'hi' ? 'अनुपालन' : 'Compliance'}
+        <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-stone-border shadow-xs">
+          <div className="text-[10px] sm:text-[11px] text-driftwood font-medium">{lang === 'hi' ? 'पात्रता मानक' : 'Eligibility Threshold'}</div>
+          <div className="font-editorial text-base sm:text-xl font-bold text-charcoal mt-0.5">
+            ≥ 75% {lang === 'hi' ? 'अनुपालन' : 'Score'}
           </div>
         </div>
       </div>

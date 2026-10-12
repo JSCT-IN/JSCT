@@ -71,10 +71,10 @@ export default function ContactDirectoryPage() {
           </p>
           <div className="pt-1">
             <a
-              href="tel:+919415000001"
+              href="tel:+919264945875"
               className="text-base font-bold font-mono text-terracotta hover:underline block"
             >
-              +91 94150 00001
+              +91 9264945875 / +91 9936639215
             </a>
             <span className="text-[11px] text-driftwood font-medium">{lang === 'hi' ? 'प्रातः 8:00 से रात्रि 10:00 बजे तक' : '8:00 AM to 10:00 PM IST'}</span>
           </div>
@@ -94,12 +94,12 @@ export default function ContactDirectoryPage() {
           </p>
           <div className="pt-1">
             <a
-              href="https://wa.me/919450123456"
+              href="https://wa.me/919264945875"
               target="_blank"
               rel="noreferrer"
               className="text-base font-bold font-mono text-sage hover:underline flex items-center gap-1.5"
             >
-              <span>+91 94501 23456</span>
+              <span>+91 9264945875</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
             <span className="text-[11px] text-driftwood font-medium">{lang === 'hi' ? 'स्वचालित त्वरित प्रतिक्रिया डेस्क' : 'Automated Fast Response Cell'}</span>
@@ -114,12 +114,12 @@ export default function ContactDirectoryPage() {
             {lang === 'hi' ? 'केंद्रीय समन्वय सचिवालय' : 'Central Coordination Cell'}
           </h3>
           <p className="text-xs text-driftwood leading-relaxed">
-            {lang === 'hi' ? 'डीपीएसडब्ल्यूटी उत्तर प्रदेश केंद्रीय कार्यकारिणी कार्यालय:' : 'DPSWT Uttar Pradesh Executive Headquarters:'}
+            {lang === 'hi' ? 'जन सेवा चैरिटेबल ट्रस्ट (JSCT) उत्तर प्रदेश मुख्यालय:' : 'Jan Sewa Charitable Trust (JSCT) UP Headquarters:'}
           </p>
           <div className="pt-1 text-xs text-driftwood">
-            <div className="font-semibold text-charcoal">{lang === 'hi' ? 'सिविल लाइंस, लखनऊ / प्रयागराज' : 'Civil Lines, Lucknow / Prayagraj'}</div>
-            <div>{lang === 'hi' ? 'पिन कोड: 211001 / 226001 (उ.प्र.)' : 'PIN: 211001 / 226001 (UP)'}</div>
-            <div className="text-[11px] font-mono text-terracotta mt-0.5">headquarters@dpswt.org</div>
+            <div className="font-semibold text-charcoal">{lang === 'hi' ? 'हरपुर पोस्ट लुहासी, जनपद गोरखपुर' : 'Harpur Post Luhasi, District Gorakhpur'}</div>
+            <div>{lang === 'hi' ? 'पिन कोड: 273152 (उत्तर प्रदेश)' : 'PIN: 273152 (Uttar Pradesh)'}</div>
+            <div className="text-[11px] font-mono text-terracotta mt-0.5">info@jsct.org.in</div>
           </div>
         </div>
 

@@ -339,139 +339,254 @@ export default function InspectorAuditPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-stone-border text-driftwood font-mono bg-canvas-inset">
-                  <th className="py-3 px-4">{t.donorCol}</th>
-                  <th className="py-3 px-4">{lang === 'hi' ? 'अपील कोड' : 'Appeal Code'}</th>
-                  <th className="py-3 px-4">{t.utrCol}</th>
-                  <th className="py-3 px-4">{t.amountCol}</th>
-                  <th className="py-3 px-4">{lang === 'hi' ? 'रसीद थंबनेल' : 'Receipt'}</th>
-                  <th className="py-3 px-4">{t.dateCol}</th>
-                  <th className="py-3 px-4">{t.statusCol}</th>
-                  <th className="py-3 px-4 text-right">{lang === 'hi' ? 'सत्यापन कार्रवाई' : 'Action'}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-border/60">
-                {filteredDonations.map((d) => (
-                  <tr key={d.id} className="hover:bg-canvas-inset/50 transition-colors">
-                    
-                    {/* Donor Info */}
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-charcoal">{d.donor_name || (lang === 'hi' ? 'सदस्य' : 'Member')}</div>
-                      <div className="text-[11px] font-mono text-terracotta">{d.donor_membership_id}</div>
-                    </td>
-
-                    {/* Appeal Code */}
-                    <td className="py-3.5 px-4 font-mono font-bold text-charcoal">
+          <div>
+            {/* Mobile Cards View (< lg) */}
+            <div className="block lg:hidden divide-y divide-stone-border/70">
+              {filteredDonations.map((d) => (
+                <div key={d.id} className="p-4 space-y-3 hover:bg-canvas-inset/40 transition-colors">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-xs font-bold text-terracotta bg-terracotta-light/60 px-2 py-0.5 rounded-lg border border-terracotta/20">
                       {d.appeal_code}
-                    </td>
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        d.status === 'VERIFIED'
+                          ? 'bg-sage-light text-sage'
+                          : d.status === 'REJECTED'
+                          ? 'bg-terracotta-light text-terracotta'
+                          : 'bg-amber-50 text-amber-700'
+                      }`}
+                    >
+                      {d.status === 'VERIFIED' ? (
+                        <>
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>{lang === 'hi' ? 'सत्यापित' : 'Verified'}</span>
+                        </>
+                      ) : d.status === 'REJECTED' ? (
+                        <>
+                          <XCircle className="w-3 h-3" />
+                          <span>{lang === 'hi' ? 'अस्वीकृत' : 'Rejected'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="w-3 h-3" />
+                          <span>{lang === 'hi' ? 'लंबित' : 'Pending'}</span>
+                        </>
+                      )}
+                    </span>
+                  </div>
 
-                    {/* UTR */}
-                    <td className="py-3.5 px-4 font-mono font-bold text-charcoal tracking-wider">
-                      {d.utr_number}
-                    </td>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="font-bold text-sm text-charcoal">{d.donor_name || (lang === 'hi' ? 'सदस्य' : 'Member')}</div>
+                      <div className="text-[11px] font-mono text-terracotta">{d.donor_membership_id}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveDonationForReview(d)}
+                      className="relative rounded-lg overflow-hidden border border-stone-border w-12 h-12 shrink-0 bg-canvas-inset"
+                      title={t.viewSlipAction}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={d.slip_url}
+                        alt="Slip"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-charcoal/30 flex items-center justify-center text-white">
+                        <Eye className="w-3.5 h-3.5" />
+                      </div>
+                    </button>
+                  </div>
 
-                    {/* Amount */}
-                    <td className="py-3.5 px-4 font-editorial font-bold text-sm text-charcoal">
-                      ₹{d.amount}
-                    </td>
+                  <div className="p-2.5 rounded-xl bg-canvas-inset border border-stone-border/70 grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-[10px] text-driftwood block">UTR नंबर:</span>
+                      <span className="font-mono font-bold text-charcoal">{d.utr_number}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-driftwood block">सहयोग राशि:</span>
+                      <span className="font-editorial font-bold text-sm text-charcoal">₹{d.amount}</span>
+                    </div>
+                    <div className="col-span-2 text-[10px] text-driftwood font-mono">
+                      दिनांक: {formatDate(d.created_at)}
+                    </div>
+                  </div>
 
-                    {/* Slip Thumbnail */}
-                    <td className="py-3.5 px-4">
+                  {d.status === 'SUBMITTED' ? (
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleVerify(d.id)}
+                        disabled={isUpdating}
+                        className="flex-1 py-2.5 px-3 rounded-xl bg-sage hover:bg-sage-hover text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 touch-target"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>{t.verifyAction}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveDonationForReview(d);
+                          setIsRejectDialogOpen(true);
+                        }}
+                        disabled={isUpdating}
+                        className="py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold border border-rose-200 text-xs transition-colors touch-target"
+                      >
+                        {t.rejectAction}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="pt-1">
                       <button
                         type="button"
                         onClick={() => setActiveDonationForReview(d)}
-                        className="relative group rounded-lg overflow-hidden border border-stone-border w-12 h-12 block bg-canvas-inset"
-                        title={t.viewSlipAction}
+                        className="w-full py-2 rounded-xl bg-canvas-inset text-driftwood hover:text-charcoal text-xs font-semibold"
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={d.slip_url}
-                          alt="Slip"
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                        />
-                        <div className="absolute inset-0 bg-charcoal/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white">
-                          <Eye className="w-3.5 h-3.5" />
-                        </div>
+                        {lang === 'hi' ? 'ऑडिट नोट्स व रसीद देखें' : 'View Notes & Slip'}
                       </button>
-                    </td>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
 
-                    {/* Date */}
-                    <td className="py-3.5 px-4 text-driftwood font-mono text-[11px]">
-                      {formatDate(d.created_at)}
-                    </td>
+            {/* Desktop Full Spreadsheet Table (>= lg) */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-stone-border text-driftwood font-mono bg-canvas-inset">
+                    <th className="py-3 px-4">{t.donorCol}</th>
+                    <th className="py-3 px-4">{lang === 'hi' ? 'अपील कोड' : 'Appeal Code'}</th>
+                    <th className="py-3 px-4">{t.utrCol}</th>
+                    <th className="py-3 px-4">{t.amountCol}</th>
+                    <th className="py-3 px-4">{lang === 'hi' ? 'रसीद थंबनेल' : 'Receipt'}</th>
+                    <th className="py-3 px-4">{t.dateCol}</th>
+                    <th className="py-3 px-4">{t.statusCol}</th>
+                    <th className="py-3 px-4 text-right">{lang === 'hi' ? 'सत्यापन कार्रवाई' : 'Action'}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-border/60">
+                  {filteredDonations.map((d) => (
+                    <tr key={d.id} className="hover:bg-canvas-inset/50 transition-colors">
+                      
+                      {/* Donor Info */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-semibold text-charcoal">{d.donor_name || (lang === 'hi' ? 'सदस्य' : 'Member')}</div>
+                        <div className="text-[11px] font-mono text-terracotta">{d.donor_membership_id}</div>
+                      </td>
 
-                    {/* Status */}
-                    <td className="py-3.5 px-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          d.status === 'VERIFIED'
-                            ? 'bg-sage-light text-sage'
-                            : d.status === 'REJECTED'
-                            ? 'bg-terracotta-light text-terracotta'
-                            : 'bg-amber-50 text-amber-700'
-                        }`}
-                      >
-                        {d.status === 'VERIFIED' ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>{lang === 'hi' ? 'सत्यापित' : 'Verified'}</span>
-                          </>
-                        ) : d.status === 'REJECTED' ? (
-                          <>
-                            <XCircle className="w-3 h-3" />
-                            <span>{lang === 'hi' ? 'अस्वीकृत' : 'Rejected'}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-3 h-3" />
-                            <span>{lang === 'hi' ? 'लंबित' : 'Pending'}</span>
-                          </>
-                        )}
-                      </span>
-                    </td>
+                      {/* Appeal Code */}
+                      <td className="py-3.5 px-4 font-mono font-bold text-charcoal">
+                        {d.appeal_code}
+                      </td>
 
-                    {/* Actions */}
-                    <td className="py-3.5 px-4 text-right">
-                      {d.status === 'SUBMITTED' ? (
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => handleVerify(d.id)}
-                            className="px-3 py-1.5 rounded-xl bg-sage hover:bg-sage-hover text-white font-semibold text-xs shadow-xs transition-colors flex items-center gap-1 touch-target"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>{t.verifyAction}</span>
-                          </button>
+                      {/* UTR */}
+                      <td className="py-3.5 px-4 font-mono font-bold text-charcoal tracking-wider">
+                        {d.utr_number}
+                      </td>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveDonationForReview(d);
-                              setIsRejectDialogOpen(true);
-                            }}
-                            className="px-2.5 py-1.5 rounded-xl bg-canvas-inset hover:bg-terracotta-light text-driftwood hover:text-terracotta border border-stone-border text-xs transition-colors touch-target"
-                          >
-                            {t.rejectAction}
-                          </button>
-                        </div>
-                      ) : (
+                      {/* Amount */}
+                      <td className="py-3.5 px-4 font-editorial font-bold text-sm text-charcoal">
+                        ₹{d.amount}
+                      </td>
+
+                      {/* Slip Thumbnail */}
+                      <td className="py-3.5 px-4">
                         <button
                           type="button"
                           onClick={() => setActiveDonationForReview(d)}
-                          className="text-xs text-driftwood hover:text-charcoal hover:underline"
+                          className="relative group rounded-lg overflow-hidden border border-stone-border w-12 h-12 block bg-canvas-inset"
+                          title={t.viewSlipAction}
                         >
-                          {lang === 'hi' ? 'ऑडिट नोट्स देखें' : 'View Notes'}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={d.slip_url}
+                            alt="Slip"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                          />
+                          <div className="absolute inset-0 bg-charcoal/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white">
+                            <Eye className="w-3.5 h-3.5" />
+                          </div>
                         </button>
-                      )}
-                    </td>
+                      </td>
 
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      {/* Date */}
+                      <td className="py-3.5 px-4 text-driftwood font-mono text-[11px]">
+                        {formatDate(d.created_at)}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-3.5 px-4">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            d.status === 'VERIFIED'
+                              ? 'bg-sage-light text-sage'
+                              : d.status === 'REJECTED'
+                              ? 'bg-terracotta-light text-terracotta'
+                              : 'bg-amber-50 text-amber-700'
+                          }`}
+                        >
+                          {d.status === 'VERIFIED' ? (
+                            <>
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>{lang === 'hi' ? 'सत्यापित' : 'Verified'}</span>
+                            </>
+                          ) : d.status === 'REJECTED' ? (
+                            <>
+                              <XCircle className="w-3 h-3" />
+                              <span>{lang === 'hi' ? 'अस्वीकृत' : 'Rejected'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3 h-3" />
+                              <span>{lang === 'hi' ? 'लंबित' : 'Pending'}</span>
+                            </>
+                          )}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right">
+                        {d.status === 'SUBMITTED' ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleVerify(d.id)}
+                              className="px-3 py-1.5 rounded-xl bg-sage hover:bg-sage-hover text-white font-semibold text-xs shadow-xs transition-colors flex items-center gap-1 touch-target"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>{t.verifyAction}</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveDonationForReview(d);
+                                setIsRejectDialogOpen(true);
+                              }}
+                              className="px-2.5 py-1.5 rounded-xl bg-canvas-inset hover:bg-terracotta-light text-driftwood hover:text-terracotta border border-stone-border text-xs transition-colors touch-target"
+                            >
+                              {t.rejectAction}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setActiveDonationForReview(d)}
+                            className="text-xs text-driftwood hover:text-charcoal hover:underline"
+                          >
+                            {lang === 'hi' ? 'ऑडिट नोट्स देखें' : 'View Notes'}
+                          </button>
+                        )}
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

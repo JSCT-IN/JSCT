@@ -157,7 +157,7 @@ export default function MemberListPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta">
-              DPSWT Directory
+              JSCT Directory
             </span>
             <span className="text-xs text-driftwood">•</span>
             <span className="text-xs text-sage font-medium flex items-center gap-1">
@@ -279,9 +279,79 @@ export default function MemberListPage() {
         </div>
       </div>
 
-      {/* Member Table (Exact dpswt.com columns: S NO, Unique ID, नाम, पिता/पति का नाम, जिला, ब्लॉक) */}
+      {/* Member Directory: Responsive Table for Desktop/Tablet & Responsive Cards for Mobile */}
       <div className="bg-white rounded-3xl border border-stone-border shadow-warm overflow-hidden">
-        <div className="overflow-x-auto">
+        
+        {/* 1. Mobile Cards View (< md) */}
+        <div className="block md:hidden divide-y divide-stone-border/70">
+          {isLoading ? (
+            <div className="py-12 text-center text-xs text-driftwood">
+              सदस्य रिकॉर्ड लोड हो रहे हैं...
+            </div>
+          ) : members.length === 0 ? (
+            <div className="py-12 text-center text-xs text-driftwood">
+              कोई सदस्य नहीं मिला (No members found)
+            </div>
+          ) : (
+            members.map((m, idx) => (
+              <div key={m.id} className="p-4 space-y-3 hover:bg-canvas-inset/40 transition-colors">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-driftwood">
+                      #{(currentPage - 1) * pageSize + idx + 1}
+                    </span>
+                    <span className="font-mono text-xs font-bold text-terracotta bg-terracotta-light/60 px-2 py-0.5 rounded-lg border border-terracotta/20">
+                      {m.membership_id}
+                    </span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sage-light text-sage border border-sage/20">
+                    <ShieldCheck className="w-3 h-3" />
+                    <span>सत्यापित</span>
+                  </span>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-terracotta/10 text-terracotta font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">
+                    {m.full_name.charAt(0)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-sm text-charcoal leading-snug truncate">
+                      {m.full_name}
+                    </h3>
+                    <p className="text-[11px] text-driftwood mt-0.5">
+                      पिता/पति: <span className="font-medium text-charcoal">{m.father_name || 'श्री कैलाश नाथ वर्मा'}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px] p-2.5 rounded-xl bg-canvas-inset border border-stone-border/70">
+                  <div>
+                    <span className="text-driftwood block text-[10px]">जिला:</span>
+                    <span className="font-medium text-charcoal flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-driftwood shrink-0" />
+                      <span className="truncate">{m.district}</span>
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-driftwood block text-[10px]">ब्लॉक / तहसील:</span>
+                    <span className="font-medium text-charcoal truncate block">
+                      {m.block_name || 'सदर'}
+                    </span>
+                  </div>
+                  <div className="col-span-2 pt-1 border-t border-stone-border/50">
+                    <span className="text-driftwood block text-[10px]">विभाग:</span>
+                    <span className="font-medium text-charcoal truncate block">
+                      {m.department}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* 2. Full Table View (>= md) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-canvas-inset border-b border-stone-border text-driftwood uppercase font-mono text-[11px] tracking-wider">

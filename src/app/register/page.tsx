@@ -133,7 +133,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     const randomSuffix = Math.floor(1000 + Math.random() * 9000).toString();
-    const generatedId = `DPSWT-UP-${randomSuffix}`;
+    const generatedId = `JSCT-UP-${randomSuffix}`;
     const last4 = aadhaarNumber.slice(-4) || '9999';
     const formattedPhone = mobileNumber.startsWith('+91') ? mobileNumber : `+91 ${mobileNumber.trim()}`;
 
@@ -293,17 +293,17 @@ export default function RegisterPage() {
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-terracotta to-terracotta-hover text-white flex items-center justify-center mx-auto shadow-warm">
           <HeartHandshake className="w-6 h-6 stroke-[2.2]" />
         </div>
-        <h1 className="font-editorial text-3xl sm:text-4xl font-bold text-charcoal">
+        <h1 className="font-editorial text-2xl sm:text-4xl font-bold text-charcoal">
           {lang === 'hi' ? 'सदस्य पंजीकरण फॉर्म' : 'Member Registration'}
         </h1>
         <p className="text-xs sm:text-sm text-driftwood max-w-lg mx-auto">
           {lang === 'hi'
-            ? 'डायरेक्ट पीपुल सपोर्ट वेलफेयर टीम (DPSWT) - जन से जन तक, सहयोग हर जरूरतमंद तक'
-            : 'DPSWT Mutual Welfare Solidarity Platform - Direct ₹50 Mutual Support Network'}
+            ? 'जन सेवा चैरिटेबल ट्रस्ट (JSCT) - जन से जन तक, सहयोग हर जरूरतमंद तक'
+            : 'JSCT Mutual Welfare Solidarity Platform - Direct ₹50 Mutual Support Network'}
         </p>
 
         {/* 3-Step Indicator matching dpswt.com flow */}
-        <div className="flex items-center justify-center gap-2 pt-3">
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-3">
           <div className="flex items-center gap-1.5">
             <span className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${step >= 1 ? 'bg-terracotta text-white' : 'bg-stone-border text-driftwood'}`}>
               1
@@ -313,7 +313,7 @@ export default function RegisterPage() {
             </span>
           </div>
 
-          <span className="w-6 sm:w-10 h-0.5 bg-stone-border" />
+          <span className="w-4 sm:w-10 h-0.5 bg-stone-border" />
 
           <div className="flex items-center gap-1.5">
             <span className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${step >= 2 ? 'bg-terracotta text-white' : 'bg-stone-border text-driftwood'}`}>
@@ -324,7 +324,7 @@ export default function RegisterPage() {
             </span>
           </div>
 
-          <span className="w-6 sm:w-10 h-0.5 bg-stone-border" />
+          <span className="w-4 sm:w-10 h-0.5 bg-stone-border" />
 
           <div className="flex items-center gap-1.5">
             <span className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${step === 3 ? 'bg-terracotta text-white' : 'bg-stone-border text-driftwood'}`}>
@@ -337,15 +337,15 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* Trust Registration Fee Info Card (dpswt.com Official Header) */}
-      <div className="bg-gradient-to-br from-white via-canvas-inset to-white p-5 sm:p-6 rounded-3xl border border-stone-border shadow-warm">
+      {/* Trust Registration Fee Info Card */}
+      <div className="bg-gradient-to-br from-white via-canvas-inset to-white p-4 sm:p-6 rounded-3xl border border-stone-border shadow-warm">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center sm:text-left">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-terracotta/10 text-terracotta text-[10px] font-bold uppercase tracking-wider">
               <span>वार्षिक सदस्यता अंशदान: ₹50 मात्र</span>
             </div>
             <h3 className="font-editorial text-base sm:text-lg font-bold text-charcoal">
-              DPSWT ट्रस्ट आधिकारिक खाता
+              JSCT ट्रस्ट आधिकारिक खाता
             </h3>
             <p className="text-xs text-driftwood">
               UPI ID: <span className="font-mono font-bold text-charcoal">{trustUpiId}</span>

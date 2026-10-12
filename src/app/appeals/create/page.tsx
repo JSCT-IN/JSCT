@@ -50,7 +50,7 @@ export default function CreateAppealPage() {
 
     const currentUser = DPSWTStore.getCurrentUser();
     const randomSuffix = Math.floor(100 + Math.random() * 900);
-    const code = type === 'BEREAVEMENT' ? `DPSWT-2026-B0${randomSuffix}` : `DPSWT-2026-M0${randomSuffix}`;
+    const code = type === 'BEREAVEMENT' ? `JSCT-2026-B0${randomSuffix}` : `JSCT-2026-M0${randomSuffix}`;
     const targetAmount = type === 'BEREAVEMENT' ? 2000000 : 500000;
 
     const title =

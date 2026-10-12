@@ -432,81 +432,158 @@ export default function MemberDashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-stone-border text-driftwood font-mono bg-canvas-inset">
-                  <th className="py-3 px-3">{lang === 'hi' ? 'अपील कोड व विषय' : 'Appeal Code & Title'}</th>
-                  <th className="py-3 px-3">{t.utrCol}</th>
-                  <th className="py-3 px-3">{t.amountCol}</th>
-                  <th className="py-3 px-3">{t.statusCol}</th>
-                  <th className="py-3 px-3">{lang === 'hi' ? 'रसीद' : 'Receipt'}</th>
-                  <th className="py-3 px-3">{t.dateCol}</th>
-                  <th className="py-3 px-3">{lang === 'hi' ? 'निरीक्षक टिप्पणी' : 'Inspector Remark'}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-border/60">
-                {userDonations.map((d) => (
-                  <tr key={d.id} className="hover:bg-canvas-inset/50 transition-colors">
-                    <td className="py-3.5 px-3">
-                      <div className="font-mono font-bold text-charcoal">{d.appeal_code}</div>
-                      <div className="text-[11px] text-driftwood line-clamp-1 max-w-xs">{d.appeal_title}</div>
-                    </td>
-                    <td className="py-3.5 px-3 font-mono font-semibold text-charcoal">
-                      {d.utr_number}
-                    </td>
-                    <td className="py-3.5 px-3 font-editorial font-bold text-sm text-charcoal">
-                      ₹{d.amount}
-                    </td>
-                    <td className="py-3.5 px-3">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          d.status === 'VERIFIED'
-                            ? 'bg-sage-light text-sage'
-                            : d.status === 'REJECTED'
-                            ? 'bg-terracotta-light text-terracotta'
-                            : 'bg-amber-50 text-amber-700'
-                        }`}
-                      >
-                        {d.status === 'VERIFIED' ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>{lang === 'hi' ? 'सत्यापित (Passbook Matched)' : 'Verified (Passbook Matched)'}</span>
-                          </>
-                        ) : d.status === 'REJECTED' ? (
-                          <>
-                            <AlertTriangle className="w-3 h-3" />
-                            <span>{lang === 'hi' ? 'अस्वीकृत' : 'Rejected'}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-3 h-3" />
-                            <span>{lang === 'hi' ? 'प्रतीक्षारत (Pending Audit)' : 'Pending Audit'}</span>
-                          </>
-                        )}
+          <div>
+            {/* Mobile Card List (< md) */}
+            <div className="block md:hidden divide-y divide-stone-border/70 border border-stone-border rounded-2xl overflow-hidden bg-white">
+              {userDonations.map((d) => (
+                <div key={d.id} className="p-4 space-y-3 hover:bg-canvas-inset/40 transition-colors">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-xs font-bold text-terracotta bg-terracotta-light/60 px-2 py-0.5 rounded-lg border border-terracotta/20">
+                      {d.appeal_code}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        d.status === 'VERIFIED'
+                          ? 'bg-sage-light text-sage'
+                          : d.status === 'REJECTED'
+                          ? 'bg-terracotta-light text-terracotta'
+                          : 'bg-amber-50 text-amber-700'
+                      }`}
+                    >
+                      {d.status === 'VERIFIED' ? (
+                        <>
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>{lang === 'hi' ? 'सत्यापित' : 'Verified'}</span>
+                        </>
+                      ) : d.status === 'REJECTED' ? (
+                        <>
+                          <AlertTriangle className="w-3 h-3" />
+                          <span>{lang === 'hi' ? 'अस्वीकृत' : 'Rejected'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="w-3 h-3" />
+                          <span>{lang === 'hi' ? 'प्रतीक्षारत' : 'Pending Audit'}</span>
+                        </>
+                      )}
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-xs text-charcoal line-clamp-2 leading-snug">
+                    {d.appeal_title}
+                  </h3>
+
+                  <div className="p-2.5 rounded-xl bg-canvas-inset border border-stone-border/70 space-y-1.5 text-xs">
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-driftwood">UTR संख्या:</span>
+                      <span className="font-mono font-bold text-charcoal">{d.utr_number}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-driftwood">सहयोग राशि:</span>
+                      <span className="font-editorial font-bold text-charcoal text-sm">₹{d.amount}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-driftwood">दिनांक:</span>
+                      <span className="font-mono text-driftwood">{formatDate(d.created_at)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setViewingSlipUrl(d.slip_url)}
+                      className="py-1.5 px-3 rounded-xl bg-white border border-stone-border text-charcoal hover:bg-canvas-inset flex items-center gap-1.5 text-xs font-semibold shadow-xs"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-terracotta" />
+                      <span>{t.viewSlipAction}</span>
+                    </button>
+                    {d.inspector_notes && (
+                      <span className="text-[10px] text-driftwood italic truncate max-w-[180px]">
+                        {d.inspector_notes}
                       </span>
-                    </td>
-                    <td className="py-3.5 px-3">
-                      <button
-                        type="button"
-                        onClick={() => setViewingSlipUrl(d.slip_url)}
-                        className="p-1.5 rounded-lg bg-canvas-inset hover:bg-white border border-stone-border text-driftwood hover:text-charcoal flex items-center gap-1 text-[11px]"
-                        title={t.viewSlipAction}
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>{t.viewSlipAction}</span>
-                      </button>
-                    </td>
-                    <td className="py-3.5 px-3 text-driftwood font-mono text-[11px]">
-                      {formatDate(d.created_at)}
-                    </td>
-                    <td className="py-3.5 px-3 text-[11px] text-driftwood max-w-xs">
-                      {d.inspector_notes || '—'}
-                    </td>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Full Table (>= md) */}
+            <div className="hidden md:block overflow-x-auto border border-stone-border rounded-2xl">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-stone-border text-driftwood font-mono bg-canvas-inset">
+                    <th className="py-3 px-3">{lang === 'hi' ? 'अपील कोड व विषय' : 'Appeal Code & Title'}</th>
+                    <th className="py-3 px-3">{t.utrCol}</th>
+                    <th className="py-3 px-3">{t.amountCol}</th>
+                    <th className="py-3 px-3">{t.statusCol}</th>
+                    <th className="py-3 px-3">{lang === 'hi' ? 'रसीद' : 'Receipt'}</th>
+                    <th className="py-3 px-3">{t.dateCol}</th>
+                    <th className="py-3 px-3">{lang === 'hi' ? 'निरीक्षक टिप्पणी' : 'Inspector Remark'}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-stone-border/60">
+                  {userDonations.map((d) => (
+                    <tr key={d.id} className="hover:bg-canvas-inset/50 transition-colors">
+                      <td className="py-3.5 px-3">
+                        <div className="font-mono font-bold text-charcoal">{d.appeal_code}</div>
+                        <div className="text-[11px] text-driftwood line-clamp-1 max-w-xs">{d.appeal_title}</div>
+                      </td>
+                      <td className="py-3.5 px-3 font-mono font-semibold text-charcoal">
+                        {d.utr_number}
+                      </td>
+                      <td className="py-3.5 px-3 font-editorial font-bold text-sm text-charcoal">
+                        ₹{d.amount}
+                      </td>
+                      <td className="py-3.5 px-3">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            d.status === 'VERIFIED'
+                              ? 'bg-sage-light text-sage'
+                              : d.status === 'REJECTED'
+                              ? 'bg-terracotta-light text-terracotta'
+                              : 'bg-amber-50 text-amber-700'
+                          }`}
+                        >
+                          {d.status === 'VERIFIED' ? (
+                            <>
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>{lang === 'hi' ? 'सत्यापित (Passbook Matched)' : 'Verified (Passbook Matched)'}</span>
+                            </>
+                          ) : d.status === 'REJECTED' ? (
+                            <>
+                              <AlertTriangle className="w-3 h-3" />
+                              <span>{lang === 'hi' ? 'अस्वीकृत' : 'Rejected'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3 h-3" />
+                              <span>{lang === 'hi' ? 'प्रतीक्षारत (Pending Audit)' : 'Pending Audit'}</span>
+                            </>
+                          )}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-3">
+                        <button
+                          type="button"
+                          onClick={() => setViewingSlipUrl(d.slip_url)}
+                          className="p-1.5 rounded-lg bg-canvas-inset hover:bg-white border border-stone-border text-driftwood hover:text-charcoal flex items-center gap-1 text-[11px]"
+                          title={t.viewSlipAction}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>{t.viewSlipAction}</span>
+                        </button>
+                      </td>
+                      <td className="py-3.5 px-3 text-driftwood font-mono text-[11px]">
+                        {formatDate(d.created_at)}
+                      </td>
+                      <td className="py-3.5 px-3 text-[11px] text-driftwood max-w-xs">
+                        {d.inspector_notes || '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </section>

@@ -268,65 +268,112 @@ export default function AppealDetailPage({ params }: AppealDetailPageProps) {
                 {lang === 'hi' ? 'अभी तक इस अपील में कोई UTR रिकॉर्ड दर्ज नहीं हुआ है। पहले सहयोगी बनें!' : 'No UTR records registered yet for this appeal. Be the first contributor!'}
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-stone-border text-driftwood font-mono">
-                      <th className="py-2.5 px-3">{t.donorCol}</th>
-                      <th className="py-2.5 px-3">{t.utrCol}</th>
-                      <th className="py-2.5 px-3">{t.amountCol}</th>
-                      <th className="py-2.5 px-3">{t.statusCol}</th>
-                      <th className="py-2.5 px-3">{t.dateCol}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-stone-border/60">
-                    {donations.map((d) => (
-                      <tr key={d.id} className="hover:bg-canvas-inset/50 transition-colors">
-                        <td className="py-3 px-3">
-                          <div className="font-semibold text-charcoal">{d.donor_name || (lang === 'hi' ? 'सदस्य' : 'Member')}</div>
-                          <div className="text-[10px] text-driftwood font-mono">{d.donor_membership_id}</div>
-                        </td>
-                        <td className="py-3 px-3 font-mono font-medium text-charcoal">
-                          {d.utr_number}
-                        </td>
-                        <td className="py-3 px-3 font-editorial font-bold text-charcoal">
-                          ₹{d.amount}
-                        </td>
-                        <td className="py-3 px-3">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                              d.status === 'VERIFIED'
-                                ? 'bg-sage-light text-sage'
-                                : d.status === 'REJECTED'
-                                ? 'bg-terracotta-light text-terracotta'
-                                : 'bg-amber-50 text-amber-700'
-                            }`}
-                          >
-                            {d.status === 'VERIFIED' ? (
-                              <>
-                                <CheckCircle2 className="w-3 h-3" />
-                                <span>{lang === 'hi' ? 'सत्यापित' : 'Verified'}</span>
-                              </>
-                            ) : d.status === 'REJECTED' ? (
-                              <>
-                                <AlertTriangle className="w-3 h-3" />
-                                <span>{lang === 'hi' ? 'अस्वीकृत' : 'Rejected'}</span>
-                              </>
-                            ) : (
-                              <>
-                                <Clock className="w-3 h-3" />
-                                <span>{lang === 'hi' ? 'निरीक्षणाधीन' : 'Pending Audit'}</span>
-                              </>
-                            )}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-driftwood font-mono text-[11px]">
-                          {formatDate(d.created_at)}
-                        </td>
+              <div>
+                {/* Mobile Cards View (< sm) */}
+                <div className="block sm:hidden divide-y divide-stone-border/70 border border-stone-border rounded-2xl overflow-hidden bg-white">
+                  {donations.map((d) => (
+                    <div key={d.id} className="p-3.5 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-xs text-charcoal">{d.donor_name || (lang === 'hi' ? 'सदस्य' : 'Member')}</span>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            d.status === 'VERIFIED'
+                              ? 'bg-sage-light text-sage'
+                              : d.status === 'REJECTED'
+                              ? 'bg-terracotta-light text-terracotta'
+                              : 'bg-amber-50 text-amber-700'
+                          }`}
+                        >
+                          {d.status === 'VERIFIED' ? (
+                            <>
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>{lang === 'hi' ? 'सत्यापित' : 'Verified'}</span>
+                            </>
+                          ) : d.status === 'REJECTED' ? (
+                            <>
+                              <AlertTriangle className="w-3 h-3" />
+                              <span>{lang === 'hi' ? 'अस्वीकृत' : 'Rejected'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3 h-3" />
+                              <span>{lang === 'hi' ? 'निरीक्षणाधीन' : 'Pending Audit'}</span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <span className="text-driftwood">UTR: <strong className="text-charcoal">{d.utr_number}</strong></span>
+                        <span className="font-editorial font-bold text-charcoal">₹{d.amount}</span>
+                      </div>
+                      <div className="text-[10px] text-driftwood font-mono">
+                        {formatDate(d.created_at)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop/Tablet Table (>= sm) */}
+                <div className="hidden sm:block overflow-x-auto border border-stone-border rounded-2xl">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-stone-border text-driftwood font-mono bg-canvas-inset">
+                        <th className="py-2.5 px-3">{t.donorCol}</th>
+                        <th className="py-2.5 px-3">{t.utrCol}</th>
+                        <th className="py-2.5 px-3">{t.amountCol}</th>
+                        <th className="py-2.5 px-3">{t.statusCol}</th>
+                        <th className="py-2.5 px-3">{t.dateCol}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-stone-border/60">
+                      {donations.map((d) => (
+                        <tr key={d.id} className="hover:bg-canvas-inset/50 transition-colors">
+                          <td className="py-3 px-3">
+                            <div className="font-semibold text-charcoal">{d.donor_name || (lang === 'hi' ? 'सदस्य' : 'Member')}</div>
+                            <div className="text-[10px] text-driftwood font-mono">{d.donor_membership_id}</div>
+                          </td>
+                          <td className="py-3 px-3 font-mono font-medium text-charcoal">
+                            {d.utr_number}
+                          </td>
+                          <td className="py-3 px-3 font-editorial font-bold text-charcoal">
+                            ₹{d.amount}
+                          </td>
+                          <td className="py-3 px-3">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                d.status === 'VERIFIED'
+                                  ? 'bg-sage-light text-sage'
+                                  : d.status === 'REJECTED'
+                                  ? 'bg-terracotta-light text-terracotta'
+                                  : 'bg-amber-50 text-amber-700'
+                              }`}
+                            >
+                              {d.status === 'VERIFIED' ? (
+                                <>
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  <span>{lang === 'hi' ? 'सत्यापित' : 'Verified'}</span>
+                                </>
+                              ) : d.status === 'REJECTED' ? (
+                                <>
+                                  <AlertTriangle className="w-3 h-3" />
+                                  <span>{lang === 'hi' ? 'अस्वीकृत' : 'Rejected'}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Clock className="w-3 h-3" />
+                                  <span>{lang === 'hi' ? 'निरीक्षणाधीन' : 'Pending Audit'}</span>
+                                </>
+                              )}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-driftwood font-mono text-[11px]">
+                            {formatDate(d.created_at)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
@@ -337,7 +384,7 @@ export default function AppealDetailPage({ params }: AppealDetailPageProps) {
         <div className="space-y-6">
           
           {/* Nominee Bank Card */}
-          <div className="rounded-3xl bg-white border border-stone-border p-6 shadow-warm space-y-6 sticky top-24">
+          <div className="rounded-3xl bg-white border border-stone-border p-6 shadow-warm space-y-6 lg:sticky lg:top-24">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-2.5 h-2.5 rounded-full bg-sage animate-pulse" />

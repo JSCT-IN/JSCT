@@ -45,7 +45,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-canvas text-charcoal selection:bg-terracotta-light selection:text-terracotta">
         <Navbar />
-        <main className="flex-1 w-full pb-16 sm:pb-0">{children}</main>
+        <main className="flex-1 w-full pb-20 sm:pb-0">{children}</main>
         <Footer />
         <BottomNav />
       </body>
