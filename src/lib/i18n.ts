@@ -38,7 +38,7 @@ export const translations = {
     heroPill: 'Zero-Custody P2P Model • नो वॉलेट • नो मध्यस्थ',
     heroTagline: '“जन से जन तक, सहयोग हर जरूरतमंद तक”',
     heroSubtitle:
-      'उत्तर प्रदेश के समर्पित कर्मचारियों एवं नागरिकों का पारस्परिक कल्याण मंच। किसी आकस्मिक आपदा या निधन की दशा में प्रत्येक साथी मात्र ₹50 का सीधा सहयोग भेजकर पीड़ित परिवार को ₹20 लाख तक का सम्मानजनक संबल प्रदान करता है।',
+      'उत्तर प्रदेश के समर्पित कर्मचारियों एवं नागरिकों का पारस्परिक कल्याण मंच। किसी आकस्मिक आपदा या निधन की दशा में प्रत्येक साथी मात्र ₹50 का सीधा सहयोग भेजकर पीड़ित परिवार को ₹15 लाख तक का सम्मानजनक संबल प्रदान करता है।',
     heroCtaAppeals: 'सक्रिय अपीलें देखें व सहयोग करें',
     heroCtaRules: '75% कल्याण नियमावली',
     heroBadge1: 'आधार एवं सेवा अभिलेख सत्यापित',
@@ -52,7 +52,7 @@ export const translations = {
     statDisbursed: 'प्रत्यक्ष वितरित सहायता',
     statDisbursedSub: 'नामिनी बैंक खातों में 100% प्रत्यक्ष अंतरण',
     statAppeals: 'पूर्ण शोकाकुल अपीलें',
-    statAppealsSub: 'अधिकतम ₹20,00,000 प्रति परिवार',
+    statAppealsSub: 'अधिकतम ₹15,00,000 प्रति परिवार',
     statCompliance: 'औसत समुदाय सहभागिता',
     statComplianceSub: '75% न्यूनतम पात्रता मानक से ऊपर',
 
@@ -67,7 +67,7 @@ export const translations = {
     pillar3Title: '3. भौतिक निरीक्षण व ऑडिट',
     pillar3Desc: 'जिला स्तरीय सत्यापन प्रकोष्ठ के अधिकारी पीड़ित परिवार के घर जाकर मृत्यु प्रमाण पत्र, सेवा पंजिका व बैंक पासबुक का प्रत्यक्ष मिलान करते हैं।',
     pillar4Title: '4. ₹50 की सामूहिक शक्ति',
-    pillar4Desc: 'मात्र एक कप चाय के मूल्य (₹50) में जब 40,000 सदस्य एक साथ खड़े होते हैं, तो बिना किसी आर्थिक बोझ के शोकाकुल परिवार को ₹20,00,000 की ऐतिहासिक मदद मिलती है।',
+    pillar4Desc: 'मात्र एक कप चाय के मूल्य (₹50) में जब 30,000 सदस्य एक साथ खड़े होते हैं, तो बिना किसी आर्थिक बोझ के शोकाकुल परिवार को ₹15,00,000 की ऐतिहासिक मदद मिलती है।',
 
     // Home Appeals Preview
     homeAppealsPill: 'सहयोग का पुनीत अवसर',
@@ -79,7 +79,7 @@ export const translations = {
     // 75% Simulator
     simTag: 'पारदर्शिता एवं पात्रता कैलकुलेटर',
     simTitle: '75% अनुपालन सिम्युलेटर (Compliance Simulator)',
-    simSub: 'स्वयं देखें कि समुदाय में आपकी नियमित ₹50 सहभागिता किस प्रकार आपके परिवार को ₹20 लाख सहायता हेतु पूर्ण पात्र बनाए रखती है।',
+    simSub: 'स्वयं देखें कि समुदाय में आपकी नियमित ₹50 सहभागिता किस प्रकार आपके परिवार को ₹15 लाख सहायता हेतु पूर्ण पात्र बनाए रखती है।',
     simTotalLabel: 'कुल जारी अपीलें:',
     simContributedLabel: 'आपका ₹50 सहयोग:',
     simAppealsCount: 'अपीलें',
@@ -114,7 +114,7 @@ export const translations = {
     appealsSub: 'प्रत्येक सत्यापित अपील में मात्र ₹50 का सीधा सहयोग प्रेषित कर पीड़ित परिवार को संबल प्रदान करें',
     newAppealCta: 'नई आपात अपील दर्ज करें',
     allTypes: 'सभी प्रकार',
-    bereavementType: 'आकस्मिक निधन (₹20L)',
+    bereavementType: 'आकस्मिक निधन (₹15L)',
     marriageType: 'पुत्री विवाह संबल',
     activeOnly: 'सक्रिय अपीलें',
     closedOnly: 'पूर्ण',
@@ -162,7 +162,7 @@ export const translations = {
     createAppealSub: 'आकस्मिक निधन अथवा पुत्री विवाह सहायता हेतु संगठन के सत्यापन प्रकोष्ठ को आवेदन प्रेषित करें।',
     aidCategory: 'सहयोग का प्रकार (Aid Category) *',
     bereavementTitle: 'आकस्मिक निधन संबल',
-    bereavementGoal: '₹20,00,000 (₹20 लाख)',
+    bereavementGoal: '₹15,00,000 (₹15 लाख)',
     bereavementDesc: 'सेवारत अथवा पंजीकृत सदस्य के असामयिक निधन की दशा में आश्रित परिवार को',
     marriageTitle: 'पुत्री वैवाहिक संबल',
     marriageGoal: '₹5,00,000 (₹5 लाख)',
@@ -227,7 +227,7 @@ export const translations = {
     sendMessageAction: 'संदेश प्रेषित करें',
 
     // Footer
-    footerMission: 'डीपीएसडब्ल्यूटी उत्तर प्रदेश के विभिन्न विभागों के कर्मचारियों एवं नागरिकों का एक गैर-लाभकारी, आपसी सहयोग आधारित कल्याणकारी परिवार है। यहां आपात स्थिति में प्रत्येक सदस्य सीधे नामिनी के खाते में मात्र ₹50 का अंशदान देकर शोकाकुल परिवार को ₹20 लाख तक का जीवन संबल प्रदान करता है।',
+    footerMission: 'डीपीएसडब्ल्यूटी उत्तर प्रदेश के विभिन्न विभागों के कर्मचारियों एवं नागरिकों का एक गैर-लाभकारी, आपसी सहयोग आधारित कल्याणकारी परिवार है। यहां आपात स्थिति में प्रत्येक सदस्य सीधे नामिनी के खाते में मात्र ₹50 का अंशदान देकर शोकाकुल परिवार को ₹15 लाख तक का जीवन संबल प्रदान करता है।',
     quickLinksHeading: 'महत्वपूर्ण पृष्ठ (Quick Links)',
     complianceCheckHeading: 'कल्याण मानक (Compliance)',
     helplineHeading: 'हेल्पलाइन व संपर्क (Helpline)',
@@ -286,7 +286,7 @@ export const translations = {
     heroPill: 'Zero-Custody P2P Model • No Escrow Wallet • 100% Direct Transfer',
     heroTagline: '“People to People, Aid to Every Family in Need”',
     heroSubtitle:
-      'Mutual welfare solidarity platform for public sector employees and citizens in Uttar Pradesh. During bereavement or emergency life events, each member transfers ₹50 directly into the nominee bank account, delivering up to ₹20 Lakhs in total dignified family relief.',
+      'Mutual welfare solidarity platform for public sector employees and citizens in Uttar Pradesh. During bereavement or emergency life events, each member transfers ₹50 directly into the nominee bank account, delivering up to ₹15 Lakhs in total dignified family relief.',
     heroCtaAppeals: 'Explore Appeals & Contribute',
     heroCtaRules: '75% Compliance Rules',
     heroBadge1: 'Aadhaar & Service Records Verified',
@@ -300,7 +300,7 @@ export const translations = {
     statDisbursed: 'Direct Aid Disbursed',
     statDisbursedSub: '100% Direct transfers into nominee bank accounts',
     statAppeals: 'Completed Relief Appeals',
-    statAppealsSub: 'Up to ₹20,00,000 per bereaved family',
+    statAppealsSub: 'Up to ₹15,00,000 per bereaved family',
     statCompliance: 'Avg Community Compliance',
     statComplianceSub: 'Well above the 75% minimum eligibility requirement',
 
@@ -315,7 +315,7 @@ export const translations = {
     pillar3Title: '3. Physical Field Audits',
     pillar3Desc: 'District inspection cell nodal officers visit the family, verifying death certificates, hospital records, and matching bank passbook statements in person.',
     pillar4Title: '4. The Power of ₹50',
-    pillar4Desc: 'At just the cost of a cup of tea (₹50), when 40,000 members stand united, ₹20,00,000 in life-changing support is delivered without financial burden.',
+    pillar4Desc: 'At just the cost of a cup of tea (₹50), when 30,000 members stand united, ₹15,00,000 in life-changing support is delivered without financial burden.',
 
     // Home Appeals Preview
     homeAppealsPill: 'Sacred Opportunity to Support',
@@ -327,7 +327,7 @@ export const translations = {
     // 75% Simulator
     simTag: 'Transparency & Eligibility Calculator',
     simTitle: '75% Compliance Simulator',
-    simSub: 'See how your regular ₹50 contributions dynamically keep your family eligible for ₹20 Lakhs in emergency bereavement grants.',
+    simSub: 'See how your regular ₹50 contributions dynamically keep your family eligible for ₹15 Lakhs in emergency bereavement grants.',
     simTotalLabel: 'Total Issued Appeals:',
     simContributedLabel: 'Your ₹50 Contributions:',
     simAppealsCount: 'appeals',
@@ -362,7 +362,7 @@ export const translations = {
     appealsSub: 'Transfer ₹50 directly to the verified nominee to provide life-saving community support',
     newAppealCta: 'Submit Emergency Appeal',
     allTypes: 'All Categories',
-    bereavementType: 'Bereavement (₹20L)',
+    bereavementType: 'Bereavement (₹15L)',
     marriageType: 'Daughter Marriage',
     activeOnly: 'Active Appeals',
     closedOnly: 'Completed',
@@ -410,7 +410,7 @@ export const translations = {
     createAppealSub: 'Submit an emergency bereavement or marriage assistance appeal to the district verification cell.',
     aidCategory: 'Aid Category *',
     bereavementTitle: 'Bereavement Aid',
-    bereavementGoal: '₹20,00,000 (₹20 Lakhs)',
+    bereavementGoal: '₹15,00,000 (₹15 Lakhs)',
     bereavementDesc: 'In the untimely demise of a serving or registered member, grant to the surviving family',
     marriageTitle: "Daughter's Marriage Assistance",
     marriageGoal: '₹5,00,000 (₹5 Lakhs)',
@@ -475,7 +475,7 @@ export const translations = {
     sendMessageAction: 'Submit Message',
 
     // Footer
-    footerMission: 'DPSWT is a non-profit, mutual solidarity welfare community of government employees and citizens across Uttar Pradesh. In emergencies, each member contributes ₹50 directly into the nominee bank account, providing up to ₹20 Lakhs in life-saving relief.',
+    footerMission: 'DPSWT is a non-profit, mutual solidarity welfare community of government employees and citizens across Uttar Pradesh. In emergencies, each member contributes ₹50 directly into the nominee bank account, providing up to ₹15 Lakhs in life-saving relief.',
     quickLinksHeading: 'Quick Links',
     complianceCheckHeading: 'Compliance Standards',
     helplineHeading: 'Helpline & Support',

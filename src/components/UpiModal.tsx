@@ -33,6 +33,7 @@ export default function UpiModal({
   const [showQr, setShowQr] = useState<boolean>(true);
 
   const nominee = appeal.nominee_snapshot;
+  const cleanNomineeName = nominee.full_name.replace(/\(.*?\)/g, '').trim();
   const upiLink = generateUpiLink({
     upiId: nominee.upi_id,
     nomineeName: nominee.full_name,
@@ -55,16 +56,16 @@ export default function UpiModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm animate-in fade-in duration-150 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-charcoal/60 backdrop-blur-sm animate-in fade-in duration-150 overflow-y-auto">
       <div 
-        className="relative w-full max-w-lg rounded-3xl bg-white border border-stone-border shadow-warm-lg p-6 sm:p-7 text-charcoal my-8 max-h-[92vh] overflow-y-auto"
+        className="relative w-full max-w-lg rounded-3xl bg-white border border-stone-border shadow-warm-lg p-5 sm:p-7 text-charcoal my-auto max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-xl text-driftwood hover:text-charcoal hover:bg-canvas-inset transition-colors touch-target"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-xl text-driftwood hover:text-charcoal hover:bg-canvas-inset transition-colors touch-target"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -82,16 +83,16 @@ export default function UpiModal({
             </span>
           </div>
 
-          <h2 className="font-editorial text-2xl font-bold text-charcoal">
+          <h2 className="font-editorial text-xl sm:text-2xl font-bold text-charcoal">
             {t.upiModalTitle}
           </h2>
-          <p className="text-xs text-driftwood mt-1">
-            {nominee.full_name} ({nominee.relationship}) — {t.upiModalSub}
+          <p className="text-xs text-driftwood mt-0.5">
+            {cleanNomineeName} ({nominee.relationship}) — {t.upiModalSub}
           </p>
         </div>
 
         {/* Zero Custody Trust Banner */}
-        <div className="mt-4 p-3 rounded-2xl bg-canvas-inset border border-stone-border flex items-start gap-2.5 text-xs text-driftwood">
+        <div className="mt-3.5 p-3 rounded-2xl bg-canvas-inset border border-stone-border flex items-start gap-2.5 text-xs text-driftwood">
           <ShieldCheck className="w-4 h-4 text-sage shrink-0 mt-0.5" />
           <div>
             <strong className="text-charcoal">Zero-Custody P2P:</strong>{' '}
@@ -102,17 +103,17 @@ export default function UpiModal({
         </div>
 
         {/* Native Mobile UPI Action Button */}
-        <div className="mt-5 space-y-3">
+        <div className="mt-4 space-y-2.5">
           <a
             href={upiLink}
-            className="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl bg-terracotta hover:bg-terracotta-hover text-white font-semibold text-sm shadow-warm transition-transform active:scale-[0.98] touch-target"
+            className="w-full flex items-center justify-center gap-2.5 py-3 sm:py-3.5 px-4 rounded-2xl bg-terracotta hover:bg-terracotta-hover text-white font-semibold text-xs sm:text-sm shadow-warm transition-transform active:scale-[0.98] touch-target"
           >
             <Smartphone className="w-4 h-4" />
             <span>{t.mobileUpiTitle} (PhonePe / GPay / Paytm)</span>
             <ExternalLink className="w-4 h-4 opacity-75" />
           </a>
 
-          <p className="text-center text-[11px] text-driftwood">
+          <p className="text-center text-[10px] sm:text-[11px] text-driftwood">
             {lang === 'hi'
               ? '(मोबाइल फोन पर ऊपर दिए गए बटन को दबाकर सीधे UPI ऐप से ₹50 भेजें)'
               : '(On mobile, tap the button above to launch your installed UPI app directly)'}
@@ -120,8 +121,8 @@ export default function UpiModal({
         </div>
 
         {/* QR Code and Direct Bank Details Tabs */}
-        <div className="mt-6 pt-5 border-t border-stone-border">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mt-5 pt-4 border-t border-stone-border">
+          <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-charcoal-muted font-mono">
               {showQr ? t.scanQrTitle : t.nomineeAccountTitle}
             </span>
@@ -137,14 +138,14 @@ export default function UpiModal({
           </div>
 
           {showQr ? (
-            <div className="flex flex-col items-center justify-center p-4 bg-canvas-inset rounded-2xl border border-stone-border">
+            <div className="flex flex-col items-center justify-center p-3 bg-canvas-inset rounded-2xl border border-stone-border">
               {qrCodeDataUrl ? (
-                <div className="p-3 bg-white rounded-xl shadow-warm border border-stone-border">
+                <div className="p-2.5 bg-white rounded-xl shadow-warm border border-stone-border">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={qrCodeDataUrl}
                     alt="UPI Payment QR Code"
-                    className="w-48 h-48 sm:w-56 sm:h-56 object-contain"
+                    className="w-36 h-36 sm:w-48 sm:h-48 object-contain"
                   />
                 </div>
               ) : (

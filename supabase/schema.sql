@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS public.appeals (
     type appeal_type NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    target_amount NUMERIC(12, 2) NOT NULL DEFAULT 2000000.00,
+    target_amount NUMERIC(12, 2) NOT NULL DEFAULT 1500000.00,
     collected_amount NUMERIC(12, 2) NOT NULL DEFAULT 0.00,
     status appeal_status NOT NULL DEFAULT 'ACTIVE',
     inspector_name TEXT NOT NULL,

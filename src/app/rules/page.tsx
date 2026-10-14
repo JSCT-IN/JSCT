@@ -53,8 +53,8 @@ export default function RulesPage() {
         <div className="text-xs sm:text-sm text-driftwood leading-relaxed space-y-3 pt-2">
           <p>
             {lang === 'hi' 
-              ? 'जन सेवा चैरिटेबल ट्रस्ट (JSCT) का मूल आधार है — सबका साथ, सबकी सुरक्षा। जब कोई सदस्य अन्य साथियों के संकट के समय में निरंतर खड़ा रहता है, केवल तभी संगठन उनके अपने परिवार के संकट के समय ₹20 लाख तक के सहयोग की गारंटी ले सकता है।'
-              : 'The founding principle of Jan Sewa Charitable Trust (JSCT) is mutual collective solidarity. Only when a member consistently stands with brethren during their grief can the community guarantee up to ₹20 Lakhs in emergency bereavement support.'}
+              ? 'जन सेवा चैरिटेबल ट्रस्ट (JSCT) का मूल आधार है — सबका साथ, सबकी सुरक्षा। जब कोई सदस्य अन्य साथियों के संकट के समय में निरंतर खड़ा रहता है, केवल तभी संगठन उनके अपने परिवार के संकट के समय ₹15 लाख तक के सहयोग की गारंटी ले सकता है।'
+              : 'The founding principle of Jan Sewa Charitable Trust (JSCT) is mutual collective solidarity. Only when a member consistently stands with brethren during their grief can the community guarantee up to ₹15 Lakhs in emergency bereavement support.'}
           </p>
 
           <div className="p-4 rounded-2xl bg-canvas-inset border border-stone-border space-y-2 font-mono text-xs text-charcoal">
@@ -93,12 +93,12 @@ export default function RulesPage() {
             <Clock className="w-5 h-5" />
           </div>
           <h3 className="font-editorial text-xl font-bold text-charcoal">
-            {lang === 'hi' ? '2. तीन (3) माह का लॉकिंग पीरियड' : '2. Three (3) Months Lock-in Period'}
+            {lang === 'hi' ? '2. छह (6) माह का लॉकिंग पीरियड' : '2. Six (6) Months Lock-in Period'}
           </h3>
           <p className="text-xs text-driftwood leading-relaxed">
             {lang === 'hi'
-              ? 'नये सदस्य के पंजीकरण दिनांक से 90 दिन (3 माह) का लॉकिंग पीरियड लागू होता है। इस अवधि के दौरान जारी समस्त अपीलों में सदस्य को ₹50 सहयोग प्रेषित करना होगा, परंतु इस अवधि में स्वयं का क्लेम मान्य नहीं होगा।'
-              : 'A 90-day cooling and lock-in period applies from the date of registration. Members must contribute to all community appeals issued during this period before personal eligibility activates.'}
+              ? 'नये सदस्य के पंजीकरण दिनांक से 180 दिन (6 माह) का लॉकिंग पीरियड लागू होता है। इस अवधि के दौरान जारी समस्त अपीलों में सदस्य को ₹50 सहयोग प्रेषित करना होगा, परंतु इस अवधि में स्वयं का क्लेम मान्य नहीं होगा।'
+              : 'A 180-day (6-month) cooling and lock-in period applies from the date of registration. Members must contribute to all community appeals issued during this period before personal eligibility activates.'}
           </p>
         </div>
 
@@ -184,7 +184,7 @@ export default function RulesPage() {
                   ≥ 75%
                 </td>
                 <td className="py-4 px-4 text-driftwood">
-                  {lang === 'hi' ? '3 माह (90 दिन)' : '3 Months (90 Days)'}
+                  {lang === 'hi' ? '6 माह (180 दिन)' : '6 Months (180 Days)'}
                 </td>
                 <td className="py-4 px-4 text-driftwood leading-tight">
                   {lang === 'hi' 

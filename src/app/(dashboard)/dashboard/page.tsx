@@ -392,7 +392,7 @@ export default function MemberDashboardPage() {
           )}
 
           <p className="text-[11px] text-driftwood leading-relaxed">
-            * {lang === 'hi' ? 'किसी आकस्मिक आपदा की स्थिति में संगठन के समस्त साथियों द्वारा ₹20 लाख तक का सामूहिक सहयोग सीधे इसी बैंक खाते में प्रेषित किया जाएगा।' : 'In an emergency event, mutual community contributions up to ₹20L are transferred directly into this verified account.'}
+            * {lang === 'hi' ? 'किसी आकस्मिक आपदा की स्थिति में संगठन के समस्त साथियों द्वारा ₹15 लाख तक का सामूहिक सहयोग सीधे इसी बैंक खाते में प्रेषित किया जाएगा।' : 'In an emergency event, mutual community contributions up to ₹15L are transferred directly into this verified account.'}
           </p>
         </div>
 

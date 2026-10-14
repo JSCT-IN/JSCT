@@ -94,7 +94,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-terracotta font-bold">•</span>
-                <span>{lang === 'hi' ? '3 माह का लॉकिंग पीरियड पूर्ण होना आवश्यक' : '3-month initial membership lock-in period'}</span>
+                <span>{lang === 'hi' ? '6 माह का लॉकिंग पीरियड पूर्ण होना आवश्यक' : '6-month initial membership lock-in period'}</span>
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-terracotta font-bold">•</span>

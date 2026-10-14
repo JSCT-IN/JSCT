@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# test screenshots
+/public/audit-screenshots/
+/public/section-screenshots/

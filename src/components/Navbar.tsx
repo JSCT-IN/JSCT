@@ -115,11 +115,11 @@ export default function Navbar() {
                 <span className="font-editorial text-xl sm:text-2xl font-black tracking-tight text-charcoal leading-none">
                   JSCT
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 bg-terracotta/10 text-terracotta border border-terracotta/20 rounded-md tracking-wider">
+                <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 bg-terracotta/10 text-terracotta border border-terracotta/20 rounded-md tracking-wider hidden sm:inline-block">
                   {lang === 'hi' ? 'उत्तर प्रदेश' : 'UP'}
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-driftwood font-medium tracking-tight mt-0.5 whitespace-nowrap hidden min-[360px]:block">
+              <p className="text-[10px] sm:text-[11px] text-driftwood font-medium tracking-tight mt-0.5 whitespace-nowrap hidden md:block">
                 Jan Sewa Charitable Trust
               </p>
             </div>

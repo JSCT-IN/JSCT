@@ -148,8 +148,8 @@ export default function ComplianceMeter({
                 <span>
                   <strong>{lang === 'hi' ? 'उत्कृष्ट योगदान!' : 'Compliant Standing!'}</strong>{' '}
                   {lang === 'hi'
-                    ? 'आपका सहभागिता अनुपात 75% से ऊपर है। आकस्मिक दुर्घटना अथवा निधन की दशा में आपका परिवार DPSWT ₹20 लाख तक के पूर्ण सामूहिक संबल का स्वतः अधिकारी रहेगा।'
-                    : 'Your participation is above 75%. In the event of an emergency bereavement, your family is guaranteed full community relief up to ₹20 Lakhs.'}
+                    ? 'आपका सहभागिता अनुपात 75% से ऊपर है। आकस्मिक दुर्घटना अथवा निधन की दशा में आपका परिवार DPSWT ₹15 लाख तक के पूर्ण सामूहिक संबल का स्वतः अधिकारी रहेगा।'
+                    : 'Your participation is above 75%. In the event of an emergency bereavement, your family is guaranteed full community relief up to ₹15 Lakhs.'}
                 </span>
               ) : (
                 <span className="text-charcoal font-medium">
