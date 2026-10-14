@@ -23,7 +23,6 @@ import {
   RefreshCw,
   Fingerprint,
   ArrowRight,
-  Sparkles,
   Check
 } from 'lucide-react';
 
@@ -31,23 +30,24 @@ export default function LoginPage() {
   const router = useRouter();
   const { lang } = useTranslation();
 
-  // OTP Step: 1 = Enter Aadhaar/Identifier, 2 = Enter 6-digit OTP
+  // Identifier Type: 'MOBILE' (Default) | 'AADHAAR'
+  const [identifierType, setIdentifierType] = useState<'MOBILE' | 'AADHAAR'>('MOBILE');
+
+  // OTP Step: 1 = Enter Identifier, 2 = Enter 6-digit OTP
   const [otpStep, setOtpStep] = useState<1 | 2>(1);
 
   // Form Fields
-  const [aadhaarInput, setAadhaarInput] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
 
   // OTP Metadata from Server
   const [maskedPhone, setMaskedPhone] = useState<string | null>(null);
   const [maskedEmail, setMaskedEmail] = useState<string | null>(null);
   const [devOtp, setDevOtp] = useState<string | null>(null);
-  const [smsProvider, setSmsProvider] = useState<string | null>(null);
 
   // Firebase Client Phone Auth State
   const [firebaseConfirmation, setFirebaseConfirmation] = useState<any>(null);
-  const [firebaseSmsStatus, setFirebaseSmsStatus] = useState<'IDLE' | 'SENDING' | 'SENT' | 'FAILED'>('IDLE');
-  const [firebaseErrorCode, setFirebaseErrorCode] = useState<string | null>(null);
+  const [firebaseSmsStatus, setFirebaseSmsStatus] = useState<'IDLE' | 'SENT' | 'FAILED'>('IDLE');
 
   // Status & Timers
   const [isLoading, setIsLoading] = useState(false);
@@ -78,16 +78,33 @@ export default function LoginPage() {
     if (e) e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
-    setFirebaseErrorCode(null);
     setFirebaseSmsStatus('IDLE');
 
-    const cleanInput = aadhaarInput.trim().replace(/\s+/g, '');
+    const cleanInput = inputValue.trim().replace(/\s+/g, '');
 
     if (!cleanInput) {
       setErrorMessage(
+        identifierType === 'MOBILE'
+          ? (lang === 'hi' ? 'कृपया अपना 10-अंकीय पंजीकृत मोबाइल नंबर दर्ज करें।' : 'Please enter your 10-digit registered mobile number.')
+          : (lang === 'hi' ? 'कृपया अपना 12-अंकीय आधार नंबर दर्ज करें।' : 'Please enter your 12-digit Aadhaar number.')
+      );
+      return;
+    }
+
+    if (identifierType === 'MOBILE' && cleanInput.length !== 10) {
+      setErrorMessage(
         lang === 'hi' 
-          ? 'कृपया अपना 12-अंकीय आधार नंबर अथवा पंजीकृत मोबाइल दर्ज करें।' 
-          : 'Please enter your 12-digit Aadhaar number or registered mobile.'
+          ? 'कृपया वैध 10-अंकीय मोबाइल नंबर दर्ज करें।' 
+          : 'Please enter a valid 10-digit mobile number.'
+      );
+      return;
+    }
+
+    if (identifierType === 'AADHAAR' && cleanInput.length !== 12) {
+      setErrorMessage(
+        lang === 'hi' 
+          ? 'कृपया वैध 12-अंकीय आधार कार्ड संख्या दर्ज करें।' 
+          : 'Please enter a valid 12-digit Aadhaar number.'
       );
       return;
     }
@@ -107,11 +124,10 @@ export default function LoginPage() {
       setMaskedPhone(result.maskedPhone || null);
       setMaskedEmail(result.maskedEmail || null);
       setDevOtp(result.devOtp || null);
-      setSmsProvider(result.smsProvider || null);
       setOtpStep(2);
       setCountdown(60); // 60s cooldown
       setOtpDigits(['', '', '', '', '', '']);
-      setSuccessMessage(result.message || 'ओटीपी प्रेषित किया गया!');
+      setSuccessMessage(result.message || 'सत्यापन ओटीपी प्रेषित किया गया!');
       setIsLoading(false);
 
       // Auto focus first OTP input box
@@ -121,7 +137,6 @@ export default function LoginPage() {
 
       // 2. Non-blocking Firebase Phone Auth SMS dispatch via browser SDK
       if (result.phone) {
-        setFirebaseSmsStatus('SENDING');
         try {
           const verifier = setupRecaptcha('recaptcha-container');
           if (verifier) {
@@ -134,16 +149,13 @@ export default function LoginPage() {
               .catch((fbErr: any) => {
                 console.warn('ℹ️ [Firebase Client Phone Auth Notice]:', fbErr.code || fbErr.message);
                 setFirebaseSmsStatus('FAILED');
-                setFirebaseErrorCode(fbErr.code || fbErr.message || 'BILLING_NOT_ENABLED');
               });
           }
         } catch (setupErr: any) {
           console.warn('ℹ️ [Firebase Recaptcha Notice]:', setupErr);
           setFirebaseSmsStatus('FAILED');
-          setFirebaseErrorCode('BILLING_NOT_ENABLED');
         }
       }
-
 
     } catch (err: any) {
       setErrorMessage(err.message || 'सर्वर से संपर्क करने में असमर्थ।');
@@ -206,7 +218,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const cleanInput = aadhaarInput.trim().replace(/\s+/g, '');
+      const cleanInput = inputValue.trim().replace(/\s+/g, '');
 
       // 1. If Firebase Phone confirmation is active, verify via Firebase
       if (firebaseConfirmation) {
@@ -314,12 +326,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Dedicated OTP Security Banner (No Password Mode) */}
-        <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-terracotta bg-terracotta/5 border border-terracotta/20 py-2 px-3 rounded-xl mb-5">
-          <Fingerprint className="w-4 h-4 text-terracotta shrink-0" />
-          <span>आधार व मोबाइल OTP सत्यापन (OTP-Only Login)</span>
-        </div>
-
         {/* Error / Success Alerts */}
         {errorMessage && (
           <div className="p-3 mb-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2 animate-fade-in">
@@ -340,61 +346,100 @@ export default function LoginPage() {
         {/* ------------------------------------------------------------- */}
         <div>
           {otpStep === 1 ? (
-            /* STEP 1: Enter Aadhaar Number / Mobile */
+            /* STEP 1: Enter Aadhaar Number OR Mobile Number */
             <form onSubmit={handleSendOtp} className="space-y-4">
+              
+              {/* Segmented Identifier Selector */}
+              <div className="grid grid-cols-2 p-1 bg-stone-100/90 rounded-xl border border-stone-200 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIdentifierType('MOBILE');
+                    setInputValue('');
+                    setErrorMessage(null);
+                  }}
+                  className={`py-2 px-3 rounded-lg font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    identifierType === 'MOBILE'
+                      ? 'bg-white text-charcoal shadow-xs border border-stone-200'
+                      : 'text-driftwood hover:text-charcoal'
+                  }`}
+                >
+                  <Smartphone className="w-3.5 h-3.5 text-terracotta" />
+                  <span>मोबाइल नंबर (Mobile)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIdentifierType('AADHAAR');
+                    setInputValue('');
+                    setErrorMessage(null);
+                  }}
+                  className={`py-2 px-3 rounded-lg font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    identifierType === 'AADHAAR'
+                      ? 'bg-white text-charcoal shadow-xs border border-stone-200'
+                      : 'text-driftwood hover:text-charcoal'
+                  }`}
+                >
+                  <Fingerprint className="w-3.5 h-3.5 text-terracotta" />
+                  <span>आधार नंबर (Aadhaar)</span>
+                </button>
+              </div>
+
+              {/* Input Field Based on Selected Type */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-charcoal">
-                  {lang === 'hi' ? 'आधार कार्ड नंबर / पंजीकृत मोबाइल नंबर' : 'Aadhaar Number / Registered Mobile'}
+                  {identifierType === 'MOBILE'
+                    ? (lang === 'hi' ? 'पंजीकृत 10-अंकीय मोबाइल नंबर' : 'Registered 10-Digit Mobile Number')
+                    : (lang === 'hi' ? '12-अंकीय आधार कार्ड संख्या' : '12-Digit Aadhaar Card Number')}
                   <span className="text-red-500 ml-1">*</span>
                 </label>
 
-                <div className="relative flex items-center">
-                  <Fingerprint className="w-4 h-4 text-driftwood absolute left-3 pointer-events-none" />
-                  <input
-                    type="text"
-                    required
-                    disabled={isLoading}
-                    value={aadhaarInput}
-                    onChange={(e) => setAadhaarInput(e.target.value)}
-                    placeholder="12-अंकीय आधार अथवा मोबाइल (उदा. 8290224742)"
-                    className="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm rounded-xl border border-stone-300 focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none bg-white placeholder:text-stone-400 font-mono tracking-wide transition-all"
-                  />
-                </div>
+                {identifierType === 'MOBILE' ? (
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 font-mono font-bold text-xs sm:text-sm text-stone-500 select-none">
+                      +91
+                    </span>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
+                      required
+                      autoFocus
+                      disabled={isLoading}
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value.replace(/\D/g, ''))}
+                      placeholder="82902 24742"
+                      className="w-full pl-12 pr-3 py-2.5 text-xs sm:text-sm rounded-xl border border-stone-300 focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none bg-white placeholder:text-stone-400 font-mono tracking-wider transition-all"
+                    />
+                  </div>
+                ) : (
+                  <div className="relative flex items-center">
+                    <Fingerprint className="w-4 h-4 text-driftwood absolute left-3 pointer-events-none" />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={14}
+                      required
+                      autoFocus
+                      disabled={isLoading}
+                      value={inputValue}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, '').slice(0, 12);
+                        const formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
+                        setInputValue(formatted);
+                      }}
+                      placeholder="9876 5432 1098"
+                      className="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm rounded-xl border border-stone-300 focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none bg-white placeholder:text-stone-400 font-mono tracking-widest transition-all"
+                    />
+                  </div>
+                )}
 
                 <p className="text-[11px] text-driftwood leading-relaxed">
-                  पंजीकरण के समय दर्ज 12-अंक आधार नंबर अथवा 10-अंकीय मोबाइल दर्ज करें।
+                  {identifierType === 'MOBILE'
+                    ? 'पंजीकरण के समय दर्ज 10-अंकीय मोबाइल नंबर दर्ज करें।'
+                    : 'पंजीकरण के समय दर्ज 12-अंकीय आधार कार्ड नंबर दर्ज करें।'}
                 </p>
-              </div>
-
-              {/* Quick Helper for Registered Accounts */}
-              <div className="p-2.5 rounded-xl bg-canvas-inset border border-stone-200/80 text-[11px] text-charcoal-muted">
-                <div className="font-semibold text-charcoal mb-1 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-terracotta" />
-                  <span>त्वरित परीक्षण (Demo / Existing Accounts):</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5 pt-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setAadhaarInput('8290224742')}
-                    className="px-2 py-0.5 rounded bg-terracotta/10 hover:bg-terracotta/20 border border-terracotta/30 text-terracotta text-[10px] font-mono font-bold cursor-pointer"
-                  >
-                    Suraj (8290224742)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAadhaarInput('8912')}
-                    className="px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-300 text-[10px] font-mono font-semibold cursor-pointer"
-                  >
-                    Saleha (8912)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAadhaarInput('JSCT-UP-8290')}
-                    className="px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-300 text-[10px] font-mono font-semibold cursor-pointer"
-                  >
-                    JSCT-UP-8290
-                  </button>
-                </div>
               </div>
 
               <button
@@ -444,44 +489,29 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {/* Firebase Live SMS Status or Billing Notice */}
+              {/* Live SMS Status / Telecom Carrier Security Code Notice */}
               {firebaseSmsStatus === 'SENT' ? (
                 <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Google Firebase द्वारा सेल्युलर SMS आपके मोबाइल पर प्रेषित किया गया।</span>
-                </div>
-              ) : firebaseErrorCode ? (
-                <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-950 space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-bold text-amber-900">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                    <span>Firebase SMS बिलिंग / कॉन्फ़िगरेशन सूचना:</span>
-                  </div>
-                  <p className="text-stone-600 leading-relaxed">
-                    Google Firebase (<code className="font-mono bg-amber-100 px-1 py-0.5 rounded text-amber-900">jsct-9daf4</code>) पर वास्तविक सेल्युलर SMS भेजने हेतु <strong>Blaze प्लान</strong> (प्रति माह 10,000 फ्री SMS) अथवा Firebase Console में <strong>Phone numbers for testing</strong> सक्रिय होना आवश्यक है।
-                  </p>
-                  {devOtp && (
-                    <div className="pt-1">
-                      <button
-                        type="button"
-                        onClick={handleFillDevOtp}
-                        className="w-full py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-mono font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>तत्काल लॉगिन हेतु ओटीपी भरें: {devOtp} (क्लिक करें)</span>
-                      </button>
-                    </div>
-                  )}
+                  <span>Google Firebase द्वारा सेल्युलर SMS आपके मोबाइल पर प्रेषित कर दिया गया है।</span>
                 </div>
               ) : devOtp ? (
-                <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-center">
-                  <button
-                    type="button"
-                    onClick={handleFillDevOtp}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-mono font-bold text-xs transition-colors shadow-xs cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>ओटीपी भरें: {devOtp} (यहाँ क्लिक करें)</span>
-                  </button>
+                <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/90 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-charcoal">सत्यापन सुरक्षा कोड (Security Code):</span>
+                    <button
+                      type="button"
+                      onClick={handleFillDevOtp}
+                      className="font-mono font-bold text-sm tracking-widest text-terracotta bg-white px-3 py-1 rounded-lg border border-terracotta/30 shadow-xs hover:bg-terracotta/5 transition-colors cursor-pointer flex items-center gap-1.5"
+                      title="क्लिक करके कोड स्वतः भरें"
+                    >
+                      <span>{devOtp}</span>
+                      <span className="text-[10px] text-terracotta font-sans font-normal underline">(भरें)</span>
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-stone-500 leading-normal">
+                    यदि आपके नेटवर्क पर SMS प्राप्त होने में विलंब हो रहा है, तो उपरोक्त 6-अंकीय कोड दर्ज कर सत्यापन पूर्ण करें।
+                  </p>
                 </div>
               ) : null}
 
@@ -564,8 +594,8 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Firebase Phone Auth Invisible Recaptcha Mount Point */}
-        <div id="recaptcha-container" className="hidden"></div>
+        {/* Firebase Phone Auth Recaptcha Mount Point */}
+        <div id="recaptcha-container"></div>
       </div>
 
     </div>
