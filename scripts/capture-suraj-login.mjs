@@ -20,14 +20,15 @@ async function run() {
 
   // 3. Click Send OTP
   await page.locator('button:has-text("ओटीपी प्राप्त करें")').click();
-  await page.waitForSelector('button:has-text("डेमो ओटीपी")', { timeout: 15000 });
+  await page.waitForSelector('button:has-text("ओटीपी भरें")', { timeout: 15000 });
   await page.waitForTimeout(600);
   await page.screenshot({ path: 'public/section-screenshots/suraj-step2-otp.png' });
   console.log('✅ Captured suraj-step2-otp.png');
 
   // 4. Click the demo OTP button to auto-fill
-  await page.locator('button:has-text("डेमो ओटीपी")').click();
+  await page.locator('button:has-text("ओटीपी भरें")').click();
   await page.waitForTimeout(400);
+
 
   // 5. Submit OTP verification
   await page.locator('button:has-text("सत्यापित करें")').click();

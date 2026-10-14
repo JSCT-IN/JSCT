@@ -45,6 +45,7 @@ export default function LoginPage() {
   const [maskedPhone, setMaskedPhone] = useState<string | null>(null);
   const [maskedEmail, setMaskedEmail] = useState<string | null>(null);
   const [devOtp, setDevOtp] = useState<string | null>(null);
+  const [smsProvider, setSmsProvider] = useState<string | null>(null);
 
   // Status & Timers
   const [isLoading, setIsLoading] = useState(false);
@@ -101,6 +102,7 @@ export default function LoginPage() {
       setMaskedPhone(result.maskedPhone || null);
       setMaskedEmail(result.maskedEmail || null);
       setDevOtp(result.devOtp || null);
+      setSmsProvider(result.smsProvider || null);
       setOtpStep(2);
       setCountdown(60); // 60s cooldown
       setOtpDigits(['', '', '', '', '', '']);
@@ -498,6 +500,29 @@ export default function LoginPage() {
                   </button>
                 </div>
 
+                {/* SMS Channel Guidance Note */}
+                {devOtp && (
+                  <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-950 space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+                      <span>डेवलपमेंट मोड ओटीपी (Instant Test OTP)</span>
+                    </div>
+                    <p className="text-amber-900/80 leading-relaxed">
+                      वास्तविक सेल्युलर SMS के लिए SMS Gateway सक्रिय होना आवश्यक है। अभी सीधे लॉगिन करने के लिए नीचे दिए गए बटन पर क्लिक करें:
+                    </p>
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={handleFillDevOtp}
+                        className="w-full py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-mono font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>ओटीपी भरें: {devOtp} (यहाँ क्लिक करें)</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* 6 Digit Input Boxes */}
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-charcoal text-center">
@@ -521,22 +546,8 @@ export default function LoginPage() {
                       />
                     ))}
                   </div>
-
-                  {/* Dev / Demo Mode Direct Fill Badge */}
-                  {devOtp && (
-                    <div className="text-center pt-1">
-                      <button
-                        type="button"
-                        onClick={handleFillDevOtp}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-mono font-bold transition-colors border border-amber-300"
-                        title="Click to auto-fill OTP"
-                      >
-                        <Sparkles className="w-3 h-3 text-amber-700" />
-                        <span>डेमो ओटीपी: {devOtp} (क्लिक करके भरें)</span>
-                      </button>
-                    </div>
-                  )}
                 </div>
+
 
                 {/* Resend Cooldown Timer */}
                 <div className="text-center text-xs">

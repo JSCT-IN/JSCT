@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { INITIAL_MEMBERS } from '@/lib/mockData';
 import { OtpService } from '@/lib/otp-store';
 import { sendOtpEmail } from '@/lib/resend';
+import { sendSmsOtp } from '@/lib/sms';
 import crypto from 'crypto';
 
 export interface AuthResult {
@@ -14,6 +15,7 @@ export interface AuthResult {
   maskedPhone?: string;
   maskedEmail?: string;
   devOtp?: string;
+  smsProvider?: string;
   user?: {
     id: string;
     membership_id: string;
@@ -24,6 +26,7 @@ export interface AuthResult {
     token?: string;
   };
 }
+
 
 /**
  * Utility to compute deterministic SHA-256 hash of Aadhaar number
@@ -143,6 +146,13 @@ export async function sendOtpAction(identifier: string): Promise<AuthResult> {
     if (member.membership_id) OtpService.createRecord(member.membership_id, member);
     if (member.phone) OtpService.createRecord(member.phone, member);
 
+    // Dispatch SMS via active SMS gateway (or Dev Mock)
+    const smsResult = await sendSmsOtp({
+      phone: member.phone,
+      otp,
+      memberName: member.full_name,
+    });
+
     // Send email via Resend
     await sendOtpEmail({
       toEmail: member.email,
@@ -154,8 +164,9 @@ export async function sendOtpAction(identifier: string): Promise<AuthResult> {
     const maskedPhone = maskPhone(member.phone);
     const maskedEmail = member.email ? maskEmail(member.email) : undefined;
 
-    // Show devOtp if Resend API key is not yet set or in development mode
-    const isDev = process.env.NODE_ENV !== 'production' || !process.env.RESEND_API_KEY;
+    // Show devOtp if no live cellular SMS provider is active or in development mode
+    const isLiveSms = smsResult.provider === 'FAST2SMS' || smsResult.provider === 'TWILIO';
+    const isDev = process.env.NODE_ENV !== 'production' || !isLiveSms;
 
     return {
       success: true,
@@ -163,7 +174,9 @@ export async function sendOtpAction(identifier: string): Promise<AuthResult> {
       maskedPhone,
       maskedEmail,
       devOtp: isDev ? otp : undefined,
+      smsProvider: smsResult.provider,
     };
+
   } catch (err: any) {
     console.error('[SEND OTP ACTION ERROR]:', err);
     return {
