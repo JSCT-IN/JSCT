@@ -428,6 +428,13 @@ export default function LoginPage() {
                   <div className="flex flex-wrap gap-1.5 pt-0.5">
                     <button
                       type="button"
+                      onClick={() => setAadhaarInput('8290224742')}
+                      className="px-2 py-0.5 rounded bg-terracotta/10 hover:bg-terracotta/20 border border-terracotta/30 text-terracotta text-[10px] font-mono font-bold"
+                    >
+                      Suraj (8290224742)
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setAadhaarInput('8912')}
                       className="px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-300 text-[10px] font-mono font-semibold"
                     >
@@ -435,20 +442,14 @@ export default function LoginPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setAadhaarInput('5421')}
+                      onClick={() => setAadhaarInput('JSCT-UP-8290')}
                       className="px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-300 text-[10px] font-mono font-semibold"
                     >
-                      Manju (5421)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAadhaarInput('JSCT-UP-001')}
-                      className="px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-300 text-[10px] font-mono font-semibold"
-                    >
-                      JSCT-UP-001
+                      JSCT-UP-8290
                     </button>
                   </div>
                 </div>
+
 
                 <button
                   type="submit"

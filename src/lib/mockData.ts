@@ -119,7 +119,33 @@ export const INITIAL_MEMBERS: Member[] = [
     is_active: true,
     created_at: '2025-02-01T10:00:00Z',
   },
+  {
+    id: '82902247-4200-4000-8000-829022474200',
+    membership_id: 'JSCT-UP-8290',
+    full_name: 'Suraj Kumar (सूरज कुमार)',
+    phone: '+91 82902 24742',
+    aadhaar_last4: '4742',
+    department: 'सामान्य सदस्य (General Member)',
+    district: 'Gorakhpur (गोरखपुर)',
+    state: 'Uttar Pradesh',
+    role: 'MEMBER',
+    avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    fee_expires_at: '2027-10-15T00:00:00Z',
+    is_active: true,
+    created_at: '2026-10-15T00:00:00Z',
+    nominee: {
+      id: '82902247-4200-4000-8000-829022474201',
+      member_id: '82902247-4200-4000-8000-829022474200',
+      full_name: 'पारिवारिक नॉमिनी (Nominee)',
+      relationship: 'Family Member',
+      bank_name: 'State Bank of India',
+      account_number: '829022474201',
+      ifsc_code: 'SBIN0001000',
+      upi_id: '8290224742@upi',
+    },
+  },
 ];
+
 
 // Active Appeals
 export const INITIAL_APPEALS: Appeal[] = [
