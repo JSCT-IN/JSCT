@@ -14,6 +14,7 @@ export interface AuthResult {
   redirectTo?: string;
   maskedPhone?: string;
   maskedEmail?: string;
+  phone?: string;
   devOtp?: string;
   smsProvider?: string;
   user?: {
@@ -173,9 +174,11 @@ export async function sendOtpAction(identifier: string): Promise<AuthResult> {
       message: `ओटीपी आपके पंजीकृत मोबाइल (${maskedPhone}) ${maskedEmail ? `व ईमेल (${maskedEmail})` : ''} पर सफलतापूर्वक भेजा गया है।`,
       maskedPhone,
       maskedEmail,
+      phone: member.phone,
       devOtp: isDev ? otp : undefined,
       smsProvider: smsResult.provider,
     };
+
 
   } catch (err: any) {
     console.error('[SEND OTP ACTION ERROR]:', err);

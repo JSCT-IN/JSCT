@@ -17,8 +17,11 @@ async function run() {
   // 2. Click the 'Suraj (8290224742)' chip
   await page.locator('button:has-text("Suraj (8290224742)")').click();
   await page.waitForTimeout(300);
+  await page.screenshot({ path: 'public/section-screenshots/suraj-step1-otp-only.png' });
+  console.log('✅ Captured suraj-step1-otp-only.png');
 
   // 3. Click Send OTP
+
   await page.locator('button:has-text("ओटीपी प्राप्त करें")').click();
   await page.waitForSelector('button:has-text("ओटीपी भरें")', { timeout: 15000 });
   await page.waitForTimeout(600);

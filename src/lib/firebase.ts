@@ -61,10 +61,15 @@ export function setupRecaptcha(containerId: string = "recaptcha-container"): Rec
       return existing;
     }
 
+    const container = document.getElementById(containerId);
+    if (!container) {
+      return null;
+    }
+
     const verifier = new RecaptchaVerifier(auth, containerId, {
       size: "invisible",
       callback: () => {
-        // reCAPTCHA solved - will allow signInWithPhoneNumber
+        // reCAPTCHA solved
       },
       "expired-callback": () => {
         console.warn("[Firebase Auth] reCAPTCHA expired, please retry.");
@@ -96,6 +101,17 @@ export async function sendFirebasePhoneOtp(
 
   return await signInWithPhoneNumber(auth, formatted, verifier);
 }
+
+/**
+ * Confirm 6-digit verification code with Firebase Phone Auth
+ */
+export async function verifyFirebasePhoneOtp(
+  confirmationResult: ConfirmationResult,
+  verificationCode: string
+) {
+  return await confirmationResult.confirm(verificationCode);
+}
+
 
 /**
  * Sync registered member record directly to Firebase Firestore

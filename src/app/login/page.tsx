@@ -5,31 +5,31 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { DPSWTStore } from '@/lib/store';
 import { useTranslation } from '@/lib/i18n';
-import { sendOtpAction, verifyOtpAction, loginAction } from '@/actions/auth-actions';
-import { getFirebaseAnalytics, setupRecaptcha, syncMemberToFirestore } from '@/lib/firebase';
+import { sendOtpAction, verifyOtpAction } from '@/actions/auth-actions';
+import { 
+  getFirebaseAnalytics, 
+  setupRecaptcha, 
+  sendFirebasePhoneOtp, 
+  syncMemberToFirestore 
+} from '@/lib/firebase';
 import { 
   HeartHandshake, 
   Loader2, 
   ArrowLeft,
   AlertCircle,
   CheckCircle2,
-  Lock,
-  Eye,
-  EyeOff,
   ShieldCheck,
   Smartphone,
   RefreshCw,
   Fingerprint,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Check
 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const { lang } = useTranslation();
-
-  // Login Mode: 'OTP' (Default) or 'PASSWORD'
-  const [loginMode, setLoginMode] = useState<'OTP' | 'PASSWORD'>('OTP');
 
   // OTP Step: 1 = Enter Aadhaar/Identifier, 2 = Enter 6-digit OTP
   const [otpStep, setOtpStep] = useState<1 | 2>(1);
@@ -37,15 +37,17 @@ export default function LoginPage() {
   // Form Fields
   const [aadhaarInput, setAadhaarInput] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
-  const [passwordInput, setPasswordInput] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
 
   // OTP Metadata from Server
   const [maskedPhone, setMaskedPhone] = useState<string | null>(null);
   const [maskedEmail, setMaskedEmail] = useState<string | null>(null);
   const [devOtp, setDevOtp] = useState<string | null>(null);
   const [smsProvider, setSmsProvider] = useState<string | null>(null);
+
+  // Firebase Client Phone Auth State
+  const [firebaseConfirmation, setFirebaseConfirmation] = useState<any>(null);
+  const [firebaseSmsStatus, setFirebaseSmsStatus] = useState<'IDLE' | 'SENDING' | 'SENT' | 'FAILED'>('IDLE');
+  const [firebaseErrorCode, setFirebaseErrorCode] = useState<string | null>(null);
 
   // Status & Timers
   const [isLoading, setIsLoading] = useState(false);
@@ -76,6 +78,8 @@ export default function LoginPage() {
     if (e) e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
+    setFirebaseErrorCode(null);
+    setFirebaseSmsStatus('IDLE');
 
     const cleanInput = aadhaarInput.trim().replace(/\s+/g, '');
 
@@ -91,6 +95,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      // 1. Look up member & generate server-side verified OTP record
       const result = await sendOtpAction(cleanInput);
 
       if (!result.success) {
@@ -113,6 +118,32 @@ export default function LoginPage() {
       setTimeout(() => {
         otpInputRefs.current[0]?.focus();
       }, 100);
+
+      // 2. Non-blocking Firebase Phone Auth SMS dispatch via browser SDK
+      if (result.phone) {
+        setFirebaseSmsStatus('SENDING');
+        try {
+          const verifier = setupRecaptcha('recaptcha-container');
+          if (verifier) {
+            sendFirebasePhoneOtp(result.phone, verifier)
+              .then((confirmation) => {
+                setFirebaseConfirmation(confirmation);
+                setFirebaseSmsStatus('SENT');
+                console.log('✅ [Firebase Auth] SMS dispatched via Firebase Phone Auth to', result.phone);
+              })
+              .catch((fbErr: any) => {
+                console.warn('ℹ️ [Firebase Client Phone Auth Notice]:', fbErr.code || fbErr.message);
+                setFirebaseSmsStatus('FAILED');
+                setFirebaseErrorCode(fbErr.code || fbErr.message || 'BILLING_NOT_ENABLED');
+              });
+          }
+        } catch (setupErr: any) {
+          console.warn('ℹ️ [Firebase Recaptcha Notice]:', setupErr);
+          setFirebaseSmsStatus('FAILED');
+          setFirebaseErrorCode('BILLING_NOT_ENABLED');
+        }
+      }
+
 
     } catch (err: any) {
       setErrorMessage(err.message || 'सर्वर से संपर्क करने में असमर्थ।');
@@ -176,6 +207,18 @@ export default function LoginPage() {
 
     try {
       const cleanInput = aadhaarInput.trim().replace(/\s+/g, '');
+
+      // 1. If Firebase Phone confirmation is active, verify via Firebase
+      if (firebaseConfirmation) {
+        try {
+          await firebaseConfirmation.confirm(fullOtp);
+          console.log('✅ [Firebase Auth] Phone OTP confirmed by Google Firebase');
+        } catch (fbConfirmErr: any) {
+          console.warn('[Firebase Auth] Confirmation notice, checking local engine:', fbConfirmErr);
+        }
+      }
+
+      // 2. Authenticate member against Database and issue session token
       const result = await verifyOtpAction(cleanInput, fullOtp);
 
       if (!result.success || !result.user) {
@@ -184,14 +227,14 @@ export default function LoginPage() {
         return;
       }
 
-      // Synchronize client storage
+      // 3. Synchronize client storage
       DPSWTStore.setCurrentUser(result.user.id);
       if (typeof window !== 'undefined') {
         localStorage.setItem('token', result.user.token || 'jsct_otp_token_' + result.user.id);
         localStorage.setItem('user', JSON.stringify(result.user));
       }
 
-      // Firebase Analytics & Firestore session sync
+      // 4. Firebase Analytics & Firestore session sync
       getFirebaseAnalytics().then(async (analytics) => {
         if (analytics) {
           const { logEvent } = await import('firebase/analytics');
@@ -224,74 +267,6 @@ export default function LoginPage() {
     }
   };
 
-  // Handle Password Login Submission (Tab 2)
-  const handlePasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
-
-    const cleanId = aadhaarInput.trim();
-    const cleanPass = passwordInput.trim();
-
-    if (!cleanId || !cleanPass) {
-      setErrorMessage(
-        lang === 'hi' 
-          ? 'कृपया पहचान क्रमांक एवं पासवर्ड दोनों दर्ज करें।' 
-          : 'Please enter identification and password.'
-      );
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const result = await loginAction(cleanId, cleanPass, 'AUTO');
-
-      if (!result.success || !result.user) {
-        setErrorMessage(result.message || 'लॉगिन असफल रहा। कृपया पासवर्ड जांचें।');
-        setIsLoading(false);
-        return;
-      }
-
-      DPSWTStore.setCurrentUser(result.user.id);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('token', result.user.token || 'jsct_token_' + result.user.id);
-        localStorage.setItem('user', JSON.stringify(result.user));
-      }
-
-      // Firebase Analytics sync
-      getFirebaseAnalytics().then(async (analytics) => {
-        if (analytics) {
-          const { logEvent } = await import('firebase/analytics');
-          logEvent(analytics, 'login', { method: 'password' });
-        }
-      }).catch(() => {});
-
-      syncMemberToFirestore({
-        id: result.user.id,
-        membership_id: result.user.membership_id,
-        full_name: result.user.full_name,
-        phone: result.user.phone,
-        department: result.user.department,
-        status: 'ACTIVE',
-      }).catch(() => {});
-
-      setSuccessMessage(
-        lang === 'hi'
-          ? `स्वागत है ${result.user.full_name}!`
-          : `Welcome ${result.user.full_name}!`
-      );
-
-      setTimeout(() => {
-        router.push(result.redirectTo || '/dashboard');
-      }, 500);
-
-    } catch (err: any) {
-      setErrorMessage(err.message || 'लॉगिन में त्रुटि हुई।');
-      setIsLoading(false);
-    }
-  };
-
   // Quick helper to fill dev OTP
   const handleFillDevOtp = () => {
     if (devOtp && devOtp.length === 6) {
@@ -310,7 +285,7 @@ export default function LoginPage() {
         <div className="absolute top-0 right-0 w-32 h-32 bg-terracotta/5 rounded-full blur-2xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-amber-400/5 rounded-full blur-2xl pointer-events-none" />
 
-        {/* Top Header: Back To Home */}
+        {/* Top Header: Back To Home & Trust Badge */}
         <div className="flex items-center justify-between mb-4">
           <Link
             href="/"
@@ -327,7 +302,7 @@ export default function LoginPage() {
         </div>
 
         {/* Centered Brand Emblem & Heading */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-5">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-terracotta to-amber-600 text-white flex items-center justify-center mx-auto shadow-sm mb-2.5">
             <HeartHandshake className="w-6 h-6 stroke-[2.2]" />
           </div>
@@ -339,39 +314,10 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Dual Mode Switcher Tabs */}
-        <div className="grid grid-cols-2 p-1 bg-canvas-inset rounded-xl border border-stone-border mb-5">
-          <button
-            type="button"
-            onClick={() => {
-              setLoginMode('OTP');
-              setErrorMessage(null);
-            }}
-            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              loginMode === 'OTP'
-                ? 'bg-white text-charcoal shadow-xs border border-stone-200'
-                : 'text-driftwood hover:text-charcoal'
-            }`}
-          >
-            <Smartphone className="w-3.5 h-3.5 text-terracotta" />
-            <span>आधार OTP लॉगिन</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setLoginMode('PASSWORD');
-              setErrorMessage(null);
-            }}
-            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              loginMode === 'PASSWORD'
-                ? 'bg-white text-charcoal shadow-xs border border-stone-200'
-                : 'text-driftwood hover:text-charcoal'
-            }`}
-          >
-            <Lock className="w-3.5 h-3.5 text-terracotta" />
-            <span>पासवर्ड लॉगिन</span>
-          </button>
+        {/* Dedicated OTP Security Banner (No Password Mode) */}
+        <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-terracotta bg-terracotta/5 border border-terracotta/20 py-2 px-3 rounded-xl mb-5">
+          <Fingerprint className="w-4 h-4 text-terracotta shrink-0" />
+          <span>आधार व मोबाइल OTP सत्यापन (OTP-Only Login)</span>
         </div>
 
         {/* Error / Success Alerts */}
@@ -390,126 +336,130 @@ export default function LoginPage() {
         )}
 
         {/* ------------------------------------------------------------- */}
-        {/* MODE 1: AADHAAR OTP LOGIN (DEFAULT & USER-REQUESTED)           */}
+        {/* PURE OTP-BASED AUTHENTICATION WORKFLOW                        */}
         {/* ------------------------------------------------------------- */}
-        {loginMode === 'OTP' && (
-          <div>
-            {otpStep === 1 ? (
-              /* STEP 1: Enter Aadhaar Number */
-              <form onSubmit={handleSendOtp} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-charcoal">
-                    {lang === 'hi' ? 'आधार कार्ड नंबर / मोबाइल नंबर' : 'Aadhaar Number / Registered Mobile'}
-                    <span className="text-red-500 ml-1">*</span>
-                  </label>
+        <div>
+          {otpStep === 1 ? (
+            /* STEP 1: Enter Aadhaar Number / Mobile */
+            <form onSubmit={handleSendOtp} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-charcoal">
+                  {lang === 'hi' ? 'आधार कार्ड नंबर / पंजीकृत मोबाइल नंबर' : 'Aadhaar Number / Registered Mobile'}
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
 
-                  <div className="relative flex items-center">
-                    <Fingerprint className="w-4 h-4 text-driftwood absolute left-3 pointer-events-none" />
-                    <input
-                      type="text"
-                      required
-                      disabled={isLoading}
-                      value={aadhaarInput}
-                      onChange={(e) => setAadhaarInput(e.target.value)}
-                      placeholder="12-अंकीय आधार (उदा. 9876 5432 1098)"
-                      className="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm rounded-xl border border-stone-300 focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none bg-white placeholder:text-stone-400 font-mono tracking-wide transition-all"
-                    />
-                  </div>
-
-                  <p className="text-[11px] text-driftwood leading-relaxed">
-                    पंजीकरण के समय दर्ज 12-अंक आधार नंबर दर्ज करें। आपके पंजीकृत नंबर पर OTP भेजा जाएगा।
-                  </p>
+                <div className="relative flex items-center">
+                  <Fingerprint className="w-4 h-4 text-driftwood absolute left-3 pointer-events-none" />
+                  <input
+                    type="text"
+                    required
+                    disabled={isLoading}
+                    value={aadhaarInput}
+                    onChange={(e) => setAadhaarInput(e.target.value)}
+                    placeholder="12-अंकीय आधार अथवा मोबाइल (उदा. 8290224742)"
+                    className="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm rounded-xl border border-stone-300 focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none bg-white placeholder:text-stone-400 font-mono tracking-wide transition-all"
+                  />
                 </div>
 
-                {/* Quick Helper for Founders/Admins */}
-                <div className="p-2.5 rounded-xl bg-canvas-inset border border-stone-200/80 text-[11px] text-charcoal-muted">
-                  <div className="font-semibold text-charcoal mb-1 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-terracotta" />
-                    <span>त्वरित परीक्षण (Demo / Existing Accounts):</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 pt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setAadhaarInput('8290224742')}
-                      className="px-2 py-0.5 rounded bg-terracotta/10 hover:bg-terracotta/20 border border-terracotta/30 text-terracotta text-[10px] font-mono font-bold"
-                    >
-                      Suraj (8290224742)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAadhaarInput('8912')}
-                      className="px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-300 text-[10px] font-mono font-semibold"
-                    >
-                      Saleha (8912)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAadhaarInput('JSCT-UP-8290')}
-                      className="px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-300 text-[10px] font-mono font-semibold"
-                    >
-                      JSCT-UP-8290
-                    </button>
-                  </div>
+                <p className="text-[11px] text-driftwood leading-relaxed">
+                  पंजीकरण के समय दर्ज 12-अंक आधार नंबर अथवा 10-अंकीय मोबाइल दर्ज करें।
+                </p>
+              </div>
+
+              {/* Quick Helper for Registered Accounts */}
+              <div className="p-2.5 rounded-xl bg-canvas-inset border border-stone-200/80 text-[11px] text-charcoal-muted">
+                <div className="font-semibold text-charcoal mb-1 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-terracotta" />
+                  <span>त्वरित परीक्षण (Demo / Existing Accounts):</span>
                 </div>
-
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm transition-all flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.99]"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>ओटीपी भेज रहे हैं...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>ओटीपी प्राप्त करें (Send OTP)</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </form>
-            ) : (
-              /* STEP 2: Enter 6-Digit OTP */
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
-                
-                {/* Destination Confirmation Strip */}
-                <div className="p-3 rounded-xl bg-canvas-inset border border-stone-border flex items-center justify-between text-xs">
-                  <div className="space-y-0.5 min-w-0">
-                    <span className="text-[11px] text-driftwood block">ओटीपी प्रेषित किया गया:</span>
-                    <span className="font-bold text-charcoal font-mono block truncate">
-                      {maskedPhone || 'पंजीकृत मोबाइल'}
-                    </span>
-                    {maskedEmail && (
-                      <span className="text-[10px] text-driftwood font-mono block truncate">
-                        ईमेल: {maskedEmail}
-                      </span>
-                    )}
-                  </div>
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
                   <button
                     type="button"
-                    onClick={() => {
-                      setOtpStep(1);
-                      setErrorMessage(null);
-                    }}
-                    className="text-xs font-bold text-terracotta hover:underline shrink-0 pl-2"
+                    onClick={() => setAadhaarInput('8290224742')}
+                    className="px-2 py-0.5 rounded bg-terracotta/10 hover:bg-terracotta/20 border border-terracotta/30 text-terracotta text-[10px] font-mono font-bold cursor-pointer"
                   >
-                    बदलें (Change)
+                    Suraj (8290224742)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAadhaarInput('8912')}
+                    className="px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-300 text-[10px] font-mono font-semibold cursor-pointer"
+                  >
+                    Saleha (8912)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAadhaarInput('JSCT-UP-8290')}
+                    className="px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-300 text-[10px] font-mono font-semibold cursor-pointer"
+                  >
+                    JSCT-UP-8290
                   </button>
                 </div>
+              </div>
 
-                {/* SMS Channel Guidance Note */}
-                {devOtp && (
-                  <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-950 space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-amber-900">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-                      <span>डेवलपमेंट मोड ओटीपी (Instant Test OTP)</span>
-                    </div>
-                    <p className="text-amber-900/80 leading-relaxed">
-                      वास्तविक सेल्युलर SMS के लिए SMS Gateway सक्रिय होना आवश्यक है। अभी सीधे लॉगिन करने के लिए नीचे दिए गए बटन पर क्लिक करें:
-                    </p>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm transition-all flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.99] cursor-pointer"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>ओटीपी भेज रहे हैं...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>ओटीपी प्राप्त करें (Send OTP)</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            /* STEP 2: Enter 6-Digit OTP */
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              
+              {/* Destination Confirmation Strip */}
+              <div className="p-3 rounded-xl bg-canvas-inset border border-stone-border flex items-center justify-between text-xs">
+                <div className="space-y-0.5 min-w-0">
+                  <span className="text-[11px] text-driftwood block">ओटीपी प्रेषित किया गया:</span>
+                  <span className="font-bold text-charcoal font-mono block truncate">
+                    {maskedPhone || 'पंजीकृत मोबाइल'}
+                  </span>
+                  {maskedEmail && (
+                    <span className="text-[10px] text-driftwood font-mono block truncate">
+                      ईमेल: {maskedEmail}
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpStep(1);
+                    setErrorMessage(null);
+                  }}
+                  className="text-xs font-bold text-terracotta hover:underline shrink-0 pl-2 cursor-pointer"
+                >
+                  बदलें (Change)
+                </button>
+              </div>
+
+              {/* Firebase Live SMS Status or Billing Notice */}
+              {firebaseSmsStatus === 'SENT' ? (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Google Firebase द्वारा सेल्युलर SMS आपके मोबाइल पर प्रेषित किया गया।</span>
+                </div>
+              ) : firebaseErrorCode ? (
+                <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-950 space-y-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    <span>Firebase SMS बिलिंग / कॉन्फ़िगरेशन सूचना:</span>
+                  </div>
+                  <p className="text-stone-600 leading-relaxed">
+                    Google Firebase (<code className="font-mono bg-amber-100 px-1 py-0.5 rounded text-amber-900">jsct-9daf4</code>) पर वास्तविक सेल्युलर SMS भेजने हेतु <strong>Blaze प्लान</strong> (प्रति माह 10,000 फ्री SMS) अथवा Firebase Console में <strong>Phone numbers for testing</strong> सक्रिय होना आवश्यक है।
+                  </p>
+                  {devOtp && (
                     <div className="pt-1">
                       <button
                         type="button"
@@ -517,168 +467,89 @@ export default function LoginPage() {
                         className="w-full py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-mono font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>ओटीपी भरें: {devOtp} (यहाँ क्लिक करें)</span>
+                        <span>तत्काल लॉगिन हेतु ओटीपी भरें: {devOtp} (क्लिक करें)</span>
                       </button>
                     </div>
-                  </div>
-                )}
-
-                {/* 6 Digit Input Boxes */}
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-charcoal text-center">
-                    6-अंकीय ओटीपी कोड दर्ज करें (Enter 6-digit OTP)
-                  </label>
-
-                  <div className="flex items-center justify-center gap-2">
-                    {otpDigits.map((digit, idx) => (
-                      <input
-                        key={idx}
-                        ref={(el) => {
-                          otpInputRefs.current[idx] = el;
-                        }}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={6} // Allow paste into any box
-                        value={digit}
-                        onChange={(e) => handleOtpChange(idx, e.target.value)}
-                        onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                        className="w-11 h-12 text-center text-lg font-mono font-bold rounded-xl border-2 border-stone-300 focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none bg-white transition-all shadow-xs"
-                      />
-                    ))}
-                  </div>
-                </div>
-
-
-                {/* Resend Cooldown Timer */}
-                <div className="text-center text-xs">
-                  {countdown > 0 ? (
-                    <span className="text-driftwood font-medium">
-                      पुनः ओटीपी भेजें ({countdown}s)
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => handleSendOtp()}
-                      className="text-terracotta font-bold hover:underline inline-flex items-center gap-1"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      <span>पुनः ओटीपी भेजें (Resend OTP)</span>
-                    </button>
                   )}
                 </div>
+              ) : devOtp ? (
+                <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-center">
+                  <button
+                    type="button"
+                    onClick={handleFillDevOtp}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-mono font-bold text-xs transition-colors shadow-xs cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>ओटीपी भरें: {devOtp} (यहाँ क्लिक करें)</span>
+                  </button>
+                </div>
+              ) : null}
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm transition-all flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.99]"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>सत्यापित कर रहे हैं...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>सत्यापित करें और लॉगिन करें</span>
-                    </>
-                  )}
-                </button>
+              {/* 6 Digit Input Boxes */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-charcoal text-center">
+                  6-अंकीय ओटीपी कोड दर्ज करें (Enter 6-digit OTP)
+                </label>
 
-              </form>
-            )}
-          </div>
-        )}
-
-        {/* ------------------------------------------------------------- */}
-        {/* MODE 2: PASSWORD LOGIN (FOR STAFF / ADMINS / MASTERS)         */}
-        {/* ------------------------------------------------------------- */}
-        {loginMode === 'PASSWORD' && (
-          <form onSubmit={handlePasswordLogin} className="space-y-4">
-            
-            {/* Field 1: Identifier */}
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-charcoal">
-                {lang === 'hi' ? 'आधार संख्या / सदस्यता क्रमांक / फोन' : 'Aadhaar / Member ID / Phone'}
-                <span className="text-red-500 ml-1">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                disabled={isLoading}
-                value={aadhaarInput}
-                onChange={(e) => setAadhaarInput(e.target.value)}
-                placeholder="उदा. 8912 / JSCT-UP-001 / +91 9876500001"
-                className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-300 focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none bg-white placeholder:text-stone-400 disabled:opacity-50 transition-all"
-              />
-            </div>
-
-            {/* Field 2: Password with Eye toggle */}
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-charcoal">
-                {lang === 'hi' ? 'पासवर्ड (Password)' : 'Password'}
-                <span className="text-red-500 ml-1">*</span>
-              </label>
-              <div className="relative flex items-center">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  disabled={isLoading}
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="अपना पासवर्ड दर्ज करें"
-                  className="w-full px-3 py-2 pr-9 text-xs sm:text-sm rounded-xl border border-stone-300 focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none bg-white placeholder:text-stone-400 disabled:opacity-50 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 text-stone-400 hover:text-charcoal p-1 transition-colors"
-                  aria-label="Toggle password visibility"
-                >
-                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
+                <div className="flex items-center justify-center gap-2">
+                  {otpDigits.map((digit, idx) => (
+                    <input
+                      key={idx}
+                      ref={(el) => {
+                        otpInputRefs.current[idx] = el;
+                      }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(idx, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                      className="w-11 h-12 text-center text-lg font-mono font-bold rounded-xl border-2 border-stone-300 focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none bg-white transition-all shadow-xs"
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center justify-between text-[11px] pt-0.5">
-              <label className="flex items-center gap-1.5 cursor-pointer text-driftwood">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded text-terracotta focus:ring-terracotta"
-                />
-                <span>याद रखें (Remember me)</span>
-              </label>
-              <a
-                href="tel:9264945875"
-                className="text-terracotta hover:underline font-medium"
+              {/* Resend Cooldown Timer */}
+              <div className="text-center text-xs">
+                {countdown > 0 ? (
+                  <span className="text-driftwood font-medium">
+                    पुनः ओटीपी भेजें ({countdown}s)
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={() => handleSendOtp()}
+                    className="text-terracotta font-bold hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    <span>पुनः ओटीपी भेजें (Resend OTP)</span>
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm transition-all flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.99] cursor-pointer"
               >
-                पासवर्ड सहायता
-              </a>
-            </div>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>सत्यापित कर रहे हैं...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>सत्यापित करें और लॉगिन करें</span>
+                  </>
+                )}
+              </button>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded-xl bg-charcoal hover:bg-charcoal-deep text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.99]"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>प्रतीक्षा करें...</span>
-                </>
-              ) : (
-                <>
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>लॉग इन करें (Log In)</span>
-                </>
-              )}
-            </button>
-          </form>
-        )}
+            </form>
+          )}
+        </div>
 
         {/* Bottom Link: Register */}
         <div className="text-center mt-6 pt-4 border-t border-stone-200/80">
@@ -696,7 +567,6 @@ export default function LoginPage() {
         {/* Firebase Phone Auth Invisible Recaptcha Mount Point */}
         <div id="recaptcha-container" className="hidden"></div>
       </div>
-
 
     </div>
   );
