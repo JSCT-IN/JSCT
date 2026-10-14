@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { DPSWTStore } from '@/lib/store';
 import { triggerCelebrationConfetti } from '@/lib/utils';
 import { useTranslation } from '@/lib/i18n';
+import { syncMemberToFirestore, getFirebaseAnalytics } from '@/lib/firebase';
 import {
   HeartHandshake,
   QrCode,
@@ -140,6 +141,19 @@ export default function RegisterPage() {
     const expiryDate = new Date();
     expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
+    const cleanAadhaar = aadhaarNumber.replace(/\D/g, '');
+    let deterministicAadhaarHash = `hash_${cleanAadhaar}`;
+    try {
+      if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
+        const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(cleanAadhaar));
+        deterministicAadhaarHash = Array.from(new Uint8Array(buf))
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+      }
+    } catch {
+      deterministicAadhaarHash = `hash_${cleanAadhaar}`;
+    }
+
     try {
       const { supabase } = await import('@/lib/supabase/client');
 
@@ -170,7 +184,7 @@ export default function RegisterPage() {
           marital_status: maritalStatus,
           phone: formattedPhone,
           email: email.trim(),
-          aadhaar_hash: `hash_${last4}_${Date.now()}`,
+          aadhaar_hash: deterministicAadhaarHash,
           aadhaar_last4: last4,
           occupation: occupation,
           department: departmentName,
@@ -237,6 +251,34 @@ export default function RegisterPage() {
         },
       });
 
+      // 4. Synchronize with Firebase Firestore & Analytics
+      try {
+        await syncMemberToFirestore({
+          id: newMemberId,
+          membership_id: generatedId,
+          full_name: applicantName.trim(),
+          phone: formattedPhone,
+          email: email.trim(),
+          aadhaar_last4: last4,
+          aadhaar_hash: deterministicAadhaarHash,
+          department: departmentName,
+          district: districtName,
+          state: stateName,
+          status: 'ACTIVE',
+        });
+
+        const analytics = await getFirebaseAnalytics();
+        if (analytics) {
+          const { logEvent } = await import('firebase/analytics');
+          logEvent(analytics, 'sign_up', {
+            method: 'aadhaar_registration',
+            membership_id: generatedId,
+          });
+        }
+      } catch (fbErr) {
+        console.warn('Firebase registration sync notice:', fbErr);
+      }
+
       triggerCelebrationConfetti();
       router.push('/dashboard');
     } catch (err: any) {
@@ -264,6 +306,25 @@ export default function RegisterPage() {
           upi_id: upiId.toLowerCase(),
         },
       });
+
+      // Sync fallback to Firebase Firestore as well
+      try {
+        await syncMemberToFirestore({
+          membership_id: generatedId,
+          full_name: applicantName.trim(),
+          phone: formattedPhone,
+          email: email.trim(),
+          aadhaar_last4: last4,
+          aadhaar_hash: deterministicAadhaarHash,
+          department: departmentName,
+          district: districtName,
+          state: stateName,
+          status: 'ACTIVE',
+        });
+      } catch (fbErr) {
+        console.warn('Firebase fallback sync notice:', fbErr);
+      }
+
       triggerCelebrationConfetti();
       router.push('/dashboard');
     } finally {
