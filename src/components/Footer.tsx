@@ -14,7 +14,8 @@ export default function Footer() {
     pathname.startsWith('/console-secure-admin') ||
     pathname.startsWith('/admin') ||
     pathname.startsWith('/dashboard') ||
-    pathname === '/login'
+    pathname === '/login' ||
+    pathname === '/register'
   ) {
     return null;
   }

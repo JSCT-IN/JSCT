@@ -37,7 +37,8 @@ import {
   Eye,
   EyeOff,
   Phone,
-  QrCode
+  QrCode,
+  CheckCircle
 } from 'lucide-react';
 
 // Form Validation Schema using Zod
@@ -264,32 +265,33 @@ export default function RegisterPage() {
   // Success Screen with Rendered Digital Card
   if (registeredMember) {
     return (
-      <div className="min-h-screen bg-stone-50 py-12 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 text-center shadow-lg space-y-3">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
-              <CheckCircle2 className="w-10 h-10" />
+      <div className="min-h-screen bg-canvas py-8 px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 text-center shadow-warm-md space-y-3">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 font-serif">
+            <h1 className="text-xl sm:text-3xl font-black text-charcoal font-serif">
               बधाई हो! सदस्यता पंजीकरण सफलतापूर्वक संपन्न
             </h1>
-            <p className="text-sm text-stone-600 max-w-lg mx-auto">
-              आपका आधिकारिक सदस्यता क्रमांक <span className="font-mono font-bold text-[#0B5C9E] text-base">{registeredMember.member_id}</span> जारी कर दिया गया है।
+            <p className="text-xs sm:text-sm text-driftwood max-w-lg mx-auto">
+              आपका आधिकारिक सदस्यता क्रमांक <span className="font-mono font-bold text-terracotta text-sm sm:text-base">{registeredMember.member_id}</span> जारी कर दिया गया है।
             </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
               <span>शुल्क सत्यापन लंबित: न्यास समिति द्वारा 24 घंटे में पुष्टिकरण</span>
             </div>
           </div>
 
           {/* Render Member Card Component with Download Buttons */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-md">
+          <div className="bg-white p-4 sm:p-8 rounded-3xl border border-stone-200 shadow-warm">
             <MemberCard member={registeredMember} />
           </div>
 
-          <div className="text-center">
+          <div className="text-center pt-2">
             <Link
               href="/login"
-              className="px-6 py-3 rounded-2xl bg-[#0B5C9E] hover:bg-[#084b82] text-white text-xs font-bold inline-flex items-center gap-2 shadow-md"
+              className="px-6 py-3 rounded-xl bg-terracotta hover:bg-terracotta-hover text-white text-xs sm:text-sm font-bold inline-flex items-center gap-2 shadow-warm transition-all"
             >
               <span>सदस्य पोर्टल में लॉगिन करें</span>
               <ArrowRight className="w-4 h-4" />
@@ -301,155 +303,164 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-canvas py-5 sm:py-10 px-3.5 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto space-y-5 sm:space-y-7">
         
-        {/* Editorial Trust Branding Header */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B5C9E]/10 border border-[#0B5C9E]/20 text-[#0B5C9E] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-terracotta/10 border border-terracotta/20 text-terracotta text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+            <ShieldCheck className="w-3.5 h-3.5" />
             <span>जन सेवा चैरिटेबल ट्रस्ट (JSCT) • आधिकारिक सदस्यता प्रपत्र</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black text-stone-900 tracking-tight font-serif">
-            नया आजीवन सदस्य पंजीकरण (Membership Registration)
+          <h1 className="text-xl sm:text-3xl font-black text-charcoal tracking-tight font-serif leading-tight">
+            नया आजीवन सदस्य पंजीकरण
           </h1>
-          <p className="text-xs sm:text-sm text-stone-600 max-w-2xl mx-auto leading-relaxed">
-            कल्याणकारी योजनाओं (₹15 लाख आकस्मिक व ₹5 लाख बेटी विवाह संबल) हेतु सदस्यता ग्रहण करें।
+          <p className="text-xs sm:text-sm text-driftwood max-w-xl mx-auto">
+            ₹15 लाख आकस्मिक व ₹5 लाख बेटी विवाह संबल हेतु सदस्यता ग्रहण करें।
           </p>
         </div>
 
-        {/* UPI Payment Info Bar */}
-        <div className="bg-[#0B5C9E]/5 border border-[#0B5C9E]/20 p-4 sm:p-5 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="space-y-1 text-center sm:text-left">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#0B5C9E] text-white text-[10px] font-bold uppercase tracking-wider">
-              वार्षिक सदस्यता अंशदान: ₹50 मात्र
-            </span>
-            <p className="text-xs text-stone-600 mt-1">
-              आधिकारिक ट्रस्ट UPI ID: <span className="font-mono font-bold text-stone-900">{trustUpiId}</span>
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
+        {/* Stepper Progress Bar (Clean on Mobile & Desktop) */}
+        <div className="bg-white p-2.5 sm:p-3 rounded-2xl border border-stone-200 shadow-xs">
+          <div className="grid grid-cols-3 gap-1 sm:gap-2 text-xs">
+            {/* Step 1 */}
             <button
               type="button"
-              onClick={handleCopyUpi}
-              className="px-3.5 py-2 rounded-xl bg-white border border-stone-300 text-xs font-bold text-stone-800 hover:bg-stone-50 flex items-center gap-1.5 shadow-xs"
+              onClick={() => setStep(1)}
+              className={`p-2 sm:p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 ${
+                step === 1 
+                  ? 'bg-terracotta text-white font-bold shadow-xs' 
+                  : step > 1
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold'
+                  : 'bg-canvas-inset text-driftwood'
+              }`}
             >
-              {copiedUpi ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-stone-500" />}
-              <span>{copiedUpi ? 'UPI कॉपी हो गया' : 'Copy UPI ID'}</span>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                step === 1 ? 'bg-white text-terracotta' : step > 1 ? 'bg-emerald-600 text-white' : 'bg-stone-300 text-charcoal'
+              }`}>
+                {step > 1 ? '✓' : '1'}
+              </span>
+              <span className="text-[11px] sm:text-xs font-medium truncate">व्यक्तिगत विवरण</span>
             </button>
-            <div className="w-12 h-12 bg-white rounded-xl border border-stone-200 flex items-center justify-center p-1 text-[#0B5C9E]">
-              <QrCode className="w-8 h-8" />
-            </div>
-          </div>
-        </div>
 
-        {/* Stepper Navigation */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 font-mono text-xs">
-          <div className={`p-3 rounded-2xl border text-center transition-all ${
-            step === 1 
-              ? 'bg-[#0B5C9E] text-white border-[#0B5C9E] font-bold shadow-xs' 
-              : 'bg-white text-stone-600 border-stone-200'
-          }`}>
-            <span className="block text-[10px] uppercase opacity-80">चरण 1</span>
-            <span className="truncate block font-sans">व्यक्तिगत व सेवा</span>
-          </div>
-          <div className={`p-3 rounded-2xl border text-center transition-all ${
-            step === 2 
-              ? 'bg-[#0B5C9E] text-white border-[#0B5C9E] font-bold shadow-xs' 
-              : 'bg-white text-stone-600 border-stone-200'
-          }`}>
-            <span className="block text-[10px] uppercase opacity-80">चरण 2</span>
-            <span className="truncate block font-sans">निवास व नामिनी</span>
-          </div>
-          <div className={`p-3 rounded-2xl border text-center transition-all ${
-            step === 3 
-              ? 'bg-[#0B5C9E] text-white border-[#0B5C9E] font-bold shadow-xs' 
-              : 'bg-white text-stone-600 border-stone-200'
-          }`}>
-            <span className="block text-[10px] uppercase opacity-80">चरण 3</span>
-            <span className="truncate block font-sans">फ़ोटो व रसीद</span>
+            {/* Step 2 */}
+            <button
+              type="button"
+              onClick={() => {
+                if (step > 2) setStep(2);
+              }}
+              className={`p-2 sm:p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 ${
+                step === 2 
+                  ? 'bg-terracotta text-white font-bold shadow-xs' 
+                  : step > 2
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold'
+                  : 'bg-canvas-inset text-driftwood'
+              }`}
+            >
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                step === 2 ? 'bg-white text-terracotta' : step > 2 ? 'bg-emerald-600 text-white' : 'bg-stone-300 text-charcoal'
+              }`}>
+                {step > 2 ? '✓' : '2'}
+              </span>
+              <span className="text-[11px] sm:text-xs font-medium truncate">नामिनी व निवास</span>
+            </button>
+
+            {/* Step 3 */}
+            <div
+              className={`p-2 sm:p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 ${
+                step === 3 
+                  ? 'bg-terracotta text-white font-bold shadow-xs' 
+                  : 'bg-canvas-inset text-driftwood'
+              }`}
+            >
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                step === 3 ? 'bg-white text-terracotta' : 'bg-stone-300 text-charcoal'
+              }`}>
+                3
+              </span>
+              <span className="text-[11px] sm:text-xs font-medium truncate">शुल्क व फ़ोटो</span>
+            </div>
           </div>
         </div>
 
         {/* Server Error Alert */}
         {serverError && (
-          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
+          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
             <span>{serverError}</span>
           </div>
         )}
 
         {/* Main Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-warm space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-4 sm:p-7 rounded-3xl border border-stone-200 shadow-warm space-y-5">
           
           {/* ============================================================== */}
           {/* STEP 1: Personal & Occupation Information                      */}
           {/* ============================================================== */}
           {step === 1 && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-stone-200 text-xs font-bold uppercase tracking-wider text-stone-800 font-mono">
-                <User className="w-4 h-4 text-[#0B5C9E]" />
-                <span>चरण 1: व्यक्तिगत एवं सेवा विवरण</span>
+              <div className="flex items-center gap-2 pb-2 border-b border-stone-100 text-xs font-bold text-charcoal">
+                <User className="w-4 h-4 text-terracotta" />
+                <span>चरण 1: आवेदक का व्यक्तिगत एवं सेवा विवरण</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
                     पूरा नाम (Full Name) *
                   </label>
                   <input
                     {...register('fullName')}
                     placeholder="उदा. सत्यनारायण यादव"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal placeholder:text-driftwood/50 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.fullName && <p className="text-[11px] text-rose-600 mt-1">{errors.fullName.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
                     पिता अथवा पति का नाम *
                   </label>
                   <input
                     {...register('fatherOrHusbandName')}
                     placeholder="उदा. स्वर्गीय कैलाश नाथ"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal placeholder:text-driftwood/50 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.fatherOrHusbandName && <p className="text-[11px] text-rose-600 mt-1">{errors.fatherOrHusbandName.message}</p>}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    माता का नाम (Mother Name)
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
+                    माता का नाम (वैकल्पिक)
                   </label>
                   <input
                     {...register('motherName')}
                     placeholder="उदा. राधा देवी"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal placeholder:text-driftwood/50 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
                     जन्म तिथि (DOB) *
                   </label>
                   <input
                     type="date"
                     {...register('dob')}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all bg-white"
                   />
                   {errors.dob && <p className="text-[11px] text-rose-600 mt-1">{errors.dob.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
                     रक्त समूह (Blood Group)
                   </label>
                   <select
                     {...register('bloodGroup')}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all bg-white"
                   >
                     <option value="">रक्त समूह चुनें</option>
                     <option value="A+">A+</option>
@@ -464,12 +475,12 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">लिंग (Gender) *</label>
+                  <label className="block text-xs font-semibold text-charcoal mb-1">लिंग (Gender) *</label>
                   <select
                     {...register('gender')}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all bg-white"
                   >
                     <option value="male">पुरुष (Male)</option>
                     <option value="female">महिला (Female)</option>
@@ -478,10 +489,10 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">वैवाहिक स्थिति *</label>
+                  <label className="block text-xs font-semibold text-charcoal mb-1">वैवाहिक स्थिति *</label>
                   <select
                     {...register('maritalStatus')}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all bg-white"
                   >
                     <option value="married">विवाहित (Married)</option>
                     <option value="unmarried">अविवाहित (Unmarried)</option>
@@ -491,68 +502,73 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
                     कार्यरत विभाग (Department) *
                   </label>
                   <input
                     {...register('department')}
                     placeholder="उदा. बेसिक शिक्षा परिषद / स्वास्थ्य विभाग"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal placeholder:text-driftwood/50 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.department && <p className="text-[11px] text-rose-600 mt-1">{errors.department.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
                     पदनाम (Designation) *
                   </label>
                   <input
                     {...register('designation')}
                     placeholder="उदा. सहायक अध्यापक / कनिष्ठ सहायक"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal placeholder:text-driftwood/50 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.designation && <p className="text-[11px] text-rose-600 mt-1">{errors.designation.message}</p>}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
                     मोबाइल नंबर (Mobile) *
                   </label>
-                  <input
-                    type="tel"
-                    maxLength={10}
-                    {...register('mobile')}
-                    placeholder="9876543210"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
-                  />
+                  <div className="flex rounded-xl border border-stone-300 bg-white focus-within:ring-2 focus-within:ring-terracotta/20 focus-within:border-terracotta transition-all overflow-hidden">
+                    <span className="px-3 py-2 bg-canvas-inset border-r border-stone-200 text-xs font-mono font-bold text-charcoal flex items-center">
+                      +91
+                    </span>
+                    <input
+                      type="tel"
+                      maxLength={10}
+                      {...register('mobile')}
+                      placeholder="9876543210"
+                      className="w-full px-3 py-2 text-xs sm:text-sm font-mono font-medium text-charcoal focus:outline-none bg-transparent"
+                    />
+                  </div>
                   {errors.mobile && <p className="text-[11px] text-rose-600 mt-1">{errors.mobile.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
                     ईमेल आईडी (वैकल्पिक)
                   </label>
                   <input
                     type="email"
                     {...register('email')}
                     placeholder="member@example.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal placeholder:text-driftwood/50 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.email && <p className="text-[11px] text-rose-600 mt-1">{errors.email.message}</p>}
                 </div>
               </div>
 
-              <div className="pt-4 flex justify-end">
+              <div className="pt-3">
                 <button
                   type="button"
                   onClick={nextToStep2}
-                  className="px-6 py-2.5 rounded-xl bg-[#0B5C9E] hover:bg-[#084b82] text-white text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-xs"
+                  className="w-full sm:w-auto sm:ml-auto h-11 px-6 rounded-xl bg-terracotta hover:bg-terracotta-hover active:bg-terracotta-dark text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
                 >
-                  <span>आगे बढ़ें (Next Step)</span>
+                  <span>अगला चरण (Next Step)</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -564,130 +580,131 @@ export default function RegisterPage() {
           {/* ============================================================== */}
           {step === 2 && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-stone-200 text-xs font-bold uppercase tracking-wider text-stone-800 font-mono">
-                <Building className="w-4 h-4 text-[#0B5C9E]" />
+              <div className="flex items-center gap-2 pb-2 border-b border-stone-100 text-xs font-bold text-charcoal">
+                <Building className="w-4 h-4 text-terracotta" />
                 <span>चरण 2: निवास एवं नामिनी/पारिवारिक विवरण</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">राज्य *</label>
+                  <label className="block text-xs font-semibold text-charcoal mb-1">राज्य *</label>
                   <input
                     {...register('state')}
                     readOnly
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-stone-50 text-xs text-stone-700"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-200 bg-stone-50 text-xs text-driftwood font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">जनपद (District) *</label>
+                  <label className="block text-xs font-semibold text-charcoal mb-1">जनपद (District) *</label>
                   <input
                     {...register('district')}
                     placeholder="उदा. देवरिया / गोरखपुर"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.district && <p className="text-[11px] text-rose-600 mt-1">{errors.district.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">ब्लॉक / तहसील *</label>
+                  <label className="block text-xs font-semibold text-charcoal mb-1">ब्लॉक / तहसील *</label>
                   <input
                     {...register('block')}
                     placeholder="उदा. गौरी बाजार"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.block && <p className="text-[11px] text-rose-600 mt-1">{errors.block.message}</p>}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-stone-700 mb-1">स्थायी पता (Complete Address) *</label>
+                  <label className="block text-xs font-semibold text-charcoal mb-1">स्थायी पता (Complete Address) *</label>
                   <textarea
                     rows={2}
                     {...register('permanentAddress')}
                     placeholder="ग्राम, पोस्ट, तहसील, जनपद..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.permanentAddress && <p className="text-[11px] text-rose-600 mt-1">{errors.permanentAddress.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">पिन कोड (PIN Code) *</label>
+                  <label className="block text-xs font-semibold text-charcoal mb-1">पिन कोड (PIN Code) *</label>
                   <input
                     maxLength={6}
                     {...register('pinCode')}
                     placeholder="274202"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm font-mono font-bold text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.pinCode && <p className="text-[11px] text-rose-600 mt-1">{errors.pinCode.message}</p>}
                 </div>
               </div>
 
               {/* Nominee Details Section */}
-              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
-                <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider font-mono">
-                  नामिनी विवरण (Nominee Details - ₹15 लाख सहायता के सीधे अधिकृत प्राप्तकर्ता)
-                </h3>
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-canvas-inset border border-stone-200/80 space-y-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-charcoal">
+                  <ShieldCheck className="w-4 h-4 text-terracotta shrink-0" />
+                  <span>नामिनी विवरण (₹15 लाख सहायता के सीधे अधिकृत प्राप्तकर्ता)</span>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">नामिनी का नाम *</label>
+                    <label className="block text-xs font-semibold text-charcoal mb-1">नामिनी का नाम *</label>
                     <input
                       {...register('nomineeName')}
                       placeholder="उदा. श्रीमती सुशीला देवी"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm bg-white text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                     />
                     {errors.nomineeName && <p className="text-[11px] text-rose-600 mt-1">{errors.nomineeName.message}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">नामिनी से संबंध *</label>
+                    <label className="block text-xs font-semibold text-charcoal mb-1">नामिनी से संबंध *</label>
                     <input
                       {...register('nomineeRelation')}
                       placeholder="उदा. Wife (धर्मपत्नी) / Son / Daughter"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm bg-white text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                     />
                     {errors.nomineeRelation && <p className="text-[11px] text-rose-600 mt-1">{errors.nomineeRelation.message}</p>}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">नामिनी की आयु (वर्ष में) *</label>
+                    <label className="block text-xs font-semibold text-charcoal mb-1">नामिनी की आयु (वर्ष में) *</label>
                     <input
                       type="number"
                       {...register('nomineeAge')}
                       placeholder="52"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm bg-white text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                     />
                     {errors.nomineeAge && <p className="text-[11px] text-rose-600 mt-1">{errors.nomineeAge.message}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">नामिनी का मोबाइल नंबर *</label>
+                    <label className="block text-xs font-semibold text-charcoal mb-1">नामिनी का मोबाइल नंबर *</label>
                     <input
                       type="tel"
                       maxLength={10}
                       {...register('nomineeMobile')}
                       placeholder="7084237422"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm font-mono font-medium bg-white text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                     />
                     {errors.nomineeMobile && <p className="text-[11px] text-rose-600 mt-1">{errors.nomineeMobile.message}</p>}
                   </div>
                 </div>
               </div>
 
-              {/* Dynamic Family Members Repeater */}
-              <div className="space-y-2 pt-2">
+              {/* Dynamic Family Members Repeater (Mobile-Optimized) */}
+              <div className="space-y-2.5 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-stone-700 font-mono">
+                  <span className="text-xs font-bold text-charcoal">
                     अन्य आश्रित परिवार सदस्य (+ Add Family Members)
                   </span>
                   <button
                     type="button"
                     onClick={() => append({ name: '', relation: '', age: 18 })}
-                    className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold inline-flex items-center gap-1 transition-all"
+                    className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-charcoal text-xs font-semibold inline-flex items-center gap-1 transition-all"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>सदस्य जोड़ें</span>
@@ -695,39 +712,46 @@ export default function RegisterPage() {
                 </div>
 
                 {fields.map((field, idx) => (
-                  <div key={field.id} className="flex items-center gap-2 bg-stone-50 p-2.5 rounded-xl border border-stone-200">
-                    <input
-                      {...register(`familyMembers.${idx}.name` as const)}
-                      placeholder="नाम"
-                      className="flex-2 px-3 py-1.5 rounded-lg border border-stone-300 text-xs bg-white text-stone-900"
-                    />
-                    <input
-                      {...register(`familyMembers.${idx}.relation` as const)}
-                      placeholder="संबंध"
-                      className="flex-1 px-3 py-1.5 rounded-lg border border-stone-300 text-xs bg-white text-stone-900"
-                    />
-                    <input
-                      type="number"
-                      {...register(`familyMembers.${idx}.age` as const)}
-                      placeholder="आयु"
-                      className="w-16 px-2 py-1.5 rounded-lg border border-stone-300 text-xs bg-white text-stone-900 font-mono"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => remove(idx)}
-                      className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <div key={field.id} className="p-2.5 rounded-xl bg-canvas-inset border border-stone-200/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-driftwood uppercase">सदस्य #{idx + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => remove(idx)}
+                        className="p-1 text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                        title="हटाएं"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <input
+                        {...register(`familyMembers.${idx}.name` as const)}
+                        placeholder="पूरा नाम"
+                        className="px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs bg-white text-charcoal focus:outline-none focus:border-terracotta"
+                      />
+                      <input
+                        {...register(`familyMembers.${idx}.relation` as const)}
+                        placeholder="संबंध (उदा. पुत्र / पुत्री)"
+                        className="px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs bg-white text-charcoal focus:outline-none focus:border-terracotta"
+                      />
+                      <input
+                        type="number"
+                        {...register(`familyMembers.${idx}.age` as const)}
+                        placeholder="आयु (वर्ष)"
+                        className="px-2.5 py-1.5 rounded-lg border border-stone-300 text-xs bg-white text-charcoal font-mono focus:outline-none focus:border-terracotta"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
 
-              <div className="pt-4 flex items-center justify-between">
+              <div className="pt-3 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="px-5 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold inline-flex items-center gap-1.5 transition-all"
+                  className="h-11 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-charcoal text-xs font-semibold inline-flex items-center gap-1.5 transition-all"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>पिछला चरण</span>
@@ -736,9 +760,9 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={nextToStep3}
-                  className="px-6 py-2.5 rounded-xl bg-[#0B5C9E] hover:bg-[#084b82] text-white text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-xs"
+                  className="h-11 px-6 rounded-xl bg-terracotta hover:bg-terracotta-hover text-white text-xs sm:text-sm font-semibold inline-flex items-center gap-1.5 transition-all shadow-xs"
                 >
-                  <span>आगे बढ़ें (Next Step)</span>
+                  <span>अगला चरण (Next Step)</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -749,31 +773,57 @@ export default function RegisterPage() {
           {/* STEP 3: Photo, Payment Proof & Credentials                     */}
           {/* ============================================================== */}
           {step === 3 && (
-            <div className="space-y-5">
-              <div className="flex items-center gap-2 pb-2 border-b border-stone-200 text-xs font-bold uppercase tracking-wider text-stone-800 font-mono">
-                <FileCheck2 className="w-4 h-4 text-[#0B5C9E]" />
-                <span>चरण 3: फ़ोटो, अंशदान रसीद एवं लॉगिन पासवर्ड</span>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-stone-100 text-xs font-bold text-charcoal">
+                <FileCheck2 className="w-4 h-4 text-terracotta" />
+                <span>चरण 3: शुल्क भुगतान, फ़ोटो व खाता पासवर्ड</span>
               </div>
 
-              {/* File Dropzones: Headshot & Payment Receipt */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* UPI Payment Instruction Card (Displayed here where payment is required) */}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div>
+                    <span className="px-2.5 py-0.5 rounded-full bg-terracotta text-white text-[10px] font-bold uppercase tracking-wider">
+                      वार्षिक सदस्यता अंशदान: ₹50 मात्र
+                    </span>
+                    <p className="text-xs text-charcoal mt-1">
+                      आधिकारिक ट्रस्ट UPI ID: <strong className="font-mono text-terracotta">{trustUpiId}</strong>
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyUpi}
+                    className="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-white border border-stone-300 text-xs font-bold text-charcoal hover:bg-stone-50 flex items-center gap-1.5 shadow-2xs transition-all"
+                  >
+                    {copiedUpi ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-driftwood" />}
+                    <span>{copiedUpi ? 'UPI कॉपी हो गया' : 'Copy UPI ID'}</span>
+                  </button>
+                </div>
+                <p className="text-[11px] text-driftwood leading-tight">
+                  1. किसी भी UPI ऐप (GPay, PhonePe, Paytm) से ₹50 भेजें → 2. 12-अंकीय बैंक UTR दर्ज करें → 3. रसीद का स्क्रीनशॉट अपलोड करें।
+                </p>
+              </div>
+
+              {/* File Uploads: Passport Photo & Payment Receipt */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 
-                {/* 1. Member Headshot Photo Dropzone */}
-                <div className="p-4 rounded-2xl border-2 border-dashed border-[#0B5C9E]/30 bg-[#0B5C9E]/5 text-center space-y-2">
-                  <div className="w-24 h-28 mx-auto rounded-xl border-2 border-[#0B5C9E] bg-white overflow-hidden flex items-center justify-center relative shadow-xs">
+                {/* 1. Member Photo Upload */}
+                <div className="p-3.5 rounded-2xl border-2 border-dashed border-stone-300 bg-canvas-inset/60 text-center space-y-2">
+                  <div className="w-20 h-24 mx-auto rounded-xl border border-stone-300 bg-white overflow-hidden flex items-center justify-center relative shadow-xs">
                     {photoPreview ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="text-stone-400 flex flex-col items-center">
-                        <Camera className="w-7 h-7 text-[#0B5C9E]" />
-                        <span className="text-[10px] font-bold text-stone-500 mt-1 uppercase font-serif">PHOTO</span>
+                      <div className="text-driftwood flex flex-col items-center">
+                        <Camera className="w-6 h-6 text-terracotta" />
+                        <span className="text-[9px] font-bold text-driftwood mt-1 uppercase">PHOTO</span>
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <label className="cursor-pointer px-3.5 py-1.5 rounded-xl bg-[#0B5C9E] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-xs hover:bg-[#084b82]">
+                    <label className="cursor-pointer px-3 py-1.5 rounded-xl bg-terracotta text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-xs hover:bg-terracotta-hover transition-all">
                       <UploadCloud className="w-3.5 h-3.5" />
                       <span>{photoFile ? 'फ़ोटो बदलें' : 'पासपोर्ट फ़ोटो अपलोड करें *'}</span>
                       <input 
@@ -783,28 +833,28 @@ export default function RegisterPage() {
                         className="hidden" 
                       />
                     </label>
-                    <p className="text-[10px] text-stone-500 mt-1">यह फ़ोटो आपके डिजिटल पहचान पत्र पर अंकित होगी</p>
+                    <p className="text-[10px] text-driftwood mt-1">पहचान पत्र पर अंकित होगी</p>
                   </div>
                 </div>
 
-                {/* 2. Payment Receipt Slip Dropzone */}
-                <div className="p-4 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 text-center space-y-2">
-                  <div className="w-24 h-28 mx-auto rounded-xl border border-stone-300 bg-white overflow-hidden flex items-center justify-center relative shadow-xs">
+                {/* 2. Payment Receipt Slip Upload */}
+                <div className="p-3.5 rounded-2xl border-2 border-dashed border-stone-300 bg-canvas-inset/60 text-center space-y-2">
+                  <div className="w-20 h-24 mx-auto rounded-xl border border-stone-300 bg-white overflow-hidden flex items-center justify-center relative shadow-xs">
                     {receiptPreview ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={receiptPreview} alt="Receipt Preview" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="text-stone-400 flex flex-col items-center">
-                        <FileCheck2 className="w-7 h-7 text-stone-400" />
-                        <span className="text-[10px] font-bold text-stone-500 mt-1 uppercase">रसीद SLIP</span>
+                      <div className="text-driftwood flex flex-col items-center">
+                        <FileCheck2 className="w-6 h-6 text-driftwood" />
+                        <span className="text-[9px] font-bold text-driftwood mt-1 uppercase">SLIP</span>
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <label className="cursor-pointer px-3.5 py-1.5 rounded-xl bg-white border border-stone-300 text-stone-800 text-xs font-bold inline-flex items-center gap-1.5 shadow-xs hover:bg-stone-50">
-                      <UploadCloud className="w-3.5 h-3.5 text-stone-600" />
-                      <span>{receiptFile ? 'रसीद बदलें' : '₹50 भुगतान रसीद अपलोड करें *'}</span>
+                    <label className="cursor-pointer px-3 py-1.5 rounded-xl bg-white border border-stone-300 text-charcoal text-xs font-semibold inline-flex items-center gap-1.5 shadow-2xs hover:bg-stone-50 transition-all">
+                      <UploadCloud className="w-3.5 h-3.5 text-driftwood" />
+                      <span>{receiptFile ? 'रसीद बदलें' : '₹50 रसीद अपलोड करें *'}</span>
                       <input 
                         type="file" 
                         accept="image/*,application/pdf" 
@@ -812,59 +862,59 @@ export default function RegisterPage() {
                         className="hidden" 
                       />
                     </label>
-                    <p className="text-[10px] text-stone-500 mt-1">बैंक/UPI ऐप में प्रदर्शित 12-अंकीय UTR रसीद</p>
+                    <p className="text-[10px] text-driftwood mt-1">12-अंकीय UTR वाली रसीद</p>
                   </div>
                 </div>
 
               </div>
 
               {/* Transaction ID & Ration Card */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
                     12-अंकीय बैंक UTR / Transaction ID *
                   </label>
                   <input
                     {...register('transactionId')}
                     placeholder="उदा. 429081298401"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm font-mono font-bold text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                   {errors.transactionId && <p className="text-[11px] text-rose-600 mt-1">{errors.transactionId.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    राशन कार्ड क्रमांक (Ration Card ID - वैकल्पिक)
+                  <label className="block text-xs font-semibold text-charcoal mb-1">
+                    राशन कार्ड क्रमांक (वैकल्पिक)
                   </label>
                   <input
                     {...register('rationCardId')}
                     placeholder="उदा. 219840192840"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm font-mono text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                   />
                 </div>
               </div>
 
               {/* Set Login Password */}
-              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold text-stone-900 uppercase font-mono">
-                  <Lock className="w-4 h-4 text-[#0B5C9E]" />
-                  <span>लॉगिन पासवर्ड निर्धारित करें (Set Login Password)</span>
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-canvas-inset border border-stone-200/80 space-y-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-charcoal">
+                  <Lock className="w-4 h-4 text-terracotta" />
+                  <span>लॉगिन पासवर्ड निर्धारित करें (Set Password)</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">पासवर्ड (न्यूनतम 6 अक्षर) *</label>
+                    <label className="block text-xs font-semibold text-charcoal mb-1">पासवर्ड (न्यूनतम 6 अक्षर) *</label>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
                         {...register('password')}
                         placeholder="••••••••"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                        className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm bg-white text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-driftwood hover:text-charcoal"
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -873,12 +923,12 @@ export default function RegisterPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">पासवर्ड की पुष्टि करें *</label>
+                    <label className="block text-xs font-semibold text-charcoal mb-1">पासवर्ड पुष्टि *</label>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       {...register('confirmPassword')}
                       placeholder="••••••••"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm bg-white text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-all"
                     />
                     {errors.confirmPassword && <p className="text-[11px] text-rose-600 mt-1">{errors.confirmPassword.message}</p>}
                   </div>
@@ -886,25 +936,25 @@ export default function RegisterPage() {
               </div>
 
               {/* Legal Checkbox & Compliance Agreement */}
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
-                <label className="flex items-start gap-3 cursor-pointer">
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 space-y-1.5">
+                <label className="flex items-start gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
                     {...register('acceptTerms')}
-                    className="mt-1 w-4 h-4 rounded border-amber-300 text-[#0B5C9E] focus:ring-[#0B5C9E]"
+                    className="mt-1 w-4 h-4 rounded border-amber-300 text-terracotta focus:ring-terracotta accent-terracotta"
                   />
                   <span className="text-xs text-amber-950 leading-relaxed font-medium">
-                    मैं शपथपूर्वक घोषणा करता/करती हूँ कि मेरे द्वारा दी गई समस्त जानकारी पूर्णतः सत्य है। मैं जन सेवा चैरिटेबल ट्रस्ट (JSCT) की नियमावली, ₹50 प्रति अपील सूक्ष्म सहयोग नियम तथा <strong>छह (6) माह की अनिवार्य सुरक्षा लॉक-इन अवधि</strong> के नियम को पूर्णतः स्वीकार करता/करती हूँ।
+                    मैं शपथपूर्वक घोषणा करता/करती हूँ कि मेरे द्वारा दी गई जानकारी पूर्णतः सत्य है। मैं जन सेवा चैरिटेबल ट्रस्ट (JSCT) की नियमावली, ₹50 प्रति अपील सूक्ष्म सहयोग नियम तथा <strong>छह (6) माह की अनिवार्य सुरक्षा लॉक-इन अवधि</strong> के नियम को पूर्णतः स्वीकार करता/करती हूँ।
                   </span>
                 </label>
-                {errors.acceptTerms && <p className="text-[11px] text-rose-600 font-bold pl-7">{errors.acceptTerms.message}</p>}
+                {errors.acceptTerms && <p className="text-[11px] text-rose-600 font-bold pl-6">{errors.acceptTerms.message}</p>}
               </div>
 
-              <div className="pt-4 flex items-center justify-between">
+              <div className="pt-3 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="px-5 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold inline-flex items-center gap-1.5 transition-all"
+                  className="h-11 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-charcoal text-xs font-semibold inline-flex items-center gap-1.5 transition-all"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>पिछला चरण</span>
@@ -913,7 +963,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-7 py-3 rounded-2xl bg-[#0B5C9E] hover:bg-[#084b82] text-white text-xs font-bold inline-flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                  className="h-11 px-6 rounded-xl bg-terracotta hover:bg-terracotta-hover active:bg-terracotta-dark text-white text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-all shadow-warm disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
@@ -922,7 +972,7 @@ export default function RegisterPage() {
                     </>
                   ) : (
                     <>
-                      <span>पंजीकरण पूर्ण करें व कार्ड प्राप्त करें</span>
+                      <span>पंजीकरण पूर्ण करें</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
