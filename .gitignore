@@ -38,6 +38,7 @@ next-env.d.ts
 # test screenshots
 /public/audit-screenshots/
 /public/section-screenshots/
+/public/test-audit/
 
 # supabase temp
 supabase/.temp/

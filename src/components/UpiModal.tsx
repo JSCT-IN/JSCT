@@ -56,7 +56,12 @@ export default function UpiModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-charcoal/60 backdrop-blur-sm animate-in fade-in duration-150 overflow-y-auto">
+    <div 
+      role="dialog" 
+      aria-modal="true" 
+      aria-label="Direct UPI Modal"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-charcoal/60 backdrop-blur-sm animate-in fade-in duration-150 overflow-y-auto"
+    >
       <div 
         className="relative w-full max-w-lg rounded-3xl bg-white border border-stone-border shadow-warm-lg p-5 sm:p-7 text-charcoal my-auto max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}

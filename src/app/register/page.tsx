@@ -3,18 +3,22 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { DPSWTStore } from '@/lib/store';
-import { triggerCelebrationConfetti } from '@/lib/utils';
-import { useTranslation } from '@/lib/i18n';
-import { syncMemberToFirestore, getFirebaseAnalytics } from '@/lib/firebase';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { 
+  registerEnterpriseMemberAction 
+} from '@/actions/member-actions';
+import { 
+  uploadMemberPhoto, 
+  uploadPaymentReceipt, 
+  Member 
+} from '@/lib/supabase';
+import MemberCard from '@/components/MemberCard';
 import {
   HeartHandshake,
-  QrCode,
-  ShieldCheck,
-  CheckCircle2,
-  ArrowRight,
   User,
-  CreditCard,
+  ShieldCheck,
   Building,
   UploadCloud,
   FileCheck2,
@@ -22,53 +26,115 @@ import {
   Copy,
   Check,
   Loader2,
-  ArrowLeft
+  ArrowRight,
+  ArrowLeft,
+  Plus,
+  Trash2,
+  Camera,
+  CheckCircle2,
+  Sparkles,
+  Lock,
+  Eye,
+  EyeOff,
+  Phone,
+  QrCode
 } from 'lucide-react';
+
+// Form Validation Schema using Zod
+const registerSchema = z.object({
+  // Personal & Job
+  fullName: z.string().min(3, 'पूरा नाम कम से कम 3 अक्षरों का होना चाहिए'),
+  fatherOrHusbandName: z.string().min(3, 'पिता/पति का नाम अनिवार्य है'),
+  motherName: z.string().optional(),
+  dob: z.string().min(1, 'जन्म तिथि अनिवार्य है'),
+  gender: z.enum(['male', 'female', 'other']),
+  bloodGroup: z.string().optional(),
+  maritalStatus: z.enum(['unmarried', 'married', 'widow', 'separated', 'divorced', 'not_specified']),
+  department: z.string().min(2, 'विभाग का नाम अनिवार्य है'),
+  designation: z.string().min(2, 'पदनाम अनिवार्य है'),
+  joiningDate: z.string().optional(),
+
+  // Location & Contact
+  mobile: z.string().regex(/^[6-9]\d{9}$/, 'कृपया 10-अंकीय वैध भारतीय मोबाइल नंबर दर्ज करें'),
+  email: z.string().email('कृपया वैध ईमेल दर्ज करें').optional().or(z.literal('')),
+  state: z.string().default('Uttar Pradesh'),
+  district: z.string().min(2, 'जनपद का नाम अनिवार्य है'),
+  block: z.string().min(2, 'ब्लॉक/तहसील का नाम अनिवार्य है'),
+  pinCode: z.string().regex(/^\d{6}$/, 'कृपया 6-अंकीय पिन कोड दर्ज करें'),
+  permanentAddress: z.string().min(5, 'पूरा स्थायी पता दर्ज करें'),
+
+  // Nominee & Family
+  nomineeName: z.string().min(3, 'नामिनी का पूरा नाम अनिवार्य है'),
+  nomineeRelation: z.string().min(2, 'नामिनी से संबंध अनिवार्य है'),
+  nomineeAge: z.coerce.number().min(18, 'नामिनी की आयु न्यूनतम 18 वर्ष होनी चाहिए'),
+  nomineeMobile: z.string().regex(/^[6-9]\d{9}$/, 'नामिनी का वैध 10-अंकीय मोबाइल नंबर दर्ज करें'),
+  familyMembers: z.array(
+    z.object({
+      name: z.string().min(2, 'नाम दर्ज करें'),
+      relation: z.string().min(2, 'संबंध दर्ज करें'),
+      age: z.coerce.number().min(1, 'आयु दर्ज करें'),
+    })
+  ).default([]),
+
+  // Payment Proof
+  transactionId: z.string().min(8, 'कृपया 12-अंकीय बैंक UTR / Transaction ID दर्ज करें'),
+  rationCardId: z.string().optional(),
+
+  // Credentials & Consent
+  password: z.string().min(6, 'पासवर्ड न्यूनतम 6 अक्षरों का होना चाहिए'),
+  confirmPassword: z.string().min(6, 'पासवर्ड पुष्टि अनिवार्य है'),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: 'कृपया ट्रस्ट नियमावली व 6-माह लॉक-इन सहमति स्वीकार करें',
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'पासवर्ड और पासवर्ड पुष्टि मेल नहीं खाते',
+  path: ['confirmPassword'],
+});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { lang, t } = useTranslation();
-
-  // Multi-step form: Step 1 (Personal & Profession), Step 2 (Nominee & Address), Step 3 (Fee UTR Slip)
   const [step, setStep] = useState<1 | 2 | 3>(1);
-
-  // Step 1: Personal & Profession
-  const [applicantName, setApplicantName] = useState('');
-  const [fatherName, setFatherName] = useState('');
-  const [aadhaarNumber, setAadhaarNumber] = useState('');
-  const [dob, setDob] = useState('');
-  const [gender, setGender] = useState('MALE');
-  const [maritalStatus, setMaritalStatus] = useState('MARRIED');
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [occupation, setOccupation] = useState('GOVERNMENT_JOB');
-  const [departmentName, setDepartmentName] = useState('Basic Education Department (बेसिक शिक्षा परिषद)');
-  const [officeAddress, setOfficeAddress] = useState('');
-
-  // Step 2: Address & Nominee
-  const [stateName, setStateName] = useState('Uttar Pradesh');
-  const [districtName, setDistrictName] = useState('Prayagraj');
-  const [blockName, setBlockName] = useState('Bahariya (बहरिया)');
-  const [addressFull, setAddressFull] = useState('');
-  const [nomineeName, setNomineeName] = useState('');
-  const [nomineeRelation, setNomineeRelation] = useState('Wife (धर्मपत्नी)');
-  const [nomineeAge, setNomineeAge] = useState('32');
-  const [nomineeMobile, setNomineeMobile] = useState('');
-  const [bankName, setBankName] = useState('State Bank of India');
-  const [accountNumber, setAccountNumber] = useState('');
-  const [ifscCode, setIfscCode] = useState('');
-  const [upiId, setUpiId] = useState('');
-
-  // Step 3: Registration Fee & Payment Proof
-  const [transactionId, setTransactionId] = useState('');
-  const [slipFile, setSlipFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [declarationAccepted, setDeclarationAccepted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [copiedUpi, setCopiedUpi] = useState(false);
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [registeredMember, setRegisteredMember] = useState<Member | null>(null);
 
   const trustUpiId = 'dpswt.trust@sbi';
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    trigger,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema) as any,
+    defaultValues: {
+      gender: 'male',
+      maritalStatus: 'married',
+      state: 'Uttar Pradesh',
+      district: 'Gorakhpur',
+      block: 'Harpur Luhasi',
+      department: 'बेसिक शिक्षा परिषद (Basic Education)',
+      designation: 'सहायक अध्यापक (Assistant Teacher)',
+      familyMembers: [],
+      acceptTerms: false as any,
+    },
+    mode: 'onTouched',
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'familyMembers',
+  });
 
   const handleCopyUpi = () => {
     navigator.clipboard.writeText(trustUpiId);
@@ -76,340 +142,190 @@ export default function RegisterPage() {
     setTimeout(() => setCopiedUpi(false), 2000);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setSlipFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setErrorMessage(null);
+      setPhotoFile(file);
+      setPhotoPreview(URL.createObjectURL(file));
     }
   };
 
-  const handleStep1Submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (aadhaarNumber.length < 12) {
-      alert(lang === 'hi' ? 'कृपया 12-अंकों का वैध आधार नंबर दर्ज करें।' : 'Please enter a valid 12-digit Aadhaar number.');
-      return;
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setReceiptFile(file);
+      setReceiptPreview(URL.createObjectURL(file));
     }
-    if (mobileNumber.length < 10) {
-      alert(lang === 'hi' ? 'कृपया 10-अंकों का वैध मोबाइल नंबर दर्ज करें।' : 'Please enter a valid 10-digit mobile number.');
-      return;
-    }
-    setStep(2);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleStep2Submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nomineeName.trim()) {
-      alert(lang === 'hi' ? 'कृपया नामिनी का पूरा नाम दर्ज करें।' : 'Please enter nominee name.');
-      return;
+  const nextToStep2 = async () => {
+    const isValid = await trigger([
+      'fullName',
+      'fatherOrHusbandName',
+      'dob',
+      'gender',
+      'maritalStatus',
+      'department',
+      'designation',
+      'mobile'
+    ]);
+    if (isValid) {
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    setStep(3);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleFinalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const nextToStep3 = async () => {
+    const isValid = await trigger([
+      'state',
+      'district',
+      'block',
+      'pinCode',
+      'permanentAddress',
+      'nomineeName',
+      'nomineeRelation',
+      'nomineeAge',
+      'nomineeMobile'
+    ]);
+    if (isValid) {
+      setStep(3);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
-    if (transactionId.length < 12) {
-      setErrorMessage(
-        lang === 'hi'
-          ? 'कृपया बैंक / UPI ऐप में प्रदर्शित पूर्ण 12-अंकीय UTR / Transaction ID दर्ज करें।'
-          : 'Please enter the full 12-digit UTR transaction ID.'
-      );
+  const onSubmit = async (values: RegisterFormValues) => {
+    setServerError(null);
+
+    if (!photoFile) {
+      setServerError('कृपया पहचान पत्र हेतु सदस्य की फ़ोटो (Passport Photo) अपलोड करें।');
       return;
     }
-
-    if (!declarationAccepted) {
-      setErrorMessage(
-        lang === 'hi'
-          ? 'कृपया शपथ पत्र व नियमावली घोषणा को स्वीकार करें।'
-          : 'Please accept the declaration to proceed.'
-      );
+    if (!receiptFile) {
+      setServerError('कृपया बैंक/UPI ₹50 शुल्क भुगतान रसीद का स्क्रीनशॉट अपलोड करें।');
       return;
     }
 
     setIsSubmitting(true);
 
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000).toString();
-    const generatedId = `JSCT-UP-${randomSuffix}`;
-    const last4 = aadhaarNumber.slice(-4) || '9999';
-    const formattedPhone = mobileNumber.startsWith('+91') ? mobileNumber : `+91 ${mobileNumber.trim()}`;
-
-    const expiryDate = new Date();
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-
-    const cleanAadhaar = aadhaarNumber.replace(/\D/g, '');
-    let deterministicAadhaarHash = `hash_${cleanAadhaar}`;
     try {
-      if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
-        const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(cleanAadhaar));
-        deterministicAadhaarHash = Array.from(new Uint8Array(buf))
-          .map((b) => b.toString(16).padStart(2, '0'))
-          .join('');
-      }
-    } catch {
-      deterministicAadhaarHash = `hash_${cleanAadhaar}`;
-    }
+      // 1. Upload photo to 'member-photos'
+      const photoUrl = await uploadMemberPhoto(photoFile, values.mobile);
 
-    try {
-      const { supabase } = await import('@/lib/supabase/client');
+      // 2. Upload receipt to 'payment-receipts'
+      const paymentReceiptUrl = await uploadPaymentReceipt(receiptFile, values.transactionId);
 
-      // Upload receipt file if provided
-      let uploadedSlipUrl = `https://placehold.co/600x800/262421/FAF8F5?text=UTR+${transactionId}`;
-      if (slipFile) {
-        const ext = slipFile.name.split('.').pop() || 'jpg';
-        const fileName = `registration_slips/${transactionId}_${Date.now()}.${ext}`;
-        const { data: uploadData } = await supabase.storage
-          .from('payment-slips')
-          .upload(fileName, slipFile, { upsert: true });
-
-        if (uploadData) {
-          const { data: publicData } = supabase.storage.from('payment-slips').getPublicUrl(uploadData.path);
-          uploadedSlipUrl = publicData.publicUrl;
-        }
-      }
-
-      // 1. Insert into Supabase 'members'
-      const { data: memberData, error: memberError } = await supabase
-        .from('members')
-        .insert({
-          membership_id: generatedId,
-          full_name: applicantName.trim(),
-          father_name: fatherName.trim(),
-          dob: dob || null,
-          gender: gender,
-          marital_status: maritalStatus,
-          phone: formattedPhone,
-          email: email.trim(),
-          aadhaar_hash: deterministicAadhaarHash,
-          aadhaar_last4: last4,
-          occupation: occupation,
-          department: departmentName,
-          district: districtName,
-          block_name: blockName,
-          address_full: addressFull,
-          state: stateName,
-          role: 'MEMBER',
-          registration_utr: transactionId.trim(),
-          registration_slip_url: uploadedSlipUrl,
-          fee_expires_at: expiryDate.toISOString(),
-          is_active: true,
-        })
-        .select()
-        .single();
-
-      if (memberError) {
-        console.warn('Supabase member insert notice:', memberError.message);
-      }
-
-      const newMemberId = memberData?.id || `usr_${Date.now()}`;
-
-      // 2. Insert into Supabase 'nominees'
-      const { error: nomineeError } = await supabase
-        .from('nominees')
-        .insert({
-          member_id: newMemberId,
-          full_name: nomineeName.trim(),
-          relationship: nomineeRelation,
-          nominee_age: parseInt(nomineeAge) || 30,
-          nominee_phone: nomineeMobile.trim(),
-          bank_name: bankName,
-          account_number: accountNumber.trim(),
-          ifsc_code: ifscCode.toUpperCase().trim(),
-          upi_id: upiId.toLowerCase().trim(),
-          is_primary: true,
-        });
-
-      if (nomineeError) {
-        console.warn('Supabase nominee insert notice:', nomineeError.message);
-      }
-
-      // 3. Fallback Local Storage update
-      DPSWTStore.registerMember({
-        membership_id: generatedId,
-        full_name: applicantName,
-        phone: formattedPhone,
-        aadhaar_last4: last4,
-        department: departmentName,
-        district: districtName,
-        state: stateName,
-        role: 'MEMBER',
-        fee_expires_at: expiryDate.toISOString(),
-        is_active: true,
-        nominee: {
-          id: `nom-${Date.now()}`,
-          member_id: newMemberId,
-          full_name: nomineeName,
-          relationship: nomineeRelation,
-          bank_name: bankName,
-          account_number: accountNumber,
-          ifsc_code: ifscCode.toUpperCase(),
-          upi_id: upiId.toLowerCase(),
-        },
+      // 3. Invoke Server Action
+      const result = await registerEnterpriseMemberAction({
+        fullName: values.fullName,
+        fatherOrHusbandName: values.fatherOrHusbandName,
+        motherName: values.motherName,
+        dob: values.dob,
+        gender: values.gender,
+        bloodGroup: values.bloodGroup,
+        maritalStatus: values.maritalStatus,
+        department: values.department,
+        designation: values.designation,
+        joiningDate: values.joiningDate,
+        mobile: values.mobile,
+        email: values.email,
+        password: values.password,
+        state: values.state,
+        district: values.district,
+        block: values.block,
+        pinCode: values.pinCode,
+        permanentAddress: values.permanentAddress,
+        nomineeName: values.nomineeName,
+        nomineeRelation: values.nomineeRelation,
+        nomineeAge: values.nomineeAge,
+        nomineeMobile: values.nomineeMobile,
+        familyMembers: values.familyMembers || [],
+        transactionId: values.transactionId,
+        rationCardId: values.rationCardId,
+        paymentReceiptUrl,
+        photoUrl,
       });
 
-      // 4. Synchronize with Firebase Firestore & Analytics
-      try {
-        await syncMemberToFirestore({
-          id: newMemberId,
-          membership_id: generatedId,
-          full_name: applicantName.trim(),
-          phone: formattedPhone,
-          email: email.trim(),
-          aadhaar_last4: last4,
-          aadhaar_hash: deterministicAadhaarHash,
-          department: departmentName,
-          district: districtName,
-          state: stateName,
-          status: 'ACTIVE',
-        });
-
-        const analytics = await getFirebaseAnalytics();
-        if (analytics) {
-          const { logEvent } = await import('firebase/analytics');
-          logEvent(analytics, 'sign_up', {
-            method: 'aadhaar_registration',
-            membership_id: generatedId,
-          });
-        }
-      } catch (fbErr) {
-        console.warn('Firebase registration sync notice:', fbErr);
+      if (!result.success || !result.member) {
+        setServerError(result.message || 'पंजीकरण असफल रहा।');
+        setIsSubmitting(false);
+        return;
       }
 
-      triggerCelebrationConfetti();
-      router.push('/dashboard');
+      setRegisteredMember(result.member);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
-      console.error('Registration submit error:', err);
-      // Fallback
-      DPSWTStore.registerMember({
-        membership_id: generatedId,
-        full_name: applicantName,
-        phone: formattedPhone,
-        aadhaar_last4: last4,
-        department: departmentName,
-        district: districtName,
-        state: stateName,
-        role: 'MEMBER',
-        fee_expires_at: expiryDate.toISOString(),
-        is_active: true,
-        nominee: {
-          id: `nom-${Date.now()}`,
-          member_id: '',
-          full_name: nomineeName,
-          relationship: nomineeRelation,
-          bank_name: bankName,
-          account_number: accountNumber,
-          ifsc_code: ifscCode.toUpperCase(),
-          upi_id: upiId.toLowerCase(),
-        },
-      });
-
-      // Sync fallback to Firebase Firestore as well
-      try {
-        await syncMemberToFirestore({
-          membership_id: generatedId,
-          full_name: applicantName.trim(),
-          phone: formattedPhone,
-          email: email.trim(),
-          aadhaar_last4: last4,
-          aadhaar_hash: deterministicAadhaarHash,
-          department: departmentName,
-          district: districtName,
-          state: stateName,
-          status: 'ACTIVE',
-        });
-      } catch (fbErr) {
-        console.warn('Firebase fallback sync notice:', fbErr);
-      }
-
-      triggerCelebrationConfetti();
-      router.push('/dashboard');
+      console.error('Registration submission error:', err);
+      setServerError(err.message || 'सर्वर से संपर्क करने में समस्या आई।');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const occupationsList = [
-    { label: 'Government Job (शासकीय सेवा)', value: 'GOVERNMENT_JOB' },
-    { label: 'Private Job (निजी क्षेत्र)', value: 'PRIVATE_JOB' },
-    { label: 'Business (व्यवसाय)', value: 'BUSINESS' },
-    { label: 'Agriculture (कृषि)', value: 'AGRICULTURE' },
-    { label: 'Contract Worker (संविदा कर्मी)', value: 'CONTRACT_WORKERS' },
-    { label: 'Other (अन्य)', value: 'OTHER' },
-  ];
-
-  const upDistricts = [
-    'Prayagraj', 'Lucknow', 'Varanasi', 'Kanpur Nagar', 'Gorakhpur',
-    'Bareilly', 'Agra', 'Meerut', 'Aligarh', 'Moradabad', 'Ayodhya',
-    'Jhansi', 'Azamgarh', 'Saharanpur', 'Basti', 'Mirzapur', 'Ghazipur'
-  ];
-
-  return (
-    <div className="max-w-2xl mx-auto px-4 py-8 sm:py-14 space-y-8">
-      {/* Brand & Editorial Banner */}
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-terracotta to-terracotta-hover text-white flex items-center justify-center mx-auto shadow-warm">
-          <HeartHandshake className="w-6 h-6 stroke-[2.2]" />
-        </div>
-        <h1 className="font-editorial text-2xl sm:text-4xl font-bold text-charcoal">
-          {lang === 'hi' ? 'सदस्य पंजीकरण फॉर्म' : 'Member Registration'}
-        </h1>
-        <p className="text-xs sm:text-sm text-driftwood max-w-lg mx-auto">
-          {lang === 'hi'
-            ? 'जन सेवा चैरिटेबल ट्रस्ट (JSCT) - जन से जन तक, सहयोग हर जरूरतमंद तक'
-            : 'JSCT Mutual Welfare Solidarity Platform - Direct ₹50 Mutual Support Network'}
-        </p>
-
-        {/* 3-Step Indicator matching dpswt.com flow */}
-        <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-3">
-          <div className="flex items-center gap-1.5">
-            <span className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${step >= 1 ? 'bg-terracotta text-white' : 'bg-stone-border text-driftwood'}`}>
-              1
-            </span>
-            <span className="text-[11px] font-semibold text-charcoal hidden sm:inline">
-              {lang === 'hi' ? 'व्यक्तिगत व सेवा' : 'Personal & Job'}
-            </span>
+  // Success Screen with Rendered Digital Card
+  if (registeredMember) {
+    return (
+      <div className="min-h-screen bg-stone-50 py-12 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 text-center shadow-lg space-y-3">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 font-serif">
+              बधाई हो! सदस्यता पंजीकरण सफलतापूर्वक संपन्न
+            </h1>
+            <p className="text-sm text-stone-600 max-w-lg mx-auto">
+              आपका आधिकारिक सदस्यता क्रमांक <span className="font-mono font-bold text-[#0B5C9E] text-base">{registeredMember.member_id}</span> जारी कर दिया गया है।
+            </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200">
+              <span>शुल्क सत्यापन लंबित: न्यास समिति द्वारा 24 घंटे में पुष्टिकरण</span>
+            </div>
           </div>
 
-          <span className="w-4 sm:w-10 h-0.5 bg-stone-border" />
-
-          <div className="flex items-center gap-1.5">
-            <span className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${step >= 2 ? 'bg-terracotta text-white' : 'bg-stone-border text-driftwood'}`}>
-              2
-            </span>
-            <span className="text-[11px] font-semibold text-charcoal hidden sm:inline">
-              {lang === 'hi' ? 'नामिनी व पता' : 'Nominee & Address'}
-            </span>
+          {/* Render Member Card Component with Download Buttons */}
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-md">
+            <MemberCard member={registeredMember} />
           </div>
 
-          <span className="w-4 sm:w-10 h-0.5 bg-stone-border" />
-
-          <div className="flex items-center gap-1.5">
-            <span className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${step === 3 ? 'bg-terracotta text-white' : 'bg-stone-border text-driftwood'}`}>
-              3
-            </span>
-            <span className="text-[11px] font-semibold text-charcoal hidden sm:inline">
-              {lang === 'hi' ? 'अंशदान व शपथ' : 'Fee & Declaration'}
-            </span>
+          <div className="text-center">
+            <Link
+              href="/login"
+              className="px-6 py-3 rounded-2xl bg-[#0B5C9E] hover:bg-[#084b82] text-white text-xs font-bold inline-flex items-center gap-2 shadow-md"
+            >
+              <span>सदस्य पोर्टल में लॉगिन करें</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Trust Registration Fee Info Card */}
-      <div className="bg-gradient-to-br from-white via-canvas-inset to-white p-4 sm:p-6 rounded-3xl border border-stone-border shadow-warm">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+  return (
+    <div className="min-h-screen bg-stone-50 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Editorial Trust Branding Header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B5C9E]/10 border border-[#0B5C9E]/20 text-[#0B5C9E] text-xs font-bold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>जन सेवा चैरिटेबल ट्रस्ट (JSCT) • आधिकारिक सदस्यता प्रपत्र</span>
+          </div>
+          <h1 className="text-2xl sm:text-4xl font-black text-stone-900 tracking-tight font-serif">
+            नया आजीवन सदस्य पंजीकरण (Membership Registration)
+          </h1>
+          <p className="text-xs sm:text-sm text-stone-600 max-w-2xl mx-auto leading-relaxed">
+            कल्याणकारी योजनाओं (₹15 लाख आकस्मिक व ₹5 लाख बेटी विवाह संबल) हेतु सदस्यता ग्रहण करें।
+          </p>
+        </div>
+
+        {/* UPI Payment Info Bar */}
+        <div className="bg-[#0B5C9E]/5 border border-[#0B5C9E]/20 p-4 sm:p-5 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center sm:text-left">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-terracotta/10 text-terracotta text-[10px] font-bold uppercase tracking-wider">
-              <span>वार्षिक सदस्यता अंशदान: ₹50 मात्र</span>
-            </div>
-            <h3 className="font-editorial text-base sm:text-lg font-bold text-charcoal">
-              JSCT ट्रस्ट आधिकारिक खाता
-            </h3>
-            <p className="text-xs text-driftwood">
-              UPI ID: <span className="font-mono font-bold text-charcoal">{trustUpiId}</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-[#0B5C9E] text-white text-[10px] font-bold uppercase tracking-wider">
+              वार्षिक सदस्यता अंशदान: ₹50 मात्र
+            </span>
+            <p className="text-xs text-stone-600 mt-1">
+              आधिकारिक ट्रस्ट UPI ID: <span className="font-mono font-bold text-stone-900">{trustUpiId}</span>
             </p>
           </div>
 
@@ -417,493 +333,606 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={handleCopyUpi}
-              className="px-3 py-2 rounded-xl bg-white border border-stone-border text-xs font-semibold text-charcoal hover:bg-canvas-inset flex items-center gap-1.5 shadow-xs touch-target"
+              className="px-3.5 py-2 rounded-xl bg-white border border-stone-300 text-xs font-bold text-stone-800 hover:bg-stone-50 flex items-center gap-1.5 shadow-xs"
             >
-              {copiedUpi ? <Check className="w-3.5 h-3.5 text-sage" /> : <Copy className="w-3.5 h-3.5 text-driftwood" />}
-              <span>{copiedUpi ? 'UPI कॉपी हो गया' : 'Copy UPI'}</span>
+              {copiedUpi ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-stone-500" />}
+              <span>{copiedUpi ? 'UPI कॉपी हो गया' : 'Copy UPI ID'}</span>
             </button>
-
-            <div className="w-14 h-14 bg-white p-1 rounded-xl border border-stone-border shadow-xs flex items-center justify-center text-charcoal">
-              <QrCode className="w-11 h-11 text-charcoal stroke-[1.8]" />
+            <div className="w-12 h-12 bg-white rounded-xl border border-stone-200 flex items-center justify-center p-1 text-[#0B5C9E]">
+              <QrCode className="w-8 h-8" />
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Registration Form Container */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-border shadow-warm">
-        
-        {/* ============================================================== */}
-        {/* STEP 1: Personal & Occupation Information                      */}
-        {/* ============================================================== */}
-        {step === 1 && (
-          <form onSubmit={handleStep1Submit} className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-stone-border/60 text-xs font-bold uppercase tracking-wider text-charcoal font-mono">
-              <User className="w-4 h-4 text-terracotta" />
-              <span>चरण 1: आवेदक का व्यक्तिगत व सेवा विवरण</span>
-            </div>
+        {/* Stepper Navigation */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 font-mono text-xs">
+          <div className={`p-3 rounded-2xl border text-center transition-all ${
+            step === 1 
+              ? 'bg-[#0B5C9E] text-white border-[#0B5C9E] font-bold shadow-xs' 
+              : 'bg-white text-stone-600 border-stone-200'
+          }`}>
+            <span className="block text-[10px] uppercase opacity-80">चरण 1</span>
+            <span className="truncate block font-sans">व्यक्तिगत व सेवा</span>
+          </div>
+          <div className={`p-3 rounded-2xl border text-center transition-all ${
+            step === 2 
+              ? 'bg-[#0B5C9E] text-white border-[#0B5C9E] font-bold shadow-xs' 
+              : 'bg-white text-stone-600 border-stone-200'
+          }`}>
+            <span className="block text-[10px] uppercase opacity-80">चरण 2</span>
+            <span className="truncate block font-sans">निवास व नामिनी</span>
+          </div>
+          <div className={`p-3 rounded-2xl border text-center transition-all ${
+            step === 3 
+              ? 'bg-[#0B5C9E] text-white border-[#0B5C9E] font-bold shadow-xs' 
+              : 'bg-white text-stone-600 border-stone-200'
+          }`}>
+            <span className="block text-[10px] uppercase opacity-80">चरण 3</span>
+            <span className="truncate block font-sans">फ़ोटो व रसीद</span>
+          </div>
+        </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">
-                  पूरा नाम (आधार कार्ड के अनुसार) *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={applicantName}
-                  onChange={(e) => setApplicantName(e.target.value)}
-                  placeholder="उदा. रमेश चंद्र वर्मा"
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">
-                  पिता अथवा पति का नाम *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={fatherName}
-                  onChange={(e) => setFatherName(e.target.value)}
-                  placeholder="उदा. स्वर्गीय कैलाश नाथ वर्मा"
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">
-                  12-अंकीय आधार नंबर *
-                </label>
-                <input
-                  type="text"
-                  required
-                  maxLength={12}
-                  value={aadhaarNumber}
-                  onChange={(e) => setAadhaarNumber(e.target.value.replace(/\D/g, '').slice(0, 12))}
-                  placeholder="1234 5678 9012"
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">
-                  जन्म तिथि (DOB) *
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">
-                  लिंग (Gender) *
-                </label>
-                <select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-                >
-                  <option value="MALE">पुरुष (Male)</option>
-                  <option value="FEMALE">महिला (Female)</option>
-                  <option value="OTHER">अन्य (Other)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">
-                  मोबाइल नंबर (WhatsApp सक्षम) *
-                </label>
-                <input
-                  type="tel"
-                  required
-                  maxLength={10}
-                  value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                  placeholder="9876543210"
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal font-mono focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">
-                  ईमेल आईडी (वैकल्पिक)
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ramesh.verma@example.com"
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-                />
-              </div>
-            </div>
-
-            {/* Occupation Radio list matching dpswt.com */}
-            <div>
-              <label className="block text-xs font-semibold text-charcoal mb-1.5">
-                व्यवसाय / पद (Occupation) *
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {occupationsList.map((occ) => (
-                  <label
-                    key={occ.value}
-                    className={`p-2.5 rounded-xl border text-xs cursor-pointer flex items-center gap-2 transition-all ${
-                      occupation === occ.value
-                        ? 'border-terracotta bg-terracotta/5 font-bold text-terracotta'
-                        : 'border-stone-border bg-canvas-inset/30 text-charcoal hover:bg-canvas-inset'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="occupation"
-                      value={occ.value}
-                      checked={occupation === occ.value}
-                      onChange={(e) => setOccupation(e.target.value)}
-                      className="text-terracotta focus:ring-terracotta"
-                    />
-                    <span className="text-[11px] leading-tight">{occ.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-charcoal mb-1">
-                विभाग / संस्थान का नाम *
-              </label>
-              <input
-                type="text"
-                required
-                value={departmentName}
-                onChange={(e) => setDepartmentName(e.target.value)}
-                placeholder="उदा. बेसिक शिक्षा परिषद / उत्तर प्रदेश पुलिस"
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover text-white font-bold text-xs shadow-warm hover:shadow-warm-md flex items-center justify-center gap-2 mt-4 touch-target"
-            >
-              <span>अगला चरण: नामिनी व पता विवरण</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
+        {/* Server Error Alert */}
+        {serverError && (
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+            <span>{serverError}</span>
+          </div>
         )}
 
-        {/* ============================================================== */}
-        {/* STEP 2: Nominee & Address Details                              */}
-        {/* ============================================================== */}
-        {step === 2 && (
-          <form onSubmit={handleStep2Submit} className="space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-stone-border/60">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-charcoal font-mono">
-                <CreditCard className="w-4 h-4 text-sage" />
-                <span>चरण 2: नामिनी व पता विवरण</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="text-xs text-driftwood hover:text-charcoal flex items-center gap-1"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>पिछला</span>
-              </button>
-            </div>
-
-            {/* Address Block */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">राज्य (State) *</label>
-                <input
-                  type="text"
-                  readOnly
-                  value={stateName}
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset text-xs text-charcoal font-semibold"
-                />
+        {/* Main Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-warm space-y-6">
+          
+          {/* ============================================================== */}
+          {/* STEP 1: Personal & Occupation Information                      */}
+          {/* ============================================================== */}
+          {step === 1 && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-stone-200 text-xs font-bold uppercase tracking-wider text-stone-800 font-mono">
+                <User className="w-4 h-4 text-[#0B5C9E]" />
+                <span>चरण 1: व्यक्तिगत एवं सेवा विवरण</span>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">जिला (District) *</label>
-                <select
-                  value={districtName}
-                  onChange={(e) => setDistrictName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal"
-                >
-                  {upDistricts.map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-charcoal mb-1">विकास खंड / तहसील *</label>
-                <input
-                  type="text"
-                  required
-                  value={blockName}
-                  onChange={(e) => setBlockName(e.target.value)}
-                  placeholder="उदा. बहरिया / सदर"
-                  className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-charcoal mb-1">स्थायी निवास पता *</label>
-              <textarea
-                required
-                rows={2}
-                value={addressFull}
-                onChange={(e) => setAddressFull(e.target.value)}
-                placeholder="मकान संख्या, मोहल्ला/ग्राम, पोस्ट ऑफिस, पिन कोड"
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs text-charcoal"
-              />
-            </div>
-
-            {/* Nominee Details Sub-Card */}
-            <div className="p-4 rounded-2xl bg-canvas-inset/50 border border-stone-border space-y-3">
-              <div className="text-xs font-bold text-terracotta uppercase tracking-wider font-mono">
-                नामिनी (Nominee) विवरण
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal mb-1">नामिनी का नाम *</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    पूरा नाम (Full Name) *
+                  </label>
                   <input
-                    type="text"
-                    required
-                    value={nomineeName}
-                    onChange={(e) => setNomineeName(e.target.value)}
-                    placeholder="उदा. मीना वर्मा"
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-charcoal"
+                    {...register('fullName')}
+                    placeholder="उदा. सत्यनारायण यादव"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.fullName && <p className="text-[11px] text-rose-600 mt-1">{errors.fullName.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    पिता अथवा पति का नाम *
+                  </label>
+                  <input
+                    {...register('fatherOrHusbandName')}
+                    placeholder="उदा. स्वर्गीय कैलाश नाथ"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.fatherOrHusbandName && <p className="text-[11px] text-rose-600 mt-1">{errors.fatherOrHusbandName.message}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    माता का नाम (Mother Name)
+                  </label>
+                  <input
+                    {...register('motherName')}
+                    placeholder="उदा. राधा देवी"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal mb-1">संबंध (Relation) *</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    जन्म तिथि (DOB) *
+                  </label>
+                  <input
+                    type="date"
+                    {...register('dob')}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.dob && <p className="text-[11px] text-rose-600 mt-1">{errors.dob.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    रक्त समूह (Blood Group)
+                  </label>
                   <select
-                    value={nomineeRelation}
-                    onChange={(e) => setNomineeRelation(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-charcoal"
+                    {...register('bloodGroup')}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
                   >
-                    <option value="Wife (धर्मपत्नी)">Wife (धर्मपत्नी)</option>
-                    <option value="Husband (पति)">Husband (पति)</option>
-                    <option value="Son (सुपुत्र)">Son (सुपुत्र)</option>
-                    <option value="Daughter (सुपुत्री)">Daughter (सुपुत्री)</option>
-                    <option value="Mother (माता जी)">Mother (माता जी)</option>
-                    <option value="Father (पिता जी)">Father (पिता जी)</option>
+                    <option value="">रक्त समूह चुनें</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">लिंग (Gender) *</label>
+                  <select
+                    {...register('gender')}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  >
+                    <option value="male">पुरुष (Male)</option>
+                    <option value="female">महिला (Female)</option>
+                    <option value="other">अन्य (Other)</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal mb-1">नामिनी की आयु *</label>
-                  <input
-                    type="number"
-                    value={nomineeAge}
-                    onChange={(e) => setNomineeAge(e.target.value)}
-                    placeholder="32"
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-charcoal"
-                  />
+                  <label className="block text-xs font-bold text-stone-700 mb-1">वैवाहिक स्थिति *</label>
+                  <select
+                    {...register('maritalStatus')}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  >
+                    <option value="married">विवाहित (Married)</option>
+                    <option value="unmarried">अविवाहित (Unmarried)</option>
+                    <option value="widow">विधवा / विधुर (Widow)</option>
+                    <option value="separated">परित्यक्ता (Separated)</option>
+                  </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal mb-1">बैंक का नाम *</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    कार्यरत विभाग (Department) *
+                  </label>
                   <input
-                    type="text"
-                    required
-                    value={bankName}
-                    onChange={(e) => setBankName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-charcoal"
+                    {...register('department')}
+                    placeholder="उदा. बेसिक शिक्षा परिषद / स्वास्थ्य विभाग"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-charcoal mb-1">खाता संख्या (Account No) *</label>
-                  <input
-                    type="text"
-                    required
-                    value={accountNumber}
-                    onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ''))}
-                    placeholder="30492817482"
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-charcoal font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-charcoal mb-1">IFSC Code *</label>
-                  <input
-                    type="text"
-                    required
-                    value={ifscCode}
-                    onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
-                    placeholder="SBIN0001248"
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-charcoal font-mono"
-                  />
+                  {errors.department && <p className="text-[11px] text-rose-600 mt-1">{errors.department.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal mb-1">नामिनी UPI ID *</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    पदनाम (Designation) *
+                  </label>
                   <input
-                    type="text"
-                    required
-                    value={upiId}
-                    onChange={(e) => setUpiId(e.target.value.toLowerCase())}
-                    placeholder="meena.verma@sbi"
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-charcoal font-mono"
+                    {...register('designation')}
+                    placeholder="उदा. सहायक अध्यापक / कनिष्ठ सहायक"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
                   />
+                  {errors.designation && <p className="text-[11px] text-rose-600 mt-1">{errors.designation.message}</p>}
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="w-1/3 py-3 rounded-2xl bg-canvas-inset border border-stone-border text-xs font-semibold text-charcoal hover:bg-canvas-card"
-              >
-                पिछला
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    मोबाइल नंबर (Mobile) *
+                  </label>
+                  <input
+                    type="tel"
+                    maxLength={10}
+                    {...register('mobile')}
+                    placeholder="9876543210"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.mobile && <p className="text-[11px] text-rose-600 mt-1">{errors.mobile.message}</p>}
+                </div>
 
-              <button
-                type="submit"
-                className="w-2/3 py-3.5 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover text-white font-bold text-xs shadow-warm hover:shadow-warm-md flex items-center justify-center gap-2"
-              >
-                <span>अगला चरण: अंशदान रसीद व शपथ</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* ============================================================== */}
-        {/* STEP 3: Fee Payment Slip & Declaration (Final Submit)          */}
-        {/* ============================================================== */}
-        {step === 3 && (
-          <form onSubmit={handleFinalSubmit} className="space-y-5">
-            <div className="flex items-center justify-between pb-2 border-b border-stone-border/60">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-charcoal font-mono">
-                <FileCheck2 className="w-4 h-4 text-terracotta" />
-                <span>चरण 3: ₹50 सदस्यता अंशदान रसीद व शपथ पत्र</span>
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    ईमेल आईडी (वैकल्पिक)
+                  </label>
+                  <input
+                    type="email"
+                    {...register('email')}
+                    placeholder="member@example.com"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.email && <p className="text-[11px] text-rose-600 mt-1">{errors.email.message}</p>}
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="text-xs text-driftwood hover:text-charcoal flex items-center gap-1"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>पिछला</span>
-              </button>
-            </div>
 
-            {errorMessage && (
-              <div className="p-3.5 rounded-2xl bg-terracotta-light border border-terracotta/20 text-terracotta text-xs flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <span>{errorMessage}</span>
+              <div className="pt-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={nextToStep2}
+                  className="px-6 py-2.5 rounded-xl bg-[#0B5C9E] hover:bg-[#084b82] text-white text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-xs"
+                >
+                  <span>आगे बढ़ें (Next Step)</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-semibold text-charcoal mb-1">
-                बैंक / UPI 12-अंकीय UTR / Transaction ID *
-              </label>
-              <input
-                type="text"
-                required
-                maxLength={12}
-                value={transactionId}
-                onChange={(e) => setTransactionId(e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
-                placeholder="उदा. 402918274019"
-                className="w-full px-4 py-3 rounded-2xl border border-stone-300 bg-canvas-inset/30 focus:bg-white text-xs font-mono font-bold tracking-widest text-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-              />
-              <p className="text-[11px] text-driftwood mt-1">
-                GPay, PhonePe, या PayTM रसीद पर प्रदर्शित 12 अंकों का UTR नंबर दर्ज करें।
-              </p>
             </div>
+          )}
 
-            {/* Slip Screenshot Upload */}
-            <div>
-              <label className="block text-xs font-semibold text-charcoal mb-1">
-                भुगतान स्क्रीनशॉट / रसीद अपलोड (Payment Receipt)
-              </label>
-              <div className="border-2 border-dashed border-stone-border rounded-2xl p-5 text-center bg-canvas-inset/40 hover:bg-canvas-inset/70 transition-colors">
-                {previewUrl ? (
-                  <div className="space-y-2">
-                    <img src={previewUrl} alt="Receipt preview" className="max-h-40 mx-auto rounded-xl shadow-xs" />
-                    <p className="text-xs text-sage font-semibold">रसीद सफलतापूर्वक चयनित!</p>
+          {/* ============================================================== */}
+          {/* STEP 2: Address & Nominee Information                          */}
+          {/* ============================================================== */}
+          {step === 2 && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-stone-200 text-xs font-bold uppercase tracking-wider text-stone-800 font-mono">
+                <Building className="w-4 h-4 text-[#0B5C9E]" />
+                <span>चरण 2: निवास एवं नामिनी/पारिवारिक विवरण</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">राज्य *</label>
+                  <input
+                    {...register('state')}
+                    readOnly
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-stone-50 text-xs text-stone-700"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">जनपद (District) *</label>
+                  <input
+                    {...register('district')}
+                    placeholder="उदा. देवरिया / गोरखपुर"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.district && <p className="text-[11px] text-rose-600 mt-1">{errors.district.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">ब्लॉक / तहसील *</label>
+                  <input
+                    {...register('block')}
+                    placeholder="उदा. गौरी बाजार"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.block && <p className="text-[11px] text-rose-600 mt-1">{errors.block.message}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-stone-700 mb-1">स्थायी पता (Complete Address) *</label>
+                  <textarea
+                    rows={2}
+                    {...register('permanentAddress')}
+                    placeholder="ग्राम, पोस्ट, तहसील, जनपद..."
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.permanentAddress && <p className="text-[11px] text-rose-600 mt-1">{errors.permanentAddress.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">पिन कोड (PIN Code) *</label>
+                  <input
+                    maxLength={6}
+                    {...register('pinCode')}
+                    placeholder="274202"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.pinCode && <p className="text-[11px] text-rose-600 mt-1">{errors.pinCode.message}</p>}
+                </div>
+              </div>
+
+              {/* Nominee Details Section */}
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
+                <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider font-mono">
+                  नामिनी विवरण (Nominee Details - ₹15 लाख सहायता के सीधे अधिकृत प्राप्तकर्ता)
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">नामिनी का नाम *</label>
+                    <input
+                      {...register('nomineeName')}
+                      placeholder="उदा. श्रीमती सुशीला देवी"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    />
+                    {errors.nomineeName && <p className="text-[11px] text-rose-600 mt-1">{errors.nomineeName.message}</p>}
                   </div>
-                ) : (
-                  <div className="space-y-1">
-                    <UploadCloud className="w-8 h-8 text-driftwood mx-auto" />
-                    <div className="text-xs text-charcoal font-medium">रसीद की फोटो चुनें या यहाँ खींचें</div>
-                    <div className="text-[10px] text-driftwood">PNG, JPG 5MB तक</div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">नामिनी से संबंध *</label>
+                    <input
+                      {...register('nomineeRelation')}
+                      placeholder="उदा. Wife (धर्मपत्नी) / Son / Daughter"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    />
+                    {errors.nomineeRelation && <p className="text-[11px] text-rose-600 mt-1">{errors.nomineeRelation.message}</p>}
                   </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="mt-3 block w-full text-xs text-driftwood file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-terracotta file:text-white hover:file:bg-terracotta-hover cursor-pointer"
-                />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">नामिनी की आयु (वर्ष में) *</label>
+                    <input
+                      type="number"
+                      {...register('nomineeAge')}
+                      placeholder="52"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    />
+                    {errors.nomineeAge && <p className="text-[11px] text-rose-600 mt-1">{errors.nomineeAge.message}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">नामिनी का मोबाइल नंबर *</label>
+                    <input
+                      type="tel"
+                      maxLength={10}
+                      {...register('nomineeMobile')}
+                      placeholder="7084237422"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono font-bold bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    />
+                    {errors.nomineeMobile && <p className="text-[11px] text-rose-600 mt-1">{errors.nomineeMobile.message}</p>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Dynamic Family Members Repeater */}
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-700 font-mono">
+                    अन्य आश्रित परिवार सदस्य (+ Add Family Members)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => append({ name: '', relation: '', age: 18 })}
+                    className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold inline-flex items-center gap-1 transition-all"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>सदस्य जोड़ें</span>
+                  </button>
+                </div>
+
+                {fields.map((field, idx) => (
+                  <div key={field.id} className="flex items-center gap-2 bg-stone-50 p-2.5 rounded-xl border border-stone-200">
+                    <input
+                      {...register(`familyMembers.${idx}.name` as const)}
+                      placeholder="नाम"
+                      className="flex-2 px-3 py-1.5 rounded-lg border border-stone-300 text-xs bg-white text-stone-900"
+                    />
+                    <input
+                      {...register(`familyMembers.${idx}.relation` as const)}
+                      placeholder="संबंध"
+                      className="flex-1 px-3 py-1.5 rounded-lg border border-stone-300 text-xs bg-white text-stone-900"
+                    />
+                    <input
+                      type="number"
+                      {...register(`familyMembers.${idx}.age` as const)}
+                      placeholder="आयु"
+                      className="w-16 px-2 py-1.5 rounded-lg border border-stone-300 text-xs bg-white text-stone-900 font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => remove(idx)}
+                      className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-4 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="px-5 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold inline-flex items-center gap-1.5 transition-all"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>पिछला चरण</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={nextToStep3}
+                  className="px-6 py-2.5 rounded-xl bg-[#0B5C9E] hover:bg-[#084b82] text-white text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-xs"
+                >
+                  <span>आगे बढ़ें (Next Step)</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
+          )}
 
-            {/* Official DPSWT Declaration Checkbox */}
-            <div className="p-4 rounded-2xl bg-canvas-inset border border-stone-border/80">
-              <label className="flex items-start gap-2.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  required
-                  checked={declarationAccepted}
-                  onChange={(e) => setDeclarationAccepted(e.target.checked)}
-                  className="mt-1 w-4 h-4 text-terracotta rounded border-stone-300 focus:ring-terracotta cursor-pointer"
-                />
-                <span className="text-[11px] text-charcoal leading-relaxed">
-                  <strong>शपथ पत्र व घोषणा:</strong> मैं प्रमाणित करता/करती हूँ कि मेरे द्वारा दी गई समस्त जानकारी सत्य है। मैं DPSWT के नियमों व 75% अनुपालन शर्त का निष्ठापूर्वक पालन करूँगा/करूँगी। आपातकाल में साथी सदस्यों को ₹50 का सीधा सहयोग करने हेतु प्रतिबद्ध हूँ।
-                </span>
-              </label>
+          {/* ============================================================== */}
+          {/* STEP 3: Photo, Payment Proof & Credentials                     */}
+          {/* ============================================================== */}
+          {step === 3 && (
+            <div className="space-y-5">
+              <div className="flex items-center gap-2 pb-2 border-b border-stone-200 text-xs font-bold uppercase tracking-wider text-stone-800 font-mono">
+                <FileCheck2 className="w-4 h-4 text-[#0B5C9E]" />
+                <span>चरण 3: फ़ोटो, अंशदान रसीद एवं लॉगिन पासवर्ड</span>
+              </div>
+
+              {/* File Dropzones: Headshot & Payment Receipt */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                {/* 1. Member Headshot Photo Dropzone */}
+                <div className="p-4 rounded-2xl border-2 border-dashed border-[#0B5C9E]/30 bg-[#0B5C9E]/5 text-center space-y-2">
+                  <div className="w-24 h-28 mx-auto rounded-xl border-2 border-[#0B5C9E] bg-white overflow-hidden flex items-center justify-center relative shadow-xs">
+                    {photoPreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-stone-400 flex flex-col items-center">
+                        <Camera className="w-7 h-7 text-[#0B5C9E]" />
+                        <span className="text-[10px] font-bold text-stone-500 mt-1 uppercase font-serif">PHOTO</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="cursor-pointer px-3.5 py-1.5 rounded-xl bg-[#0B5C9E] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-xs hover:bg-[#084b82]">
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      <span>{photoFile ? 'फ़ोटो बदलें' : 'पासपोर्ट फ़ोटो अपलोड करें *'}</span>
+                      <input 
+                        type="file" 
+                        accept="image/jpeg,image/png,image/webp" 
+                        onChange={handlePhotoChange} 
+                        className="hidden" 
+                      />
+                    </label>
+                    <p className="text-[10px] text-stone-500 mt-1">यह फ़ोटो आपके डिजिटल पहचान पत्र पर अंकित होगी</p>
+                  </div>
+                </div>
+
+                {/* 2. Payment Receipt Slip Dropzone */}
+                <div className="p-4 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 text-center space-y-2">
+                  <div className="w-24 h-28 mx-auto rounded-xl border border-stone-300 bg-white overflow-hidden flex items-center justify-center relative shadow-xs">
+                    {receiptPreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={receiptPreview} alt="Receipt Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-stone-400 flex flex-col items-center">
+                        <FileCheck2 className="w-7 h-7 text-stone-400" />
+                        <span className="text-[10px] font-bold text-stone-500 mt-1 uppercase">रसीद SLIP</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="cursor-pointer px-3.5 py-1.5 rounded-xl bg-white border border-stone-300 text-stone-800 text-xs font-bold inline-flex items-center gap-1.5 shadow-xs hover:bg-stone-50">
+                      <UploadCloud className="w-3.5 h-3.5 text-stone-600" />
+                      <span>{receiptFile ? 'रसीद बदलें' : '₹50 भुगतान रसीद अपलोड करें *'}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*,application/pdf" 
+                        onChange={handleReceiptChange} 
+                        className="hidden" 
+                      />
+                    </label>
+                    <p className="text-[10px] text-stone-500 mt-1">बैंक/UPI ऐप में प्रदर्शित 12-अंकीय UTR रसीद</p>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Transaction ID & Ration Card */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    12-अंकीय बैंक UTR / Transaction ID *
+                  </label>
+                  <input
+                    {...register('transactionId')}
+                    placeholder="उदा. 429081298401"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                  {errors.transactionId && <p className="text-[11px] text-rose-600 mt-1">{errors.transactionId.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    राशन कार्ड क्रमांक (Ration Card ID - वैकल्पिक)
+                  </label>
+                  <input
+                    {...register('rationCardId')}
+                    placeholder="उदा. 219840192840"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                  />
+                </div>
+              </div>
+
+              {/* Set Login Password */}
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-stone-900 uppercase font-mono">
+                  <Lock className="w-4 h-4 text-[#0B5C9E]" />
+                  <span>लॉगिन पासवर्ड निर्धारित करें (Set Login Password)</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">पासवर्ड (न्यूनतम 6 अक्षर) *</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        {...register('password')}
+                        placeholder="••••••••"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {errors.password && <p className="text-[11px] text-rose-600 mt-1">{errors.password.message}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">पासवर्ड की पुष्टि करें *</label>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      {...register('confirmPassword')}
+                      placeholder="••••••••"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0B5C9E]/20 focus:border-[#0B5C9E]"
+                    />
+                    {errors.confirmPassword && <p className="text-[11px] text-rose-600 mt-1">{errors.confirmPassword.message}</p>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Legal Checkbox & Compliance Agreement */}
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    {...register('acceptTerms')}
+                    className="mt-1 w-4 h-4 rounded border-amber-300 text-[#0B5C9E] focus:ring-[#0B5C9E]"
+                  />
+                  <span className="text-xs text-amber-950 leading-relaxed font-medium">
+                    मैं शपथपूर्वक घोषणा करता/करती हूँ कि मेरे द्वारा दी गई समस्त जानकारी पूर्णतः सत्य है। मैं जन सेवा चैरिटेबल ट्रस्ट (JSCT) की नियमावली, ₹50 प्रति अपील सूक्ष्म सहयोग नियम तथा <strong>छह (6) माह की अनिवार्य सुरक्षा लॉक-इन अवधि</strong> के नियम को पूर्णतः स्वीकार करता/करती हूँ।
+                  </span>
+                </label>
+                {errors.acceptTerms && <p className="text-[11px] text-rose-600 font-bold pl-7">{errors.acceptTerms.message}</p>}
+              </div>
+
+              <div className="pt-4 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="px-5 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold inline-flex items-center gap-1.5 transition-all"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>पिछला चरण</span>
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-7 py-3 rounded-2xl bg-[#0B5C9E] hover:bg-[#084b82] text-white text-xs font-bold inline-flex items-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>प्रक्रियाधीन है...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>पंजीकरण पूर्ण करें व कार्ड प्राप्त करें</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+
             </div>
+          )}
 
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="w-1/3 py-3 rounded-2xl bg-canvas-inset border border-stone-border text-xs font-semibold text-charcoal hover:bg-canvas-card"
-              >
-                पिछला
-              </button>
-
-              <button
-                type="submit"
-                disabled={isSubmitting || !declarationAccepted}
-                className="w-2/3 py-4 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs shadow-warm-md hover:shadow-warm-lg disabled:opacity-50 flex items-center justify-center gap-2 touch-target"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>पंजीकरण पूर्ण करें (Complete Registration)</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        )}
+        </form>
 
       </div>
     </div>

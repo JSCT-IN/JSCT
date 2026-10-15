@@ -38,15 +38,12 @@ export const DPSWTStore = {
   },
 
   getCurrentUser(): Member | null {
-    if (typeof window === 'undefined') return INITIAL_MEMBERS[0];
+    if (typeof window === 'undefined') return null;
     const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
-    if (currentId === '__LOGGED_OUT__') {
+    if (!currentId || currentId === '__LOGGED_OUT__') {
       return null;
     }
     const members = this.getMembers();
-    if (!currentId) {
-      return INITIAL_MEMBERS[0];
-    }
     const found = members.find((m) => m.id === currentId);
     return found || null;
   },
@@ -54,7 +51,7 @@ export const DPSWTStore = {
   isLoggedIn(): boolean {
     if (typeof window === 'undefined') return false;
     const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
-    return currentId !== '__LOGGED_OUT__' && !!currentId;
+    return Boolean(currentId && currentId !== '__LOGGED_OUT__');
   },
 
   logout(): void {
@@ -82,6 +79,84 @@ export const DPSWTStore = {
     setStorageItem(STORAGE_KEYS.MEMBERS, members);
     this.setCurrentUser(created.id);
     return created;
+  },
+
+  updateMember(memberId: string, updates: Partial<Member>): Member {
+    const members = this.getMembers();
+    const index = members.findIndex((m) => m.id === memberId || m.membership_id === memberId);
+    if (index === -1) {
+      throw new Error('Member not found');
+    }
+    const updated = {
+      ...members[index],
+      ...updates,
+    };
+    members[index] = updated;
+    setStorageItem(STORAGE_KEYS.MEMBERS, members);
+    return updated;
+  },
+
+  addVarshikDan(
+    memberId: string,
+    payload: { amount: number; utr_number: string; payment_date: string; slip_url?: string }
+  ): void {
+    const members = this.getMembers();
+    const index = members.findIndex((m) => m.id === memberId || m.membership_id === memberId);
+    if (index === -1) return;
+
+    const current = members[index];
+    const currentExpiry = current.fee_expires_at ? new Date(current.fee_expires_at) : new Date();
+    const newExpiryDate = new Date(Math.max(Date.now(), currentExpiry.getTime()) + 365 * 24 * 60 * 60 * 1000);
+
+    const history = current.varshik_dan_history || [];
+    history.unshift({
+      id: 'vd_' + Date.now().toString(),
+      member_id: current.id,
+      year: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
+      amount: payload.amount || 50,
+      utr_number: payload.utr_number,
+      payment_date: payload.payment_date || new Date().toISOString().split('T')[0],
+      status: 'VERIFIED',
+      valid_until: newExpiryDate.toISOString(),
+      slip_url: payload.slip_url || '',
+      created_at: new Date().toISOString(),
+    });
+
+    current.varshik_dan_history = history;
+    current.fee_expires_at = newExpiryDate.toISOString();
+    members[index] = current;
+    setStorageItem(STORAGE_KEYS.MEMBERS, members);
+  },
+
+  requestWithdrawal(memberId: string, amount: number, upiId: string): void {
+    const members = this.getMembers();
+    const index = members.findIndex((m) => m.id === memberId || m.membership_id === memberId);
+    if (index === -1) return;
+
+    const current = members[index];
+    const history = current.withdrawal_history || [];
+    history.unshift({
+      id: 'wth_' + Date.now().toString(),
+      member_id: current.id,
+      amount,
+      upi_id: upiId,
+      status: 'PENDING',
+      requested_at: new Date().toISOString(),
+      remarks: 'Withdrawal under processing by JSCT accounts',
+    });
+
+    current.withdrawal_history = history;
+    current.referral_withdrawable = Math.max(0, (current.referral_withdrawable || 0) - amount);
+    members[index] = current;
+    setStorageItem(STORAGE_KEYS.MEMBERS, members);
+  },
+
+  updatePassword(memberId: string, newPass: string): void {
+    const members = this.getMembers();
+    const index = members.findIndex((m) => m.id === memberId || m.membership_id === memberId);
+    if (index === -1) return;
+    members[index].password = newPass;
+    setStorageItem(STORAGE_KEYS.MEMBERS, members);
   },
 
   // Appeals

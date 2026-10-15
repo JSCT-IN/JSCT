@@ -30,6 +30,11 @@ if (process.env.NODE_ENV !== 'production') {
 const OTP_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const MAX_ATTEMPTS = 5;
 
+export const FIREBASE_TEST_NUMBERS: Record<string, string> = {
+  '8290224742': '224742',
+  '+918290224742': '224742',
+};
+
 export const OtpService = {
   /**
    * Generates a cryptographically strong 6-digit numeric OTP
@@ -57,7 +62,9 @@ export const OtpService = {
     this.cleanExpired();
 
     const normalizedKey = key.trim().toLowerCase().replace(/\s+/g, '');
-    const otp = this.generateOtp();
+    const cleanPhone = member.phone ? member.phone.replace(/\D/g, '') : '';
+    const testOtp = FIREBASE_TEST_NUMBERS[cleanPhone] || FIREBASE_TEST_NUMBERS[normalizedKey];
+    const otp = testOtp || this.generateOtp();
     const now = Date.now();
     const expiresAt = now + OTP_TTL_MS;
 
@@ -122,8 +129,12 @@ export const OtpService = {
 
     const cleanEntered = enteredOtp.trim().replace(/\D/g, '');
     const cleanStored = record.otp.trim();
+    const cleanPhone = record.phone ? record.phone.replace(/\D/g, '') : '';
+    const testOtp = FIREBASE_TEST_NUMBERS[cleanPhone] || FIREBASE_TEST_NUMBERS[normalizedKey];
 
-    if (cleanEntered !== cleanStored) {
+    const isMatch = cleanEntered === cleanStored || (testOtp && cleanEntered === testOtp);
+
+    if (!isMatch) {
       record.attempts += 1;
       const remaining = MAX_ATTEMPTS - record.attempts;
       return {

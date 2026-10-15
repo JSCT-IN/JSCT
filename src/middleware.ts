@@ -3,37 +3,59 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const sessionToken = request.cookies.get('jsct_session')?.value;
-  const userRole = request.cookies.get('jsct_role')?.value;
 
-  // Allow admin login page to bypass
-  if (pathname.startsWith('/admin/login')) {
+  const adminToken = request.cookies.get('jsct_admin_token')?.value;
+  const adminRole = request.cookies.get('jsct_admin_role')?.value;
+  const standardToken = request.cookies.get('jsct_session')?.value;
+  const standardRole = request.cookies.get('jsct_role')?.value;
+
+  const isAuthenticatedAdmin = Boolean(adminToken && adminRole === 'admin');
+  const isStandardMember = Boolean(standardRole === 'MEMBER' || (adminRole && adminRole !== 'admin'));
+
+  // ============================================================================
+  // 1. HARDENED ADMIN ROUTE PROTECTION (/admin* and /console-secure-admin*)
+  // ============================================================================
+  if (pathname.startsWith('/console-secure-admin') || pathname.startsWith('/admin')) {
+    const isLoginPage = pathname === '/console-secure-admin/login' || pathname === '/admin/login';
+
+    // If an authenticated admin visits login -> redirect straight to dashboard
+    if (isLoginPage) {
+      if (isAuthenticatedAdmin) {
+        return NextResponse.redirect(new URL('/console-secure-admin/dashboard', request.url));
+      }
+      return NextResponse.next();
+    }
+
+    // If user is authenticated as a regular member (not admin) -> access denied
+    if (isStandardMember && !isAuthenticatedAdmin) {
+      const deniedUrl = new URL('/login', request.url);
+      deniedUrl.searchParams.set('error', 'access_denied');
+      return NextResponse.redirect(deniedUrl);
+    }
+
+    // If unauthenticated -> redirect to admin login gate
+    if (!isAuthenticatedAdmin) {
+      const loginUrl = new URL('/console-secure-admin/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // If accessing legacy /admin directly -> cleanly route to /console-secure-admin/dashboard
+    if (pathname === '/admin') {
+      return NextResponse.redirect(new URL('/console-secure-admin/dashboard', request.url));
+    }
+
     return NextResponse.next();
   }
 
-  // 1. Protect Dashboard & Member Routes
+  // ============================================================================
+  // 2. MEMBER DASHBOARD ROUTES (/dashboard/*)
+  // ============================================================================
   if (pathname.startsWith('/dashboard')) {
-    if (!sessionToken) {
+    if (!standardToken && !adminToken) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
-    }
-  }
-
-  // 2. Protect Admin / Inspector Routes
-  if (pathname.startsWith('/admin')) {
-    if (!sessionToken) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('tab', 'admin');
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    // Role-based authorization for Inspector / Admin Desk
-    if (userRole === 'MEMBER') {
-      const dashboardUrl = new URL('/dashboard', request.url);
-      dashboardUrl.searchParams.set('error', 'unauthorized_staff_only');
-      return NextResponse.redirect(dashboardUrl);
     }
   }
 
@@ -42,7 +64,11 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
+    '/console-secure-admin',
+    '/console-secure-admin/:path*',
+    '/admin',
     '/admin/:path*',
+    '/dashboard',
+    '/dashboard/:path*',
   ],
 };

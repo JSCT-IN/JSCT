@@ -2,11 +2,22 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { HeartHandshake, ShieldCheck, PhoneCall, Mail, MapPin, ExternalLink } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 
 export default function Footer() {
+  const pathname = usePathname();
   const { lang, t } = useTranslation();
+
+  if (
+    pathname.startsWith('/console-secure-admin') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/dashboard') ||
+    pathname === '/login'
+  ) {
+    return null;
+  }
 
   return (
     <footer className="bg-canvas-inset border-t border-stone-border text-charcoal pt-14 pb-24 sm:pb-14 transition-colors">
@@ -60,8 +71,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/rules" className="text-driftwood hover:text-terracotta transition-colors">
-                  {t.rulesTitle}
+                <Link href="/niyamawali" className="text-driftwood hover:text-terracotta transition-colors">
+                  {lang === 'hi' ? 'संस्था नियमावली (Bylaws)' : 'Rules & Bylaws'}
                 </Link>
               </li>
               <li>
@@ -70,8 +81,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/admin/inspector" className="text-driftwood hover:text-terracotta transition-colors">
-                  {t.inspectorTitle}
+                <Link href="/member-card" className="text-driftwood hover:text-terracotta transition-colors">
+                  {lang === 'hi' ? 'पहचान पत्र (ID Card)' : 'Identity Card'}
                 </Link>
               </li>
               <li>

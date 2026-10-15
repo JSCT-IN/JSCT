@@ -58,7 +58,7 @@ export const translations = {
 
     // 4 Pillars
     pillarsPill: 'कल्याण मंच की कार्यप्रणाली',
-    pillarsTitle: 'DPSWT के 4 पारदर्शी आधार स्तंभ',
+    pillarsTitle: 'JSCT के 4 पारदर्शी आधार स्तंभ',
     pillarsSubtitle: 'पूर्ण पारदर्शिता, शून्य मध्यस्थता और त्वरित राहत हेतु निर्मित अनूठा मॉडल',
     pillar1Title: '1. Zero-Custody P2P',
     pillar1Desc: 'प्लेटफ़ॉर्म किसी भी सदस्य का धन अपने खाते या एस्क्रो वॉलेट में नहीं रखता। सदस्य एक-दूसरे के नामिनी बैंक खाते व UPI आईडी में सीधे ₹50 अंतरित करते हैं।',
@@ -93,8 +93,8 @@ export const translations = {
     // FAQ Section
     faqPill: 'जिज्ञासा समाधान',
     faqTitle: 'अक्सर पूछे जाने वाले प्रश्न (FAQ)',
-    faq1Q: 'क्या DPSWT किसी वॉलेट में दान का पैसा एकत्र करता है?',
-    faq1A: 'बिल्कुल नहीं! DPSWT का मूल सिद्धांत ‘Zero-Custody Peer-to-Peer’ है। जब किसी साथी के साथ आकस्मिक दुर्घटना होती है, तो मंच सीधे उनके सत्यापित नामिनी का बैंक खाता व UPI प्रदर्शित करता है। आप अपना ₹50 सीधे उनके बैंक खाते में भेजते हैं। प्लेटफ़ॉर्म किसी भी प्रकार का कमीशन या कटौता नहीं करता।',
+    faq1Q: 'क्या JSCT किसी वॉलेट में दान का पैसा एकत्र करता है?',
+    faq1A: 'बिल्कुल नहीं! JSCT का मूल सिद्धांत ‘Zero-Custody Peer-to-Peer’ है। जब किसी साथी के साथ आकस्मिक दुर्घटना होती है, तो मंच सीधे उनके सत्यापित नामिनी का बैंक खाता व UPI प्रदर्शित करता है। आप अपना ₹50 सीधे उनके बैंक खाते में भेजते हैं। प्लेटफ़ॉर्म किसी भी प्रकार का कमीशन या कटौता नहीं करता।',
     faq2Q: '75% अनुपालन नियम क्यों बनाया गया है?',
     faq2A: 'पारस्परिक सहयोग की व्यवस्था केवल तभी जीवित रह सकती है जब हर सदस्य दूसरों के संकट में साथ खड़ा हो। यदि कोई केवल अपनी बारी आने पर लाभ लेना चाहे और दूसरों को सहयोग न दे, तो व्यवस्था चरमरा जाएगी। अतः परिवार के संबल की गारंटी हेतु न्यूनतम 75% अपीलों में ₹50 सहयोग अनिवार्य किया गया है।',
     faq3Q: '₹50 वार्षिक नवीनीकरण सदस्यता शुल्क किसलिए है?',
@@ -103,7 +103,7 @@ export const translations = {
     faq4A: 'चूंकि प्लेटफ़ॉर्म में कोई बैंक गेटवे सीधे बीच में नहीं है, इसलिए जिला सत्यापन दल नामिनी के पासबुक स्टेटमेंट से आपके 12-अंकीय UTR नंबर का भौतिक मिलान करता है। UTR दर्ज करने के बाद ही आपका 75% अनुपालन रिकॉर्ड सत्यापित होता है।',
 
     // CTA Banner
-    joinFamilyTitle: 'आज ही DPSWT परिवार का हिस्सा बनें',
+    joinFamilyTitle: 'आज ही JSCT परिवार का हिस्सा बनें',
     joinFamilyDesc: 'आधार कार्ड एवं विभागीय पहचान के साथ सरल 2-मिनट पंजीकरण। अपने परिवार की सुरक्षा सुनिश्चित करें और जरूरतमंद साथियों के संबल बनें।',
     registerBtn: 'नया सदस्य पंजीकरण (₹50 Annual)',
     exploreAppealsBtn: 'सक्रिय अपीलें देखें',
@@ -208,7 +208,7 @@ export const translations = {
     passbookMatchingTitle: 'नामिनी पासबुक मिलान',
 
     // Rules Page
-    rulesPill: 'डीपीएसडब्ल्यूटी पारस्परिक कल्याण नियमावली 2026',
+    rulesPill: 'JSCT पारस्परिक कल्याण नियमावली 2026',
     rulesTitle: 'नियम, दिशानिर्देश एवं 75% अनुपालन संहिता',
     rulesSub: 'पारस्परिक सहयोग की पवित्रता, निष्पक्षता और शोकाकुल परिवारों को अधिकतम सुरक्षा प्रदान करने हेतु निर्धारित वैधानिक नियम एवं पात्रता शर्तें',
     goldenRatioTitle: '75% सहभागिता का स्वर्णिम नियम (Golden Ratio Rule)',
@@ -227,13 +227,13 @@ export const translations = {
     sendMessageAction: 'संदेश प्रेषित करें',
 
     // Footer
-    footerMission: 'डीपीएसडब्ल्यूटी उत्तर प्रदेश के विभिन्न विभागों के कर्मचारियों एवं नागरिकों का एक गैर-लाभकारी, आपसी सहयोग आधारित कल्याणकारी परिवार है। यहां आपात स्थिति में प्रत्येक सदस्य सीधे नामिनी के खाते में मात्र ₹50 का अंशदान देकर शोकाकुल परिवार को ₹15 लाख तक का जीवन संबल प्रदान करता है।',
+    footerMission: 'JSCT उत्तर प्रदेश के विभिन्न विभागों के कर्मचारियों एवं नागरिकों का एक गैर-लाभकारी, आपसी सहयोग आधारित कल्याणकारी परिवार है। यहां आपात स्थिति में प्रत्येक सदस्य सीधे नामिनी के खाते में मात्र ₹50 का अंशदान देकर शोकाकुल परिवार को ₹15 लाख तक का जीवन संबल प्रदान करता है।',
     quickLinksHeading: 'महत्वपूर्ण पृष्ठ (Quick Links)',
     complianceCheckHeading: 'कल्याण मानक (Compliance)',
     helplineHeading: 'हेल्पलाइन व संपर्क (Helpline)',
     legalNoticeHeading: 'वैधानिक एवं पारदर्शी घोषणा (Zero-Custody Legal Notice):',
-    legalNoticeBody: 'डीपीएसडब्ल्यूटी (DPSWT) कोई वित्तीय संस्थान, बैंक, बीमा कंपनी, एनबीएफसी अथवा क्राउडफंडिंग एस्क्रो प्लेटफॉर्म नहीं है। इस वेबसाइट का संचालन केवल पारस्परिक सहयोग के डेटा समन्वय एवं सत्यापन हेतु किया जाता है। किसी भी अपील की सहयोग राशि प्लेटफ़ॉर्म अथवा प्रबंधकों के खाते में नहीं ली जाती, बल्कि सीधे पीड़ित सदस्य के सत्यापित नामिनी के बैंक खाते/UPI में जाती है।',
-    copyright: 'DPSWT (Direct People Support Welfare Team). सर्वाधिकार सुरक्षित।',
+    legalNoticeBody: 'JSCT (JSCT) कोई वित्तीय संस्थान, बैंक, बीमा कंपनी, एनबीएफसी अथवा क्राउडफंडिंग एस्क्रो प्लेटफॉर्म नहीं है। इस वेबसाइट का संचालन केवल पारस्परिक सहयोग के डेटा समन्वय एवं सत्यापन हेतु किया जाता है। किसी भी अपील की सहयोग राशि प्लेटफ़ॉर्म अथवा प्रबंधकों के खाते में नहीं ली जाती, बल्कि सीधे पीड़ित सदस्य के सत्यापित नामिनी के बैंक खाते/UPI में जाती है।',
+    copyright: 'JSCT (Jan Sewa Charitable Trust). सर्वाधिकार सुरक्षित।',
     privacyPolicy: 'गोपनीयता नीति',
     termsConditions: 'नियम व शर्तें',
     grievanceCell: 'शिकायत निवारण',
@@ -306,7 +306,7 @@ export const translations = {
 
     // 4 Pillars
     pillarsPill: 'Platform Operational Model',
-    pillarsTitle: 'The 4 Core Pillars of DPSWT',
+    pillarsTitle: 'The 4 Core Pillars of JSCT',
     pillarsSubtitle: 'Designed for absolute transparency, zero escrow custody, and rapid community relief',
     pillar1Title: '1. Zero-Custody P2P',
     pillar1Desc: 'The platform never holds member donation capital in an escrow wallet. Contributing members transfer ₹50 directly into verified nominee bank accounts and UPI IDs.',
@@ -341,8 +341,8 @@ export const translations = {
     // FAQ Section
     faqPill: 'Frequently Answered',
     faqTitle: 'Frequently Asked Questions (FAQ)',
-    faq1Q: 'Does DPSWT hold donation money in any escrow wallet or pool?',
-    faq1A: 'Absolutely not! The cornerstone of DPSWT is Zero-Custody Peer-to-Peer transfer. When an emergency happens, the platform exposes the verified nominee’s direct bank account and UPI QR code. Your ₹50 goes straight into the beneficiary’s account without platform cuts or custody.',
+    faq1Q: 'Does JSCT hold donation money in any escrow wallet or pool?',
+    faq1A: 'Absolutely not! The cornerstone of JSCT is Zero-Custody Peer-to-Peer transfer. When an emergency happens, the platform exposes the verified nominee’s direct bank account and UPI QR code. Your ₹50 goes straight into the beneficiary’s account without platform cuts or custody.',
     faq2Q: 'Why is the 75% compliance participation rule enforced?',
     faq2A: 'Mutual welfare solidarity functions only when members consistently support others in their hour of grief. If individuals join only to claim benefits without contributing, the system collapses. Hence, a minimum 75% participation threshold is required to guarantee family protection.',
     faq3Q: 'What is the purpose of the ₹50 annual renewal fee?',
@@ -351,7 +351,7 @@ export const translations = {
     faq4A: 'Because no payment gateway intermediary touches your money, district field inspectors audit the nominee’s physical bank passbook against your unique 12-digit UTR number to verify and credit your compliance score.',
 
     // CTA Banner
-    joinFamilyTitle: 'Become Part of the DPSWT Family Today',
+    joinFamilyTitle: 'Become Part of the JSCT Family Today',
     joinFamilyDesc: 'Simple 2-minute registration with Aadhaar and departmental credentials. Protect your family while empowering brethren across Uttar Pradesh.',
     registerBtn: 'New Member Registration (₹50 Annual)',
     exploreAppealsBtn: 'Explore Active Appeals',
@@ -456,7 +456,7 @@ export const translations = {
     passbookMatchingTitle: 'Nominee Passbook Statement Match',
 
     // Rules Page
-    rulesPill: 'DPSWT Mutual Welfare Code 2026',
+    rulesPill: 'JSCT Mutual Welfare Code 2026',
     rulesTitle: 'Rules, Guidelines & 75% Compliance Code',
     rulesSub: 'Statutory requirements and eligibility standards established to ensure fairness and maximum protection for bereaved families',
     goldenRatioTitle: 'The 75% Golden Ratio Rule',
@@ -475,13 +475,13 @@ export const translations = {
     sendMessageAction: 'Submit Message',
 
     // Footer
-    footerMission: 'DPSWT is a non-profit, mutual solidarity welfare community of government employees and citizens across Uttar Pradesh. In emergencies, each member contributes ₹50 directly into the nominee bank account, providing up to ₹15 Lakhs in life-saving relief.',
+    footerMission: 'JSCT is a non-profit, mutual solidarity welfare community of government employees and citizens across Uttar Pradesh. In emergencies, each member contributes ₹50 directly into the nominee bank account, providing up to ₹15 Lakhs in life-saving relief.',
     quickLinksHeading: 'Quick Links',
     complianceCheckHeading: 'Compliance Standards',
     helplineHeading: 'Helpline & Support',
     legalNoticeHeading: 'Zero-Custody Legal Notice:',
-    legalNoticeBody: 'DPSWT is not a bank, insurance entity, NBFC, or escrow crowdfunding platform. This website coordinates mutual community data and field verification only. No donation capital is accepted or held by the platform; all contributions flow directly from member to nominee bank/UPI.',
-    copyright: 'DPSWT (Direct People Support Welfare Team). All rights reserved.',
+    legalNoticeBody: 'JSCT is not a bank, insurance entity, NBFC, or escrow crowdfunding platform. This website coordinates mutual community data and field verification only. No donation capital is accepted or held by the platform; all contributions flow directly from member to nominee bank/UPI.',
+    copyright: 'JSCT (Jan Sewa Charitable Trust). All rights reserved.',
     privacyPolicy: 'Privacy Policy',
     termsConditions: 'Terms & Conditions',
     grievanceCell: 'Grievance Cell',

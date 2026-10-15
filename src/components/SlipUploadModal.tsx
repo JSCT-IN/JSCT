@@ -130,7 +130,12 @@ export default function SlipUploadModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm animate-in fade-in duration-150 overflow-y-auto">
+    <div 
+      role="dialog" 
+      aria-modal="true" 
+      aria-label="Upload Receipt Slip Modal"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm animate-in fade-in duration-150 overflow-y-auto"
+    >
       <div
         className="relative w-full max-w-lg rounded-3xl bg-white border border-stone-border shadow-warm-lg p-6 sm:p-7 text-charcoal my-8 max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}

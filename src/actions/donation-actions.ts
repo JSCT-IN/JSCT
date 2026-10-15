@@ -123,7 +123,7 @@ export async function submitDonationAction(formData: FormData): Promise<SubmitDo
     revalidatePath('/appeals');
     revalidatePath(`/appeals/${appealId}`);
     revalidatePath('/dashboard');
-    revalidatePath('/admin/inspector');
+    revalidatePath('/console-secure-admin/dashboard');
 
     return {
       success: true,
@@ -162,7 +162,7 @@ export async function updateDonationStatusAction(
       return { success: false, message: error.message };
     }
 
-    revalidatePath('/admin/inspector');
+    revalidatePath('/console-secure-admin/dashboard');
     revalidatePath('/dashboard');
     return { success: true, message: `स्थिति को ${newStatus} में अद्यतन किया गया।` };
   } catch (err: any) {

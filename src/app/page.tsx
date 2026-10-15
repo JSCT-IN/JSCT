@@ -163,10 +163,10 @@ export default function HomePage() {
               {/* First Track */}
               {announcements.map((item) => (
                 <div key={`track1-${item.id}`} className="inline-flex items-center gap-2">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/25 font-bold uppercase font-mono tracking-tight text-amber-200">
+                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-black/30 font-bold uppercase font-mono tracking-tight text-amber-200">
                     {item.badge}
                   </span>
-                  <span className={item.highlight ? 'font-bold text-white' : 'text-amber-50'}>
+                  <span className={item.highlight ? 'font-bold text-white' : 'text-amber-50 font-medium'}>
                     {item.text}
                   </span>
                   <span className="text-white/40 text-xs px-2">•</span>
@@ -176,10 +176,10 @@ export default function HomePage() {
               {/* Duplicate Track (for seamless infinite continuous loop) */}
               {announcements.map((item) => (
                 <div key={`track2-${item.id}`} className="inline-flex items-center gap-2">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/25 font-bold uppercase font-mono tracking-tight text-amber-200">
+                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-black/30 font-bold uppercase font-mono tracking-tight text-amber-200">
                     {item.badge}
                   </span>
-                  <span className={item.highlight ? 'font-bold text-white' : 'text-amber-50'}>
+                  <span className={item.highlight ? 'font-bold text-white' : 'text-amber-50 font-medium'}>
                     {item.text}
                   </span>
                   <span className="text-white/40 text-xs px-2">•</span>
@@ -190,7 +190,7 @@ export default function HomePage() {
           </div>
 
           {/* Pinned Right Quick Actions */}
-          <div className="shrink-0 hidden md:flex items-center gap-3 z-20 text-xs font-semibold pl-2">
+          <div className="shrink-0 hidden lg:flex items-center gap-2.5 z-20 text-xs font-semibold pl-2">
             <a
               href="tel:9264945875"
               className="inline-flex items-center gap-1 text-white/90 hover:text-white transition-colors"
@@ -220,7 +220,7 @@ export default function HomePage() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-terracotta/8 rounded-full blur-3xl pointer-events-none -z-0" />
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-sage/8 rounded-full blur-3xl pointer-events-none -z-0" />
 
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-6 sm:p-10 lg:p-14">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-6 sm:p-10 lg:p-12">
             
             {/* Left Column: Authoritative Value Proposition & Direct CTAs */}
             <div className="lg:col-span-7 space-y-5 sm:space-y-6">
@@ -238,56 +238,67 @@ export default function HomePage() {
                 </span>
               </div>
 
-              {/* Authoritative Balanced Headline (Semantic Line Cadence) */}
-              <div className="space-y-1">
-                <h1 className="font-editorial text-3xl sm:text-4xl lg:text-[2.65rem] xl:text-[3.15rem] font-extrabold tracking-tight leading-[1.22] text-charcoal">
-                  <span className="block">{lang === 'hi' ? 'जन से जन तक सहयोग,' : 'People-to-People Solidarity,'}</span>
-                  <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-terracotta via-amber-600 to-terracotta-dark bg-clip-text text-transparent break-keep">
-                    {lang === 'hi' ? 'हर जरूरतमंद परिवार को संबल' : 'Lifelong Relief to Every Family'}
-                  </span>
+              {/* Authoritative Balanced Headline (Clean line cadence, zero collision) */}
+              <div>
+                <h1 className="text-3xl sm:text-4xl lg:text-[2.65rem] xl:text-[3rem] font-black tracking-tight text-charcoal leading-[1.2] sm:leading-[1.22]">
+                  {lang === 'hi' ? (
+                    <>
+                      <span className="block text-charcoal">जन से जन तक सहयोग,</span>
+                      <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-terracotta via-amber-600 to-terracotta-dark bg-clip-text text-transparent">
+                        हर जरूरतमंद परिवार को संबल
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="block text-charcoal">People-to-People Solidarity,</span>
+                      <span className="block mt-1.5 sm:mt-2 bg-gradient-to-r from-terracotta via-amber-600 to-terracotta-dark bg-clip-text text-transparent">
+                        Lifelong Relief to Every Family
+                      </span>
+                    </>
+                  )}
                 </h1>
               </div>
 
               {/* Value Proposition Description */}
-              <p className="text-xs sm:text-base text-driftwood leading-relaxed max-w-xl font-normal">
+              <p className="text-sm sm:text-base text-driftwood leading-relaxed max-w-xl font-normal">
                 {lang === 'hi'
                   ? 'उत्तर प्रदेश के समर्पित कर्मचारियों एवं नागरिकों का 100% पारदर्शी, गैर-सरकारी पारस्परिक सहयोग मंच। किसी भी साथी के आकस्मिक आपदा या निधन पर प्रत्येक सदस्य द्वारा मात्र ₹50 का सीधा सहयोग और ₹15 लाख तक का सामाजिक सुरक्षा संबल।'
                   : 'A 100% transparent mutual welfare network for dedicated citizens and employees in UP. Direct ₹50 peer-to-peer solidarity providing up to ₹15 Lakhs bereavement relief with zero intermediaries.'}
               </p>
 
-              {/* Streamlined Call to Actions (Zero Choice Overload) */}
+              {/* Streamlined Call to Actions (Title Case & Refined Padding) */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
                 <Link
                   href="/register"
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm-md hover:shadow-warm-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto h-12 min-h-[48px] px-6 py-3 rounded-xl bg-terracotta hover:bg-terracotta-hover text-white font-semibold text-sm shadow-warm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
-                  <UserCheck className="w-4 h-4 stroke-[2.5]" />
-                  <span>{lang === 'hi' ? 'नया सदस्य पंजीकरण (₹50)' : 'JOIN AS MEMBER (₹50)'}</span>
+                  <UserCheck className="w-4 h-4 stroke-[2.2]" />
+                  <span>{lang === 'hi' ? 'नया सदस्य पंजीकरण (₹50)' : 'Join as Member (₹50)'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
 
                 <Link
                   href="/appeals"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white hover:bg-canvas-inset active:scale-[0.98] border border-stone-border text-charcoal font-semibold text-xs sm:text-sm shadow-warm transition-all flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto h-12 min-h-[48px] px-6 py-3 rounded-xl bg-white hover:bg-canvas-inset active:scale-[0.98] border border-stone-border text-charcoal font-semibold text-sm shadow-2xs transition-all flex items-center justify-center gap-2"
                 >
                   <HeartHandshake className="w-4 h-4 text-terracotta shrink-0" />
                   <span>{lang === 'hi' ? 'सक्रिय सहयोग अपीलें' : 'Active Sahyog Appeals'}</span>
                 </Link>
               </div>
 
-              {/* Enterprise Trustmarks Strip (Sleek Micro-Badges) */}
+              {/* Enterprise Trustmarks Strip (Fully Bilingual) */}
               <div className="pt-3 border-t border-stone-border/60 flex flex-wrap items-center gap-2 text-xs">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 border border-stone-border/80 text-charcoal font-semibold shadow-2xs">
                   <ShieldCheck className="w-3.5 h-3.5 text-sage shrink-0" />
-                  <span>100% Zero-Custody P2P</span>
+                  <span>{lang === 'hi' ? '100% शून्य-कस्टडी P2P' : '100% Zero-Custody P2P'}</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 border border-stone-border/80 text-charcoal font-semibold shadow-2xs">
                   <CheckCircle2 className="w-3.5 h-3.5 text-sage shrink-0" />
-                  <span>आधार व सेवा सत्यापित</span>
+                  <span>{lang === 'hi' ? 'आधार व सेवा अभिलेख सत्यापित' : 'Aadhaar & Service Verified'}</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 border border-stone-border/80 text-charcoal font-semibold shadow-2xs">
                   <Coins className="w-3.5 h-3.5 text-terracotta shrink-0" />
-                  <span>0% कमीशन • नो बिचौलिया</span>
+                  <span>{lang === 'hi' ? '0% कमीशन • कोई बिचौलिया नहीं' : '0% Commission • No Middlemen'}</span>
                 </span>
               </div>
 
@@ -295,89 +306,116 @@ export default function HomePage() {
 
             {/* Right Column: Institutional Governance & Snapshot Card */}
             <div className="lg:col-span-5">
-              <div className="relative mx-auto max-w-md rounded-3xl bg-white p-5 sm:p-6 border border-stone-border shadow-warm-lg space-y-4">
+              <div className="relative mx-auto max-w-md rounded-2xl bg-white p-5 sm:p-6 border border-stone-border shadow-warm-lg space-y-4">
                 
                 {/* Header: Trust Identity & Verified Status */}
                 <div className="flex items-center justify-between gap-2 border-b border-stone-border/70 pb-3">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-terracotta to-amber-600 flex items-center justify-center text-white font-editorial font-bold text-base shadow-sm shrink-0">
-                      JS
+                    <div className="w-10 h-10 rounded-xl bg-terracotta/10 border border-terracotta/20 flex items-center justify-center text-terracotta shadow-2xs shrink-0">
+                      <HeartHandshake className="w-5 h-5 stroke-[2.2]" />
                     </div>
                     <div className="min-w-0">
                       <div className="font-bold text-xs sm:text-sm text-charcoal truncate">
                         {lang === 'hi' ? 'जन सेवा चैरिटेबल ट्रस्ट' : 'Jan Sewa Charitable Trust'}
                       </div>
                       <div className="text-[11px] text-driftwood">
-                        JSCT • {lang === 'hi' ? 'गोरखपुर (उ०प्र०)' : 'Gorakhpur (UP)'}
+                        JSCT • {lang === 'hi' ? 'उत्तर प्रदेश (मुख्यालय गोरखपुर)' : 'Uttar Pradesh (HQ Gorakhpur)'}
                       </div>
                     </div>
                   </div>
 
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sage-light text-sage text-[10px] font-bold shrink-0 whitespace-nowrap">
-                    <CheckCircle2 className="w-3 h-3 shrink-0" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[10px] font-bold shrink-0">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
                     <span>{lang === 'hi' ? 'वैधानिक न्यास' : 'Verified Trust'}</span>
                   </span>
                 </div>
 
-                {/* Core Parameters Matrix (Laser-aligned, zero awkward wrapping) */}
-                <div className="rounded-2xl bg-canvas-inset/90 p-3 sm:p-4 border border-stone-border/80 divide-y divide-stone-border/60 text-xs">
-                  <div className="flex items-center justify-between py-1.5 first:pt-0">
-                    <span className="text-driftwood font-medium">{lang === 'hi' ? 'सदस्यता शुल्क' : 'Joining Fee'}</span>
-                    <span className="font-bold text-charcoal tabular-nums">₹50 {lang === 'hi' ? '(एकमुश्त)' : '(One-time)'}</span>
+                {/* 2x2 Key Metric Highlight Grid (High-contrast, scannable) */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {/* Metric 1 */}
+                  <div className="p-3 rounded-xl bg-canvas-inset border border-stone-border/70 space-y-0.5">
+                    <span className="text-[10px] uppercase font-semibold text-driftwood tracking-wider block">
+                      {lang === 'hi' ? 'दिवंगत संबल' : 'Bereavement Aid'}
+                    </span>
+                    <span className="text-base sm:text-lg font-black text-terracotta block tabular-nums">
+                      {lang === 'hi' ? '₹15,00,000' : 'Up to ₹15 Lakh'}
+                    </span>
+                    <span className="text-[10px] text-driftwood block">
+                      {lang === 'hi' ? 'सीधा नामिनी बैंक अंतरण' : 'Direct Nominee Transfer'}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between py-1.5">
-                    <span className="text-driftwood font-medium">{lang === 'hi' ? 'वार्षिक नवीनीकरण' : 'Annual Renewal'}</span>
-                    <span className="font-bold text-charcoal tabular-nums">₹50 / {lang === 'hi' ? 'वर्ष' : 'Year'}</span>
+
+                  {/* Metric 2 */}
+                  <div className="p-3 rounded-xl bg-canvas-inset border border-stone-border/70 space-y-0.5">
+                    <span className="text-[10px] uppercase font-semibold text-driftwood tracking-wider block">
+                      {lang === 'hi' ? 'सहयोग व शुल्क' : 'Member Contribution'}
+                    </span>
+                    <span className="text-base sm:text-lg font-black text-charcoal block tabular-nums">
+                      ₹50 <span className="text-xs font-normal text-driftwood">/ {lang === 'hi' ? 'सहयोग' : 'aid'}</span>
+                    </span>
+                    <span className="text-[10px] text-driftwood block">
+                      {lang === 'hi' ? '₹50 वार्षिक नवीनीकरण' : '₹50 Annual Renewal'}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between py-1.5">
-                    <span className="text-driftwood font-medium">{lang === 'hi' ? 'पात्रता आयु' : 'Age Eligibility'}</span>
-                    <span className="font-bold text-sage">{lang === 'hi' ? '18 से 60 वर्ष' : '18 to 60 Years'}</span>
+
+                  {/* Metric 3 */}
+                  <div className="p-3 rounded-xl bg-canvas-inset border border-stone-border/70 space-y-0.5">
+                    <span className="text-[10px] uppercase font-semibold text-driftwood tracking-wider block">
+                      {lang === 'hi' ? 'लाकिंग व 75% नियम' : 'Lock-In & Compliance'}
+                    </span>
+                    <span className="text-base sm:text-lg font-black text-sage block">
+                      6 {lang === 'hi' ? 'माह' : 'Months'}
+                    </span>
+                    <span className="text-[10px] text-driftwood block">
+                      {lang === 'hi' ? '75% सहयोग अनुपालन' : '75% Aid Rule'}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between py-1.5">
-                    <span className="text-driftwood font-medium">{lang === 'hi' ? 'दिवंगत संबल' : 'Bereavement Aid'}</span>
-                    <span className="font-extrabold text-terracotta tabular-nums">{lang === 'hi' ? '₹15,00,000 तक' : 'Up to ₹15 Lakh'}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1.5">
-                    <span className="text-driftwood font-medium">{lang === 'hi' ? 'बेटी विवाह सहयोग' : 'Daughter Marriage'}</span>
-                    <span className="font-extrabold text-amber-800 tabular-nums">{lang === 'hi' ? '₹5,00,000 तक' : 'Up to ₹5 Lakh'}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1.5 last:pb-0">
-                    <span className="text-driftwood font-medium">{lang === 'hi' ? 'लाकिंग व अनुपालन' : 'Lock-in & Rule'}</span>
-                    <span className="font-bold text-charcoal">{lang === 'hi' ? '6 माह • 75% नियम' : '6 Mos • 75% Rule'}</span>
+
+                  {/* Metric 4 */}
+                  <div className="p-3 rounded-xl bg-canvas-inset border border-stone-border/70 space-y-0.5">
+                    <span className="text-[10px] uppercase font-semibold text-driftwood tracking-wider block">
+                      {lang === 'hi' ? 'पात्रता आयु' : 'Age Eligibility'}
+                    </span>
+                    <span className="text-base sm:text-lg font-black text-charcoal block">
+                      18 – 60 {lang === 'hi' ? 'वर्ष' : 'Yrs'}
+                    </span>
+                    <span className="text-[10px] text-driftwood block">
+                      {lang === 'hi' ? 'उ.प्र. कर्मचारी व नागरिक' : 'UP Citizens & Staff'}
+                    </span>
                   </div>
                 </div>
 
                 {/* Direct Zero-Custody Callout */}
-                <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/70 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-white border border-amber-300 flex items-center justify-center shrink-0 text-terracotta shadow-2xs">
-                    <QrCode className="w-4 h-4" />
+                <div className="px-3 py-2 rounded-xl bg-amber-50/70 border border-amber-200/60 flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-white border border-amber-300 flex items-center justify-center shrink-0 text-terracotta shadow-2xs">
+                    <QrCode className="w-3.5 h-3.5" />
                   </div>
-                  <div className="text-xs min-w-0">
-                    <span className="font-bold text-charcoal block leading-tight text-[11px] sm:text-xs">
-                      {lang === 'hi' ? '100% प्रत्यक्ष P2P अंतरण' : '100% Direct P2P Transfer'}
+                  <div className="text-[11px] min-w-0">
+                    <span className="font-bold text-charcoal mr-1">
+                      {lang === 'hi' ? '100% प्रत्यक्ष P2P अंतरण:' : '100% Direct P2P Transfer:'}
                     </span>
-                    <span className="text-[10px] sm:text-[11px] text-driftwood block truncate">
+                    <span className="text-driftwood">
                       {lang === 'hi' ? 'सीधे पीड़ित नामिनी के अधिकृत बैंक / UPI खाते में' : 'Direct into verified nominee account / UPI'}
                     </span>
                   </div>
                 </div>
 
-                {/* Institutional Actions: 1 Lightbox trigger for Scheme Poster + 1 Rules Link */}
-                <div className="grid grid-cols-2 gap-2 pt-1">
+                {/* Actions: Scheme Poster + Rules Link */}
+                <div className="grid grid-cols-2 gap-2 pt-0.5">
                   <button
                     type="button"
                     onClick={() => setIsPosterLightboxOpen(true)}
-                    className="py-3 px-3 rounded-xl bg-canvas-inset hover:bg-stone-border/40 text-charcoal font-bold text-xs border border-stone-border transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                    className="h-10 py-2 px-3 rounded-xl bg-white hover:bg-canvas-inset text-charcoal font-semibold text-xs border border-stone-border transition-colors flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer"
                   >
                     <ZoomIn className="w-3.5 h-3.5 text-terracotta shrink-0" />
-                    <span>{lang === 'hi' ? 'योजना पोस्टर' : 'View Poster'}</span>
+                    <span>{lang === 'hi' ? 'योजना पोस्टर' : 'View Scheme Poster'}</span>
                   </button>
 
                   <Link
                     href="/rules"
-                    className="py-3 px-3 rounded-xl bg-charcoal hover:bg-charcoal-deep text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-warm"
+                    className="h-10 py-2 px-3 rounded-xl bg-charcoal hover:bg-charcoal-deep text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-warm active:scale-95"
                   >
-                    <span>{lang === 'hi' ? 'नियमावली व शर्तें' : 'Trust Rules'}</span>
+                    <span>{lang === 'hi' ? 'नियमावली व शर्तें' : 'Trust Rules (75%)'}</span>
                     <ArrowRight className="w-3.5 h-3.5 text-stone-300 shrink-0" />
                   </Link>
                 </div>
@@ -445,7 +483,7 @@ export default function HomePage() {
                   <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
               </div>
-              <div className="font-editorial text-2xl sm:text-4xl font-extrabold text-charcoal tracking-tight tabular-nums">
+              <div className="font-editorial text-xl sm:text-3xl lg:text-4xl font-extrabold text-charcoal tracking-tight tabular-nums">
                 182 {lang === 'hi' ? 'परिवार' : 'Families'}
               </div>
             </div>
@@ -491,8 +529,8 @@ export default function HomePage() {
             </p>
           </div>
           <Link
-            href="/rules"
-            className="shrink-0 px-6 py-3.5 rounded-2xl bg-canvas-inset hover:bg-stone-border/50 text-charcoal font-bold text-xs border border-stone-border transition-colors flex items-center gap-2"
+            href="/niyamawali"
+            className="shrink-0 min-h-[44px] px-6 py-3 rounded-2xl bg-canvas-inset hover:bg-stone-border/50 text-charcoal font-bold text-xs border border-stone-border transition-colors flex items-center gap-2 active:scale-95"
           >
             <span>{lang === 'hi' ? '75% नियम विवरण' : 'Explore Rules & Terms'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -579,11 +617,11 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => setIsPosterLightboxOpen(true)}
-                className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-terracotta hover:text-terracotta-hover transition-colors"
+                className="mt-3 inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] rounded-xl bg-amber-100/90 hover:bg-amber-200 text-amber-950 font-bold text-xs border border-amber-300 shadow-2xs transition-all active:scale-95"
               >
-                <Eye className="w-3.5 h-3.5" />
+                <Eye className="w-4 h-4 text-terracotta shrink-0" />
                 <span>{lang === 'hi' ? 'पूरा पोस्टर हाई-रेजोल्यूशन में देखें' : 'View High-Res Poster'}</span>
-                <ChevronRight className="w-3 h-3" />
+                <ChevronRight className="w-3.5 h-3.5 text-amber-800 shrink-0" />
               </button>
             </div>
 
@@ -720,16 +758,16 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto shrink-0">
               <Link
                 href="/register"
-                className="px-6 sm:px-8 py-3.5 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm transition-transform active:scale-95 text-center flex items-center justify-center gap-2"
+                className="px-6 sm:px-8 py-3.5 min-h-[48px] rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm transition-transform active:scale-95 text-center flex items-center justify-center gap-2"
               >
                 <UserCheck className="w-4 h-4" />
-                <span>{lang === 'hi' ? 'सदस्यता के लिए यहाँ क्लिक करें (₹50)' : 'Register for Membership (₹50)'}</span>
+                <span>{lang === 'hi' ? 'सदस्यता पंजीकरण करें (₹50)' : 'Register Membership (₹50)'}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <button
                 type="button"
                 onClick={() => setIsPosterLightboxOpen(true)}
-                className="px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 border border-white/20"
+                className="px-4 py-3.5 min-h-[48px] rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 border border-white/20 active:scale-95"
               >
                 <ZoomIn className="w-4 h-4 text-amber-300" />
                 <span>{lang === 'hi' ? 'पोस्टर ज़ूम करें' : 'Zoom Poster'}</span>
@@ -886,15 +924,15 @@ export default function HomePage() {
                           <button
                             type="button"
                             onClick={() => copyToClipboard(appeal.nominee_snapshot.account_number, `acc-${appeal.id}`)}
-                            className="p-1 rounded bg-white hover:bg-stone-100 text-driftwood hover:text-charcoal border border-stone-border/80 transition-colors shadow-2xs"
+                            className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-lg bg-white hover:bg-stone-100 text-driftwood hover:text-charcoal border border-stone-border/80 transition-colors shadow-2xs flex items-center justify-center shrink-0 active:scale-95"
                             title="Copy Account Number"
                           >
                             {copiedKey === `acc-${appeal.id}` ? (
                               <span className="text-[10px] text-sage font-bold flex items-center gap-0.5">
-                                <CheckCheck className="w-3 h-3 text-sage" />
+                                <CheckCheck className="w-3.5 h-3.5 text-sage" />
                               </span>
                             ) : (
-                              <Copy className="w-3 h-3" />
+                              <Copy className="w-3.5 h-3.5" />
                             )}
                           </button>
                         </div>
@@ -908,15 +946,15 @@ export default function HomePage() {
                           <button
                             type="button"
                             onClick={() => copyToClipboard(appeal.nominee_snapshot.ifsc_code, `ifsc-${appeal.id}`)}
-                            className="p-1 rounded bg-white hover:bg-stone-100 text-driftwood hover:text-charcoal border border-stone-border/80 transition-colors shadow-2xs"
+                            className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-lg bg-white hover:bg-stone-100 text-driftwood hover:text-charcoal border border-stone-border/80 transition-colors shadow-2xs flex items-center justify-center shrink-0 active:scale-95"
                             title="Copy IFSC Code"
                           >
                             {copiedKey === `ifsc-${appeal.id}` ? (
                               <span className="text-[10px] text-sage font-bold flex items-center gap-0.5">
-                                <CheckCheck className="w-3 h-3 text-sage" />
+                                <CheckCheck className="w-3.5 h-3.5 text-sage" />
                               </span>
                             ) : (
-                              <Copy className="w-3 h-3" />
+                              <Copy className="w-3.5 h-3.5" />
                             )}
                           </button>
                         </div>
@@ -932,15 +970,15 @@ export default function HomePage() {
                         <button
                           type="button"
                           onClick={() => copyToClipboard(appeal.nominee_snapshot.upi_id, `upi-${appeal.id}`)}
-                          className="p-1 rounded bg-white hover:bg-stone-100 text-driftwood hover:text-charcoal border border-stone-border/80 transition-colors shadow-2xs"
+                          className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-lg bg-white hover:bg-stone-100 text-driftwood hover:text-charcoal border border-stone-border/80 transition-colors shadow-2xs flex items-center justify-center shrink-0 active:scale-95"
                           title="Copy UPI ID"
                         >
                           {copiedKey === `upi-${appeal.id}` ? (
                             <span className="text-[10px] text-sage font-bold flex items-center gap-0.5">
-                              <CheckCheck className="w-3 h-3 text-sage" />
+                              <CheckCheck className="w-3.5 h-3.5 text-sage" />
                             </span>
                           ) : (
-                            <Copy className="w-3 h-3" />
+                            <Copy className="w-3.5 h-3.5" />
                           )}
                         </button>
                       </div>
@@ -953,7 +991,7 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={() => setSelectedAppealForUpi(appeal)}
-                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+                    className="w-full h-12 min-h-[48px] py-3 px-4 rounded-xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-xs sm:text-sm shadow-warm transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
                   >
                     <QrCode className="w-4 h-4" />
                     <span>सीधे ₹50 भेजें (UPI & QR)</span>
@@ -963,7 +1001,7 @@ export default function HomePage() {
                     <button
                       type="button"
                       onClick={() => setSelectedAppealForSlip(appeal)}
-                      className="py-2.5 px-3 rounded-xl bg-canvas-inset hover:bg-white border border-stone-border text-charcoal font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                      className="h-11 min-h-[44px] py-2.5 px-3 rounded-xl bg-canvas-inset hover:bg-white border border-stone-border text-charcoal font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
                     >
                       <FileCheck2 className="w-3.5 h-3.5 text-terracotta shrink-0" />
                       <span className="truncate">रसीद अपलोड करें</span>
@@ -971,7 +1009,7 @@ export default function HomePage() {
 
                     <Link
                       href={`/appeals/${appeal.id}`}
-                      className="py-2.5 px-3 rounded-xl border border-stone-border bg-white hover:bg-canvas-inset text-charcoal font-semibold text-xs flex items-center justify-center gap-1 shadow-2xs transition-colors"
+                      className="h-11 min-h-[44px] py-2.5 px-3 rounded-xl border border-stone-border bg-white hover:bg-canvas-inset text-charcoal font-semibold text-xs flex items-center justify-center gap-1 shadow-2xs transition-colors active:scale-95"
                       title="View Case Details"
                     >
                       <span className="truncate">केस विवरण</span>
@@ -1105,10 +1143,10 @@ export default function HomePage() {
                 <div className="pt-2 sm:pt-3.5 mt-2 sm:mt-3.5 border-t border-stone-border/60">
                   <Link
                     href={`/member?search=${encodeURIComponent(member.membership_id)}`}
-                    className="text-[10px] sm:text-[11px] font-semibold text-terracotta hover:underline inline-flex items-center gap-0.5 sm:gap-1"
+                    className="inline-flex items-center justify-center gap-1 w-full py-2 px-2.5 rounded-xl bg-canvas-inset hover:bg-stone-200/60 text-charcoal font-bold text-xs border border-stone-border/80 transition-colors shadow-2xs min-h-[38px] active:scale-95"
                   >
                     <span>सत्यापित करें</span>
-                    <ChevronRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                    <ChevronRight className="w-3.5 h-3.5 text-terracotta" />
                   </Link>
                 </div>
               </div>
@@ -1212,9 +1250,9 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setShowFullAbout(!showFullAbout)}
-              className="px-6 py-2.5 rounded-xl border border-stone-border text-xs font-bold text-charcoal hover:bg-canvas-inset transition-colors"
+              className="h-11 min-h-[44px] px-6 rounded-xl border border-stone-border bg-white text-xs font-bold text-charcoal hover:bg-canvas-inset transition-colors shadow-2xs active:scale-95 inline-flex items-center justify-center gap-1.5"
             >
-              {showFullAbout ? (lang === 'hi' ? 'कम विवरण देखें (SHOW LESS)' : 'SHOW LESS') : (lang === 'hi' ? 'विस्तृत विवरण पढ़ें (READ MORE)' : 'READ MORE')}
+              <span>{showFullAbout ? (lang === 'hi' ? 'कम विवरण देखें (SHOW LESS)' : 'SHOW LESS') : (lang === 'hi' ? 'विस्तृत विवरण पढ़ें (READ MORE)' : 'READ MORE')}</span>
             </button>
           </div>
 
@@ -1398,20 +1436,20 @@ export default function HomePage() {
                   <Sliders className="w-3.5 h-3.5 text-terracotta" />
                   <span>त्वरित परिदृश्य (Presets):</span>
                 </span>
-                <div className="flex items-center gap-1.5 flex-wrap">
+                <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
                   <button
                     type="button"
                     onClick={() => {
                       setSimTotalAppeals(20);
                       setSimContributed(20);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-all border ${
+                    className={`h-10 min-h-[40px] px-3 rounded-xl text-xs font-mono font-bold transition-all border flex items-center justify-center text-center shadow-2xs active:scale-95 ${
                       simRatio === 100
-                        ? 'bg-sage text-white border-sage shadow-2xs'
+                        ? 'bg-sage text-white border-sage'
                         : 'bg-canvas-inset text-charcoal border-stone-border hover:bg-stone-100'
                     }`}
                   >
-                    100% (पूर्ण सुरक्षित)
+                    100% (सुरक्षित)
                   </button>
                   <button
                     type="button"
@@ -1419,13 +1457,13 @@ export default function HomePage() {
                       setSimTotalAppeals(20);
                       setSimContributed(17);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-all border ${
+                    className={`h-10 min-h-[40px] px-3 rounded-xl text-xs font-mono font-bold transition-all border flex items-center justify-center text-center shadow-2xs active:scale-95 ${
                       simRatio === 85
-                        ? 'bg-sage text-white border-sage shadow-2xs'
+                        ? 'bg-sage text-white border-sage'
                         : 'bg-canvas-inset text-charcoal border-stone-border hover:bg-stone-100'
                     }`}
                   >
-                    85% (सक्रिय संबल)
+                    85% (सक्रिय)
                   </button>
                   <button
                     type="button"
@@ -1433,9 +1471,9 @@ export default function HomePage() {
                       setSimTotalAppeals(20);
                       setSimContributed(15);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-all border ${
+                    className={`h-10 min-h-[40px] px-3 rounded-xl text-xs font-mono font-bold transition-all border flex items-center justify-center text-center shadow-2xs active:scale-95 ${
                       simRatio === 75
-                        ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                        ? 'bg-amber-600 text-white border-amber-600'
                         : 'bg-canvas-inset text-charcoal border-stone-border hover:bg-stone-100'
                     }`}
                   >
@@ -1447,13 +1485,13 @@ export default function HomePage() {
                       setSimTotalAppeals(20);
                       setSimContributed(12);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-all border ${
+                    className={`h-10 min-h-[40px] px-3 rounded-xl text-xs font-mono font-bold transition-all border flex items-center justify-center text-center shadow-2xs active:scale-95 ${
                       simRatio === 60
-                        ? 'bg-terracotta text-white border-terracotta shadow-2xs'
+                        ? 'bg-terracotta text-white border-terracotta'
                         : 'bg-canvas-inset text-charcoal border-stone-border hover:bg-stone-100'
                     }`}
                   >
-                    60% (अपात्र चेतावनी)
+                    60% (चेतावनी)
                   </button>
                 </div>
               </div>
@@ -1647,8 +1685,12 @@ export default function HomePage() {
               </div>
               <div className="text-xs space-y-0.5">
                 <div className="font-bold text-charcoal">हेल्पलाइन संपर्क (Helplines)</div>
-                <div className="text-driftwood font-mono">
-                  +91 9264945875 • +91 9936639215 • +91 9005088708
+                <div className="text-driftwood font-mono flex flex-wrap gap-x-2 gap-y-1">
+                  <a href="tel:9264945875" className="hover:text-terracotta hover:underline font-semibold">+91 9264945875</a>
+                  <span>•</span>
+                  <a href="tel:9936639215" className="hover:text-terracotta hover:underline font-semibold">+91 9936639215</a>
+                  <span>•</span>
+                  <a href="tel:9005088708" className="hover:text-terracotta hover:underline font-semibold">+91 9005088708</a>
                 </div>
               </div>
             </div>
@@ -1659,8 +1701,10 @@ export default function HomePage() {
               </div>
               <div className="text-xs space-y-0.5">
                 <div className="font-bold text-charcoal">ईमेल व सहायता (Email)</div>
-                <div className="text-driftwood font-mono">
-                  infodpswt@dpswt.com • info@jsct.org.in
+                <div className="text-driftwood font-mono flex flex-wrap gap-x-2 gap-y-1">
+                  <a href="mailto:infodpswt@dpswt.com" className="hover:text-terracotta hover:underline">infodpswt@dpswt.com</a>
+                  <span>•</span>
+                  <a href="mailto:info@jsct.org.in" className="hover:text-terracotta hover:underline">info@jsct.org.in</a>
                 </div>
               </div>
             </div>
@@ -1674,15 +1718,15 @@ export default function HomePage() {
       {/* ------------------------------------------------------------------ */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl bg-charcoal text-white p-8 sm:p-14 text-center space-y-6 shadow-warm-lg">
-          <div className="w-12 h-12 rounded-2xl bg-terracotta flex items-center justify-center mx-auto text-white">
+          <div className="w-12 h-12 rounded-2xl bg-terracotta flex items-center justify-center mx-auto text-white shadow-warm">
             <HeartHandshake className="w-6 h-6" />
           </div>
 
-          <h2 className="font-editorial text-3xl sm:text-4xl font-bold tracking-tight">
+          <h2 className="font-editorial text-2xl sm:text-4xl font-bold tracking-tight">
             {lang === 'hi' ? 'आज ही JSCT जन सेवा परिवार का हिस्सा बनें' : 'Join JSCT Family Today'}
           </h2>
 
-          <p className="text-xs sm:text-base text-stone-muted max-w-xl mx-auto leading-relaxed font-light">
+          <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed font-normal">
             {lang === 'hi'
               ? 'आधार कार्ड एवं विभागीय पहचान के साथ सरल 2-मिनट पंजीकरण। अपने परिवार की सुरक्षा सुनिश्चित करें और जरूरतमंद साथियों के संबल बनें।'
               : 'Simple 2-minute registration with Aadhaar and service department details. Ensure mutual safety for your loved ones.'}
@@ -1691,16 +1735,19 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Link
               href="/register"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-terracotta hover:bg-terracotta-hover text-white font-semibold text-sm shadow-warm transition-all touch-target"
+              className="w-full sm:w-auto h-12 min-h-[48px] px-8 rounded-2xl bg-gradient-to-r from-terracotta to-terracotta-hover hover:from-terracotta-hover hover:to-terracotta text-white font-bold text-sm shadow-warm transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-              {lang === 'hi' ? 'नया सदस्य पंजीकरण (₹50)' : 'Register Member (₹50)'}
+              <UserCheck className="w-4 h-4" />
+              <span>{lang === 'hi' ? 'नया सदस्य पंजीकरण (₹50)' : 'Register Member (₹50)'}</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
 
             <Link
               href="/member"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm transition-all border border-white/20 touch-target"
+              className="w-full sm:w-auto h-12 min-h-[48px] px-8 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm transition-all border border-white/20 active:scale-95 flex items-center justify-center gap-2"
             >
-              {lang === 'hi' ? 'समस्त सदस्य सूची देखें' : 'View Member Directory'}
+              <Users className="w-4 h-4" />
+              <span>{lang === 'hi' ? 'समस्त सदस्य सूची देखें' : 'View Member Directory'}</span>
             </Link>
           </div>
         </div>
@@ -1785,7 +1832,7 @@ export default function HomePage() {
                 <Link
                   href="/register"
                   onClick={() => setIsPosterLightboxOpen(false)}
-                  className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-terracotta to-terracotta-hover text-white text-xs font-bold transition-all shadow-md text-center flex items-center justify-center gap-1.5"
+                  className="flex-1 sm:flex-none h-11 min-h-[44px] px-5 py-2.5 rounded-xl bg-gradient-to-r from-terracotta to-terracotta-hover text-white text-xs font-bold transition-all shadow-md text-center flex items-center justify-center gap-1.5 active:scale-95"
                 >
                   <UserCheck className="w-3.5 h-3.5" />
                   <span>{lang === 'hi' ? 'सदस्यता प्रपत्र भरें (₹50)' : 'Register Member (₹50)'}</span>
@@ -1793,7 +1840,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setIsPosterLightboxOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-medium transition-colors"
+                  className="h-11 min-h-[44px] px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-medium transition-colors active:scale-95 flex items-center justify-center"
                 >
                   {lang === 'hi' ? 'बंद करें' : 'Close'}
                 </button>

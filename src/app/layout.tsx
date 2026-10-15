@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     'JSCT',
     'Jan Sewa Charitable Trust',
     'जन सेवा चैरिटेबल ट्रस्ट',
-    'DPSWT',
+    'JSCT Uttar Pradesh Welfare',
     'P2P Welfare Aid',
     'UP Employees Welfare',
     '75% Compliance Engine',

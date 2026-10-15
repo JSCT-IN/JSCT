@@ -18,13 +18,39 @@ export interface Nominee {
   is_primary?: boolean;
 }
 
+export interface VarshikDanRecord {
+  id: string;
+  member_id: string;
+  year: string;
+  amount: number;
+  utr_number: string;
+  payment_date: string;
+  status: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  valid_until: string;
+  slip_url?: string;
+  created_at?: string;
+}
+
+export interface WithdrawalRecord {
+  id: string;
+  member_id: string;
+  amount: number;
+  upi_id: string;
+  status: 'PENDING' | 'APPROVED' | 'COMPLETED' | 'REJECTED';
+  requested_at: string;
+  processed_at?: string;
+  remarks?: string;
+}
+
 export interface Member {
   id: string;
   membership_id: string;
   full_name: string;
   phone: string;
+  email?: string;
   aadhaar_last4: string;
   aadhaar_hash?: string;
+  aadhaar_full?: string;
   department: string;
   district: string;
   state: string;
@@ -34,6 +60,31 @@ export interface Member {
   is_active: boolean;
   created_at: string;
   nominee?: Nominee;
+
+  // Detailed profile fields from member screenshots
+  father_name?: string;
+  dob?: string;
+  gender?: string;
+  business?: string;
+  private_department?: string;
+  working_office?: string;
+  block_name?: string;
+  address?: string;
+  pool?: string;
+  password?: string;
+  password_hash?: string;
+
+  // Referral system
+  referral_code?: string;
+  referred_by?: string;
+  referral_count?: number;
+  referral_earnings?: number;
+  referral_withdrawable?: number;
+  referral_locked?: number;
+
+  // Renewal & Withdrawal history
+  varshik_dan_history?: VarshikDanRecord[];
+  withdrawal_history?: WithdrawalRecord[];
 }
 
 export interface Appeal {
