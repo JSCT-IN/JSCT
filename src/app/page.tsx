@@ -304,29 +304,66 @@ export default function HomePage() {
 
             </div>
 
-            {/* Right Column: Institutional Governance & Snapshot Card */}
+            {/* Right Column: Visual Community Hero Showcase & Key Trust Snapshot */}
             <div className="lg:col-span-5">
-              <div className="relative mx-auto max-w-md rounded-2xl bg-white p-5 sm:p-6 border border-stone-border shadow-warm-lg space-y-4">
+              <div className="relative mx-auto max-w-md rounded-3xl bg-white p-3.5 sm:p-5 border border-stone-border shadow-warm-lg space-y-3.5">
                 
-                {/* Header: Trust Identity & Verified Status */}
-                <div className="flex items-center justify-between gap-2 border-b border-stone-border/70 pb-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-terracotta/10 border border-terracotta/20 flex items-center justify-center text-terracotta shadow-2xs shrink-0">
-                      <HeartHandshake className="w-5 h-5 stroke-[2.2]" />
+                {/* 1. Hero Community Visual Feature (Inspiring Real Solidarity Portrait) */}
+                <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 aspect-[16/10] bg-canvas-inset shadow-xs group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/hero-community.jpg"
+                    alt={
+                      lang === 'hi'
+                        ? 'जन सेवा चैरिटेबल ट्रस्ट (JSCT) - उत्तर प्रदेश के कर्मचारी व परिवार पारस्परिक सहयोग'
+                        : 'Jan Sewa Charitable Trust (JSCT) - Peer to Peer Welfare Community'
+                    }
+                    className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-700"
+                  />
+                  
+                  {/* Gentle gradient overlay for contrast and legibility */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/20 pointer-events-none" />
+
+                  {/* Floating Verified Trust Badge (Top-Left) */}
+                  <div className="absolute top-2.5 left-2.5 z-10">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-charcoal font-bold text-[10px] sm:text-[11px] shadow-xs border border-white/80">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>{lang === 'hi' ? 'JSCT • उत्तर प्रदेश' : 'JSCT • Uttar Pradesh'}</span>
+                    </span>
+                  </div>
+
+                  {/* Floating Motto Strip (Bottom) */}
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10 flex items-center justify-between text-white">
+                    <div className="min-w-0 pr-2">
+                      <p className="text-xs sm:text-[13px] font-black drop-shadow-sm font-editorial italic tracking-wide truncate">
+                        “जन से जन तक, सहयोग हर जरूरतमंद तक”
+                      </p>
+                    </div>
+                    <span className="shrink-0 px-2 py-0.5 rounded-md bg-terracotta/95 text-[10px] font-extrabold uppercase tracking-wider shadow-xs">
+                      100% P2P
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2. Header: Trust Identity & Verified Status */}
+                <div className="flex items-center justify-between gap-2 border-b border-stone-border/70 pb-2.5 pt-0.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-terracotta/10 border border-terracotta/20 flex items-center justify-center text-terracotta shadow-2xs shrink-0">
+                      <HeartHandshake className="w-4 h-4 stroke-[2.2]" />
                     </div>
                     <div className="min-w-0">
                       <div className="font-bold text-xs sm:text-sm text-charcoal truncate">
                         {lang === 'hi' ? 'जन सेवा चैरिटेबल ट्रस्ट' : 'Jan Sewa Charitable Trust'}
                       </div>
-                      <div className="text-[11px] text-driftwood">
-                        JSCT • {lang === 'hi' ? 'उत्तर प्रदेश (मुख्यालय गोरखपुर)' : 'Uttar Pradesh (HQ Gorakhpur)'}
+                      <div className="text-[10px] sm:text-[11px] text-driftwood truncate">
+                        {lang === 'hi' ? 'सार्वजनिक कल्याण न्यास (मुख्यालय गोरखपुर)' : 'Public Welfare Trust (HQ Gorakhpur)'}
                       </div>
                     </div>
                   </div>
 
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[10px] font-bold shrink-0">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-[10px] font-bold shrink-0">
                     <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>{lang === 'hi' ? 'वैधानिक न्यास' : 'Verified Trust'}</span>
+                    <span>{lang === 'hi' ? 'पंजीकृत' : 'Verified'}</span>
                   </span>
                 </div>
 
