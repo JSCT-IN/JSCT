@@ -22,7 +22,8 @@ export const getSupabaseBrowserClient = () => supabase;
  * Bypasses Row Level Security for admin workflows & atomic registration actions
  */
 export function getSupabaseAdminClient() {
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  const key = SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
+  return createClient(SUPABASE_URL, key, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
