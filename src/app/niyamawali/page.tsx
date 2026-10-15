@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from '@/lib/i18n';
 import {
@@ -22,7 +22,12 @@ import {
   XCircle,
   HelpCircle,
   ArrowRight,
-  Info
+  Info,
+  Check,
+  Download,
+  Filter,
+  Eye,
+  Bookmark
 } from 'lucide-react';
 
 interface RuleSection {
@@ -40,6 +45,18 @@ interface RuleSection {
   criticalAlertEn?: string;
 }
 
+// Helper to format clause prefixes (e.g. "1(1).", "13(4).", "10.", "नोट:")
+function parseClause(rawText: string) {
+  const match = rawText.match(/^(\d+(?:\(\d+\))?\.|\bनोट:?)\s*(.*)$/);
+  if (match) {
+    const prefix = match[1];
+    const body = match[2];
+    const isNote = prefix.includes('नोट') || prefix.toLowerCase().includes('note');
+    return { prefix, body, isNote };
+  }
+  return { prefix: null, body: rawText, isNote: false };
+}
+
 export default function NiyamawaliPage() {
   const { lang, t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,6 +66,17 @@ export default function NiyamawaliPage() {
     'sec-1': true,
     'sec-3': true,
   });
+
+  // Expand all accordions automatically for printing
+  useEffect(() => {
+    const handleBeforePrint = () => {
+      const all: Record<string, boolean> = {};
+      sections.forEach((s) => (all[s.id] = true));
+      setOpenSections(all);
+    };
+    window.addEventListener('beforeprint', handleBeforePrint);
+    return () => window.removeEventListener('beforeprint', handleBeforePrint);
+  }, []);
 
   const toggleSection = (id: string) => {
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -64,7 +92,7 @@ export default function NiyamawaliPage() {
     setOpenSections({});
   };
 
-  // 12 Complete Constitution Sections (Based on official trust rules adapted for Jan Sewa Charitable Trust)
+  // 12 Complete Constitution Sections (Official Bylaws of Jan Sewa Charitable Trust)
   const sections: RuleSection[] = [
     {
       id: 'sec-intro',
@@ -392,6 +420,17 @@ export default function NiyamawaliPage() {
     },
   ];
 
+  const categories = [
+    { id: 'ALL', labelHi: 'सम्पूर्ण नियमावली (12 भाग)', labelEn: 'All Sections' },
+    { id: 'ABOUT', labelHi: 'परिचय व ध्येय', labelEn: 'Mission' },
+    { id: 'MEMBERSHIP', labelHi: 'सदस्यता व परिवार', labelEn: 'Membership' },
+    { id: 'ELIGIBILITY', labelHi: '75% पात्रता नियम', labelEn: '75% Rule' },
+    { id: 'SCHEMES', labelHi: 'दिवंगत व विवाह सहयोग', labelEn: 'Schemes' },
+    { id: 'SPECIAL', labelHi: 'विशेष व अनाथ नियम', labelEn: 'Special Rules' },
+    { id: 'TERMINATION', labelHi: 'सदस्यता समाप्ति', labelEn: 'Termination' },
+    { id: 'GENERAL', labelHi: 'विधिक प्रावधान', labelEn: 'Governance' },
+  ];
+
   // Search & Filter
   const filteredSections = useMemo(() => {
     return sections.filter((sec) => {
@@ -411,22 +450,22 @@ export default function NiyamawaliPage() {
   }, [sections, activeCategory, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-canvas-inset/30 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-canvas-inset/30 pt-6 pb-28 sm:py-12 px-3.5 sm:px-6 lg:px-8 print:bg-white print:p-0 print:m-0">
+      <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
 
         {/* 1. EDITORIAL HEADER & OFFICIAL TRUST BADGE */}
-        <div className="text-center max-w-4xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-stone-border shadow-xs text-xs font-semibold text-charcoal">
+        <header className="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4 pt-1 sm:pt-0">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-stone-border shadow-2xs text-[11px] sm:text-xs font-semibold text-charcoal">
             <span className="w-2 h-2 rounded-full bg-terracotta animate-pulse" />
-            <BookOpen className="w-3.5 h-3.5 text-terracotta" />
-            <span>जन सेवा चैरिटेबल ट्रस्ट (JSCT) • आधिकारिक नियमावली व संविधान</span>
+            <BookOpen className="w-3.5 h-3.5 text-terracotta shrink-0" />
+            <span className="truncate">जन सेवा चैरिटेबल ट्रस्ट (JSCT) • आधिकारिक नियमावली व संविधान</span>
           </div>
 
-          <h1 className="font-editorial text-3xl sm:text-5xl font-black text-charcoal tracking-tight leading-tight">
+          <h1 className="font-editorial text-2.5xl sm:text-5xl font-black text-charcoal tracking-tight leading-tight">
             {lang === 'hi' ? 'संस्था की वैधानिक नियमावली' : 'Official Constitution & Bylaws'}
           </h1>
 
-          <p className="font-editorial text-lg sm:text-xl text-terracotta font-bold italic">
+          <p className="font-editorial text-base sm:text-xl text-terracotta font-bold italic tracking-wide">
             “जन से जन तक, सहयोग हर जरूरतमंद तक”
           </p>
 
@@ -435,119 +474,161 @@ export default function NiyamawaliPage() {
               ? 'यह नियमावली जन सेवा चैरिटेबल ट्रस्ट (JSCT) के समस्त सम्मानित सदस्यों, पदाधिकारियों एवं सहयोगियों के अधिकारों, कर्तव्यों, 75% पात्रता मानकों एवं कल्याणकारी योजनाओं को पारदर्शी रूप से संचालित करने हेतु आबद्ध है।'
               : 'The comprehensive regulatory framework governing rights, responsibilities, 75% compliance standards, and welfare schemes for all members of Jan Sewa Charitable Trust (JSCT).'}
           </p>
-        </div>
+
+          {/* Key Compliance Metadata Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-[11px] font-semibold text-driftwood">
+            <span className="px-2.5 py-1 rounded-lg bg-white border border-stone-border/80 shadow-2xs inline-flex items-center gap-1.5">
+              <Scale className="w-3.5 h-3.5 text-terracotta" />
+              100% प्रत्यक्ष P2P अंतरण
+            </span>
+            <span className="px-2.5 py-1 rounded-lg bg-white border border-stone-border/80 shadow-2xs inline-flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              75% सहभागिता अनिवार्य
+            </span>
+            <span className="px-2.5 py-1 rounded-lg bg-white border border-stone-border/80 shadow-2xs inline-flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-blue-600" />
+              6 माह सक्रिय लॉक-इन
+            </span>
+            <span className="px-2.5 py-1 rounded-lg bg-white border border-stone-border/80 shadow-2xs inline-flex items-center gap-1.5">
+              <Bookmark className="w-3.5 h-3.5 text-amber-600" />
+              12 आधिकारिक भाग (नियम 1–19)
+            </span>
+          </div>
+        </header>
 
         {/* 2. 4 CORE PILLARS CALLOUT BAR */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="p-4 rounded-2xl bg-white border border-stone-border shadow-xs space-y-1">
-            <div className="flex items-center gap-2 text-terracotta font-bold text-xs uppercase tracking-wider">
-              <Scale className="w-4 h-4" />
-              <span>75% सहभागिता नियम</span>
+        <section aria-label="मुख्य कल्याणकारी आधार" className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-stone-border shadow-2xs flex flex-col justify-between space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 rounded-xl bg-terracotta/10 text-terracotta flex items-center justify-center">
+                <Scale className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-terracotta/10 text-terracotta font-mono">
+                नियम 3
+              </span>
             </div>
-            <p className="text-[11px] text-driftwood leading-snug">
-              समस्त जारी अपीलों में न्यूनतम 75% सहयोग पूर्ण करना अनिवार्य है।
-            </p>
+            <div>
+              <h3 className="font-bold text-xs sm:text-sm text-charcoal">75% सहभागिता नियम</h3>
+              <p className="text-[11px] text-driftwood leading-snug mt-0.5">
+                समस्त जारी अपीलों में न्यूनतम 75% सहयोग अनिवार्य है।
+              </p>
+            </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-stone-border shadow-xs space-y-1">
-            <div className="flex items-center gap-2 text-sage font-bold text-xs uppercase tracking-wider">
-              <Clock className="w-4 h-4" />
-              <span>06 माह लॉक-इन</span>
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-stone-border shadow-2xs flex flex-col justify-between space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                <Clock className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 font-mono">
+                6 माह
+              </span>
             </div>
-            <p className="text-[11px] text-driftwood leading-snug">
-              पंजीकरण तिथि से न्यूनतम 6 माह की निरंतर सक्रिय सदस्यता अनिवार्य।
-            </p>
+            <div>
+              <h3 className="font-bold text-xs sm:text-sm text-charcoal">06 माह लॉक-इन</h3>
+              <p className="text-[11px] text-driftwood leading-snug mt-0.5">
+                पंजीकरण तिथि से 6 माह की सक्रिय सदस्यता पूर्ण होना अनिवार्य।
+              </p>
+            </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-stone-border shadow-xs space-y-1">
-            <div className="flex items-center gap-2 text-amber-700 font-bold text-xs uppercase tracking-wider">
-              <Heart className="w-4 h-4" />
-              <span>दिवंगत सहयोग</span>
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-stone-border shadow-2xs flex flex-col justify-between space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                <Heart className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 font-mono">
+                ₹15 लाख
+              </span>
             </div>
-            <p className="text-[11px] text-driftwood leading-snug">
-              निधन पर सीधे नामिनी खाते में ₹15 लाख तक की प्रत्यक्ष सहायता।
-            </p>
+            <div>
+              <h3 className="font-bold text-xs sm:text-sm text-charcoal">दिवंगत संबल</h3>
+              <p className="text-[11px] text-driftwood leading-snug mt-0.5">
+                निधन पर सीधे नामिनी खाते में ₹15 लाख तक प्रत्यक्ष सहयोग।
+              </p>
+            </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-stone-border shadow-xs space-y-1">
-            <div className="flex items-center gap-2 text-blue-700 font-bold text-xs uppercase tracking-wider">
-              <Sparkles className="w-4 h-4" />
-              <span>विवाह सहयोग</span>
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-stone-border shadow-2xs flex flex-col justify-between space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 font-mono">
+                ₹5 लाख
+              </span>
             </div>
-            <p className="text-[11px] text-driftwood leading-snug">
-              अधिकतम 2 संतानों के विवाह पर ₹5 लाख तक सहयोग राशि।
-            </p>
+            <div>
+              <h3 className="font-bold text-xs sm:text-sm text-charcoal">विवाह सहयोग</h3>
+              <p className="text-[11px] text-driftwood leading-snug mt-0.5">
+                अधिकतम 2 संतानों के विवाह पर ₹5 लाख तक सहयोग राशि।
+              </p>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* 3. INTERACTIVE CONTROL PANEL (SEARCH, CATEGORY PILLS, EXPAND/PRINT) */}
-        <div className="bg-white p-4 sm:p-5 rounded-3xl border border-stone-border shadow-warm space-y-4">
+        {/* 3. INTERACTIVE CONTROL PANEL (SEARCH, ACTIONS & CATEGORY PILLS) */}
+        <div className="bg-white p-3.5 sm:p-4 rounded-3xl border border-stone-border shadow-warm space-y-3.5 print:hidden">
           
-          {/* Search Row */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Search & Actions Bar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-driftwood absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-driftwood absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
                   lang === 'hi'
-                    ? 'नियमावली में खोजें (उदा. 75%, विवाह, दिवंगत, नामिनी, शुल्क, लॉक पीरियड, समाप्ति)...'
-                    : 'Search bylaws (e.g. 75%, wedding, bereavement, nominee, fee, lock-in)...'
+                    ? 'नियमावली में खोजें (उदा. 75%, विवाह, दिवंगत, नामिनी, लॉक-इन, समाप्ति)...'
+                    : 'Search bylaws (e.g. 75%, wedding, bereavement, nominee, lock-in)...'
                 }
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-border bg-canvas-inset/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-terracotta/20 text-xs sm:text-sm text-charcoal font-medium transition-all"
+                className="w-full pl-10 pr-16 py-2.5 rounded-xl border border-stone-border bg-canvas-inset/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta text-xs sm:text-sm text-charcoal placeholder:text-driftwood/60 transition-all"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-driftwood hover:text-charcoal px-1.5 py-0.5 rounded-md bg-stone-border/40"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-driftwood hover:text-charcoal px-2 py-1 rounded-md bg-stone-100 hover:bg-stone-200 transition-colors"
                 >
                   हटाएं
                 </button>
               )}
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={expandAll}
-                className="px-3 py-2 rounded-xl text-xs font-semibold border border-stone-border hover:bg-canvas-inset text-charcoal transition-all shadow-xs"
-              >
-                सभी खोलें
-              </button>
-              <button
-                type="button"
-                onClick={collapseAll}
-                className="px-3 py-2 rounded-xl text-xs font-semibold border border-stone-border hover:bg-canvas-inset text-charcoal transition-all shadow-xs"
-              >
-                सभी बंद करें
-              </button>
+            <div className="flex items-center justify-between sm:justify-end gap-2">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={expandAll}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold border border-stone-border hover:bg-canvas-inset text-charcoal transition-all shadow-2xs active:scale-95"
+                >
+                  सभी खोलें
+                </button>
+                <button
+                  type="button"
+                  onClick={collapseAll}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold border border-stone-border hover:bg-canvas-inset text-charcoal transition-all shadow-2xs active:scale-95"
+                >
+                  सभी बंद करें
+                </button>
+              </div>
+
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="px-3 py-2 rounded-xl text-xs font-bold border border-stone-border bg-canvas-inset hover:bg-white text-charcoal flex items-center gap-1.5 transition-all shadow-xs"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold border border-stone-border bg-canvas-inset hover:bg-white text-charcoal flex items-center gap-1.5 transition-all shadow-2xs active:scale-95 shrink-0"
                 title="प्रिंट करें या पीडीएफ सेव करें"
               >
                 <Printer className="w-3.5 h-3.5 text-terracotta" />
-                <span className="hidden sm:inline">प्रिंट / PDF</span>
+                <span className="hidden xs:inline">प्रिंट / PDF</span>
               </button>
             </div>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 text-xs no-scrollbar">
-            {[
-              { id: 'ALL', labelHi: 'सम्पूर्ण नियमावली (12 भाग)', labelEn: 'All Sections' },
-              { id: 'ABOUT', labelHi: 'परिचय व ध्येय', labelEn: 'Mission' },
-              { id: 'MEMBERSHIP', labelHi: 'सदस्यता व परिवार', labelEn: 'Membership' },
-              { id: 'ELIGIBILITY', labelHi: '75% पात्रता नियम', labelEn: '75% Rule' },
-              { id: 'SCHEMES', labelHi: 'दिवंगत व विवाह सहयोग', labelEn: 'Schemes' },
-              { id: 'SPECIAL', labelHi: 'विशेष व अनाथ नियम', labelEn: 'Special Rules' },
-              { id: 'TERMINATION', labelHi: 'सदस्यता समाप्ति', labelEn: 'Termination' },
-              { id: 'GENERAL', labelHi: 'वैधानिक प्रावधान', labelEn: 'General' },
-            ].map((cat) => (
+          {/* Category Filter Pills (Horizontal Scroll on Mobile) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+            {categories.map((cat) => (
               <button
                 key={cat.id}
                 type="button"
@@ -555,7 +636,7 @@ export default function NiyamawaliPage() {
                 className={`px-3 py-1.5 rounded-xl whitespace-nowrap font-semibold text-xs border transition-all ${
                   activeCategory === cat.id
                     ? 'bg-terracotta text-white border-terracotta shadow-xs'
-                    : 'bg-white hover:bg-canvas-inset text-driftwood border-stone-border'
+                    : 'bg-canvas-inset/60 hover:bg-canvas-inset text-charcoal border-stone-border/80'
                 }`}
               >
                 {lang === 'hi' ? cat.labelHi : cat.labelEn}
@@ -563,10 +644,30 @@ export default function NiyamawaliPage() {
             ))}
           </div>
 
+          {/* Active Filter Result Feedback */}
+          {(searchQuery || activeCategory !== 'ALL') && (
+            <div className="flex items-center justify-between text-xs text-driftwood pt-1 border-t border-stone-border/50">
+              <span>
+                कुल 12 में से <strong>{filteredSections.length}</strong> भाग प्रदर्शित
+                {searchQuery && ` (“${searchQuery}” हेतु)`}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setActiveCategory('ALL');
+                }}
+                className="text-terracotta font-semibold hover:underline"
+              >
+                फ़िल्टर साफ़ करें
+              </button>
+            </div>
+          )}
+
         </div>
 
         {/* 4. SECTIONS ACCORDION LIST */}
-        <div className="space-y-4">
+        <div className="space-y-3.5 sm:space-y-4">
           {filteredSections.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-3xl border border-stone-border p-8 space-y-3">
               <HelpCircle className="w-10 h-10 text-driftwood mx-auto" />
@@ -590,34 +691,41 @@ export default function NiyamawaliPage() {
                 <div
                   key={sec.id}
                   id={sec.id}
-                  className="bg-white rounded-3xl border border-stone-border shadow-xs overflow-hidden transition-all duration-200"
+                  className="bg-white rounded-2.5xl sm:rounded-3xl border border-stone-border shadow-2xs overflow-hidden transition-all duration-200"
                 >
                   {/* Header / Accordion Trigger */}
                   <button
                     type="button"
                     onClick={() => toggleSection(sec.id)}
-                    className="w-full text-left p-5 sm:p-6 flex items-start sm:items-center justify-between gap-4 hover:bg-canvas-inset/50 transition-colors"
+                    aria-expanded={isOpen}
+                    className="w-full text-left p-4 sm:p-5 flex items-start sm:items-center justify-between gap-3 sm:gap-4 hover:bg-canvas-inset/40 transition-colors cursor-pointer select-none"
                   >
-                    <div className="flex items-start sm:items-center gap-3.5 flex-1">
-                      <div className="w-10 h-10 rounded-2xl bg-terracotta/10 text-terracotta flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 font-bold">
-                        <Icon className="w-5 h-5" />
+                    <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 flex-1 min-w-0">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-terracotta/10 text-terracotta flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 font-bold">
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
-                      <div className="space-y-0.5">
+                      <div className="space-y-0.5 min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-border/40 text-charcoal font-mono uppercase tracking-wider">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-100 text-charcoal font-mono uppercase tracking-wider shrink-0">
                             {sec.number}
                           </span>
-                          <h2 className="text-base sm:text-lg font-bold text-charcoal tracking-tight font-editorial">
+                          <h2 className="text-sm sm:text-base font-bold text-charcoal tracking-tight font-editorial truncate">
                             {lang === 'hi' ? sec.titleHi : sec.titleEn}
                           </h2>
+                          {sec.criticalAlertHi && (
+                            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
+                              <AlertTriangle className="w-3 h-3 text-amber-600" />
+                              अनिवार्य शर्त
+                            </span>
+                          )}
                         </div>
-                        <p className="text-xs text-driftwood font-normal leading-relaxed line-clamp-1 sm:line-clamp-none">
+                        <p className="text-[11px] sm:text-xs text-driftwood leading-snug truncate">
                           {lang === 'hi' ? sec.summaryHi : sec.summaryEn}
                         </p>
                       </div>
                     </div>
 
-                    <div className="shrink-0 p-1 rounded-xl bg-canvas-inset border border-stone-border text-driftwood">
+                    <div className="shrink-0 p-1.5 rounded-xl bg-canvas-inset border border-stone-border/80 text-driftwood mt-0.5 sm:mt-0">
                       <ChevronDown
                         className={`w-4 h-4 transition-transform duration-200 ${
                           isOpen ? 'rotate-180 text-terracotta' : ''
@@ -628,29 +736,56 @@ export default function NiyamawaliPage() {
 
                   {/* Body Content */}
                   {isOpen && (
-                    <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-stone-border/50 space-y-4 animate-in fade-in-50 duration-200">
+                    <div className="px-4 sm:px-6 pb-5 sm:pb-6 pt-3 border-t border-stone-border/60 space-y-3.5 animate-in fade-in-50 duration-200">
                       
                       {/* Optional Highlight Alert Banner */}
                       {(sec.criticalAlertHi || sec.criticalAlertEn) && (
-                        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3 text-amber-950 text-xs leading-relaxed">
-                          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                          <div className="font-medium">
+                        <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-amber-950 text-xs leading-relaxed">
+                          <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                          <div className="font-semibold">
                             {lang === 'hi' ? sec.criticalAlertHi : sec.criticalAlertEn}
                           </div>
                         </div>
                       )}
 
-                      {/* Clauses List */}
-                      <div className="space-y-2.5">
-                        {(lang === 'hi' ? sec.clausesHi : sec.clausesEn).map((clause, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-start gap-3 p-3 rounded-2xl bg-canvas-inset/50 hover:bg-canvas-inset border border-stone-border/60 text-xs sm:text-sm text-charcoal leading-relaxed transition-colors"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-terracotta shrink-0 mt-2" />
-                            <div className="flex-1">{clause}</div>
-                          </div>
-                        ))}
+                      {/* Clean Clauses List (Editorial Law-Book Presentation) */}
+                      <div className="divide-y divide-stone-border/50 rounded-2xl bg-canvas-inset/40 border border-stone-border/70 overflow-hidden">
+                        {(lang === 'hi' ? sec.clausesHi : sec.clausesEn).map((clause, idx) => {
+                          const parsed = parseClause(clause);
+
+                          if (parsed.isNote) {
+                            return (
+                              <div
+                                key={idx}
+                                className="p-3 sm:p-3.5 bg-amber-50/60 flex items-start gap-2.5 text-xs text-amber-950 font-medium leading-relaxed"
+                              >
+                                <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                                <div>
+                                  <strong className="font-bold text-amber-900">{parsed.prefix}</strong>{' '}
+                                  {parsed.body}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div
+                              key={idx}
+                              className="p-3 sm:p-3.5 hover:bg-white/80 transition-colors text-xs sm:text-sm text-charcoal leading-relaxed flex items-start gap-2.5"
+                            >
+                              {parsed.prefix ? (
+                                <span className="px-1.5 py-0.5 rounded bg-stone-100 text-charcoal font-mono font-bold text-[11px] shrink-0 mt-0.5 border border-stone-200">
+                                  {parsed.prefix.replace(/\.$/, '')}
+                                </span>
+                              ) : (
+                                <span className="w-1.5 h-1.5 rounded-full bg-terracotta shrink-0 mt-2" />
+                              )}
+                              <div className="flex-1">
+                                {parsed.body}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
 
                     </div>
@@ -662,24 +797,24 @@ export default function NiyamawaliPage() {
         </div>
 
         {/* 5. FOOTER ASSISTANCE & OFFICIAL COMMITMENT CARD */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-charcoal to-charcoal-muted text-white shadow-warm space-y-5">
+        <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-charcoal to-charcoal-muted text-white shadow-warm space-y-4 print:hidden">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="text-xs font-bold text-terracotta uppercase tracking-wider font-mono">
+              <div className="text-[11px] font-bold text-terracotta uppercase tracking-wider font-mono">
                 पारस्परिक सामाजिक उत्तरदायित्व
               </div>
-              <h3 className="font-editorial text-2xl font-black">
+              <h3 className="font-editorial text-xl sm:text-2xl font-black">
                 {lang === 'hi' ? 'क्या आपके पास नियमावली संबंधी कोई प्रश्न है?' : 'Questions About Our Bylaws?'}
               </h3>
-              <p className="text-xs text-white/70 max-w-xl">
+              <p className="text-xs text-white/70 max-w-xl leading-relaxed">
                 जन सेवा चैरिटेबल ट्रस्ट (JSCT) का उद्देश्य प्रत्येक पीड़ित साथी के परिवार को आत्मसम्मान व आर्थिक सुरक्षा प्रदान करना है। किसी भी शंका या स्पष्टीकरण हेतु हमारी सहायता टीम से संपर्क करें।
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto shrink-0">
               <a
                 href="tel:9264945875"
-                className="px-4 py-2.5 rounded-xl bg-white text-charcoal hover:bg-canvas-inset font-bold text-xs flex items-center gap-2 transition-all shadow-xs"
+                className="h-11 px-4 rounded-xl bg-white text-charcoal hover:bg-canvas-inset font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
               >
                 <PhoneCall className="w-3.5 h-3.5 text-terracotta" />
                 <span>हेल्पलाइन: 9264945875</span>
@@ -687,7 +822,7 @@ export default function NiyamawaliPage() {
 
               <Link
                 href="/register"
-                className="px-4 py-2.5 rounded-xl bg-terracotta hover:bg-terracotta-hover text-white font-bold text-xs flex items-center gap-2 transition-all shadow-warm"
+                className="h-11 px-4 rounded-xl bg-terracotta hover:bg-terracotta-hover text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-warm"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>अभी सदस्यता ग्रहण करें</span>
