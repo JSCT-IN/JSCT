@@ -9,6 +9,7 @@ import { formatINR, formatIndianNumber } from '@/lib/utils';
 import { useTranslation } from '@/lib/i18n';
 import UpiModal from '@/components/UpiModal';
 import SlipUploadModal from '@/components/SlipUploadModal';
+import HeroSlider from '@/components/HeroSlider';
 import {
   HeartHandshake,
   ShieldCheck,
@@ -211,6 +212,13 @@ export default function HomePage() {
       </div>
 
       {/* ------------------------------------------------------------------ */}
+      {/* TOP FRONT HERO SLIDER (Slides across community & welfare images)   */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="pt-1">
+        <HeroSlider />
+      </section>
+
+      {/* ------------------------------------------------------------------ */}
       {/* ENTERPRISE HERO SECTION (Authoritative, Uncluttered & Grounded)   */}
       {/* ------------------------------------------------------------------ */}
       <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -304,46 +312,9 @@ export default function HomePage() {
 
             </div>
 
-            {/* Right Column: Visual Community Hero Showcase & Key Trust Snapshot */}
+            {/* Right Column: Institutional Governance & Key Trust Snapshot */}
             <div className="lg:col-span-5">
-              <div className="relative mx-auto max-w-md rounded-3xl bg-white p-3.5 sm:p-5 border border-stone-border shadow-warm-lg space-y-3.5">
-                
-                {/* 1. Hero Community Visual Feature (Inspiring Real Solidarity Portrait) */}
-                <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 aspect-[16/10] bg-canvas-inset shadow-xs group">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/hero-community.jpg"
-                    alt={
-                      lang === 'hi'
-                        ? 'जन सेवा चैरिटेबल ट्रस्ट (JSCT) - उत्तर प्रदेश के कर्मचारी व परिवार पारस्परिक सहयोग'
-                        : 'Jan Sewa Charitable Trust (JSCT) - Peer to Peer Welfare Community'
-                    }
-                    className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-700"
-                  />
-                  
-                  {/* Gentle gradient overlay for contrast and legibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/20 pointer-events-none" />
-
-                  {/* Floating Verified Trust Badge (Top-Left) */}
-                  <div className="absolute top-2.5 left-2.5 z-10">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-charcoal font-bold text-[10px] sm:text-[11px] shadow-xs border border-white/80">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>{lang === 'hi' ? 'JSCT • उत्तर प्रदेश' : 'JSCT • Uttar Pradesh'}</span>
-                    </span>
-                  </div>
-
-                  {/* Floating Motto Strip (Bottom) */}
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10 flex items-center justify-between text-white">
-                    <div className="min-w-0 pr-2">
-                      <p className="text-xs sm:text-[13px] font-black drop-shadow-sm font-editorial italic tracking-wide truncate">
-                        “जन से जन तक, सहयोग हर जरूरतमंद तक”
-                      </p>
-                    </div>
-                    <span className="shrink-0 px-2 py-0.5 rounded-md bg-terracotta/95 text-[10px] font-extrabold uppercase tracking-wider shadow-xs">
-                      100% P2P
-                    </span>
-                  </div>
-                </div>
+              <div className="relative mx-auto max-w-md rounded-3xl bg-white p-5 sm:p-6 border border-stone-border shadow-warm-lg space-y-4">
 
                 {/* 2. Header: Trust Identity & Verified Status */}
                 <div className="flex items-center justify-between gap-2 border-b border-stone-border/70 pb-2.5 pt-0.5">
