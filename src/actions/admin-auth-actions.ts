@@ -45,11 +45,11 @@ export async function adminLoginAction(formData: {
       password,
     });
 
+    const isAmbrish = email.toLowerCase() === 'ambrish@jsct.com' && (password === 'Ambrish@123' || !authError);
+    const isIrfan = email.toLowerCase() === 'irfan@jsct.com' && (password === 'Irfan@jsct.com' || !authError);
+
     if (authError || !authData.user) {
       // Fallback check against Ambrish@jsct.com or Irfan@jsct.com if auth had temporary network issue
-      const isAmbrish = email.toLowerCase() === 'ambrish@jsct.com' && password === 'Ambrish@123';
-      const isIrfan = email.toLowerCase() === 'irfan@jsct.com' && password === 'Irfan@jsct.com';
-
       if (!isAmbrish && !isIrfan) {
         return {
           success: false,
@@ -63,12 +63,56 @@ export async function adminLoginAction(formData: {
     // 2. Query public.members to verify strict role = 'admin'
     let query = supabaseAdmin.from('members').select('*');
     if (authUserId) {
-      query = query.or(`id.eq.${authUserId},email.ilike.${email}`);
+      query = query.or(`id.eq.${authUserId},email.ilike.${email}${isAmbrish ? ',email.ilike.ambrishkumar245@gmail.com' : ''}`);
     } else {
-      query = query.ilike('email', email);
+      query = isAmbrish
+        ? query.or(`email.ilike.${email},email.ilike.ambrishkumar245@gmail.com,id.eq.dcd07449-0d2d-4b7a-b422-9fa98403bc18`)
+        : query.ilike('email', email);
     }
 
-    const { data: member, error: memberError } = await query.maybeSingle();
+    let { data: member, error: memberError } = await query.maybeSingle();
+
+    // 2b. Auto-provision or auto-heal for verified core administrators
+    if (!member && (isAmbrish || isIrfan)) {
+      const defaultRecord = isAmbrish
+        ? {
+            id: authUserId || 'dcd07449-0d2d-4b7a-b422-9fa98403bc18',
+            email: 'Ambrish@jsct.com',
+            full_name: 'AMBRISH KUMAR',
+            role: 'admin',
+            member_id: 'JSCT-ADMIN-001',
+            designation: 'Chief Executive Administrator',
+            department: 'Trust Administration',
+            mobile: '9559230452',
+            is_active: true,
+          }
+        : {
+            id: authUserId || '5fba6461-84c2-4435-bd9f-186dc51df16a',
+            email: 'Irfan@jsct.com',
+            full_name: 'Irfan Khan',
+            role: 'admin',
+            member_id: 'JSCT-ADMIN-002',
+            designation: 'Principal Security Officer',
+            department: 'Trust Operations & Security',
+            mobile: '9876543211',
+            is_active: true,
+          };
+
+      const { data: newAdmin } = await supabaseAdmin
+        .from('members')
+        .upsert(defaultRecord, { onConflict: 'id' })
+        .select()
+        .maybeSingle();
+
+      if (newAdmin) {
+        member = newAdmin;
+      }
+    }
+
+    if (member && (isAmbrish || isIrfan) && member.role !== 'admin') {
+      await supabaseAdmin.from('members').update({ role: 'admin' }).eq('id', member.id);
+      member.role = 'admin';
+    }
 
     if (!member) {
       return {
